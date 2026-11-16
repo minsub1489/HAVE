@@ -1,5 +1,7 @@
 # HAVE 프로젝트 맥락과 작업 인수인계
 
+사용자 GUI 증분 확인: **2026-11-16, Asia/Seoul**. 청록 메인·빨강 서브의 작성자 GUI를 `user/`에 추가했다. [HCI 설계](ui/HCI-GUI-사용자.md)와 [검증 기록](ui/GUI-검증.md)을 참고한다. 아래 기존 웹과 새 작성자 GUI는 별도 시연 작업물이다.
+
 마지막 대조: **2026-10-28, Asia/Seoul**. 저장소의 발표자료 1~11쪽, README, 아키텍처·모델링 문서, 웹·확장 소스와 도메인 테스트를 확인했다. 이 문서는 다음 작업을 시작할 때 읽는 안내다. 기능 구현 상태가 바뀌면 날짜와 근거를 함께 갱신한다.
 
 ## 1. 프로젝트의 목적과 사용자
@@ -28,15 +30,16 @@
 
 충돌을 발견하면 해당 파일과 차이를 확인한다. 현재 코드가 전체 요구사항을 대체한다고 보거나, 설계 그림만으로 기능이 구현되었다고 판단하지 않는다. 아래 미정 항목은 임의로 확정된 요구처럼 설명하지 않는다.
 
-## 3. 서로 다른 세 작업물
+## 3. 서로 다른 작업물
 
 | 작업물 | 경로 | 실제 범위 |
 | --- | --- | --- |
+| HAVE 작성자 GUI | [수정 원본](../user/index.html), [단독 HTML](../prototype/HAVE_사용자_GUI.html) | 여러 작업 목록·등록·이해 확인·새 버전·시연 증명서·실제 PDF 비교. 별도 IndexedDB를 사용하며 기존 검토자 화면과 자동 연동하지 않는다. 작성자에게 승인 액션을 제공하지 않는다. |
 | 동작하는 웹 프로토타입 | [웹 수정 원본](../prototype/dist/index.html), [단독 HTML](../prototype/HumanProof_프로토타입.html) | 실제 PDF 바이트·SHA-256, 답변·평가·승인, IndexedDB 저장, 버전·철회·로컬 검증. 단독 HTML은 dist에서 생성한다. |
 | 실제 Chrome 기여 기록 확장 | [설치 안내](../extension/README.md), `extension/` | 사용자가 호출한 탭의 근거를 확인·저장하고 JSON으로 웹에 연결하는 MV3 확장. 서버 전송·자동 승인·AI 사용 자동 탐지는 없다. |
 | Chrome 모양의 클릭 시연 | [클릭 시연 HTML](../prototype/HumanProof_크롬확장_프로토타입.html), [시연 가이드](../prototype/크롬확장_시연가이드.md) | 발표용 브라우저/팝업 모형과 샘플 전환. 실제 확장 설치나 파일·서버 처리의 구현 근거로 사용하지 않는다. |
 
-운영 서비스의 인증 서버, API, 서버 DB, 객체 저장소, 전자서명은 아직 없다. 브라우저의 **IndexedDB는 실제로 사용**하므로 문서에서 단순히 “DB가 없다”라고 쓰지 않고 “서버 DB 미연결”로 구분한다. 현재 웹은 한 작업을 저장하며 새 작업/초기화가 기존 시연 작업을 대체한다.
+운영 서비스의 인증 서버, API, 서버 DB, 객체 저장소, 전자서명은 아직 없다. 브라우저의 **IndexedDB는 실제로 사용**하므로 문서에서 단순히 “DB가 없다”라고 쓰지 않고 “서버 DB 미연결”로 구분한다. 기존 HumanProof 웹은 한 작업을 저장하며 새 작업/초기화가 기존 시연 작업을 대체한다. 새 HAVE 작성자 GUI는 별도 저장소에서 여러 작업을 보존한다.
 
 ## 4. 현재 역할과 전체 서비스 역할
 
@@ -121,6 +124,8 @@ Chrome 확장과 서버/Outbox 작업자는 HAVE 전체 경계에서 내부 구�
 
 | 변경하려는 내용 | 수정 원본 / 함께 볼 항목 |
 | --- | --- |
+| HAVE 작성자 GUI | `user/app.js`, `model.js`, `styles.css`, `tokens.css`; `tests/user-model.test.cjs`, `tests/user-browser.cjs` |
+| 작성자 GUI 단독 HTML | `node scripts/build-user.cjs`로 `prototype/HAVE_사용자_GUI.html` 생성. `npm run build`는 기존 웹과 새 GUI를 모두 생성한다. |
 | 화면·문항·사용자 동작 | `prototype/dist/app.js`, `index.html`, `styles.css` |
 | 승인 판정·불변식·공개 입력·해시 검증 | `prototype/dist/domain.js`; `app.js`의 승인 조건과 함께 대조 |
 | 원자적 저장·revision 충돌 | `prototype/dist/repository.js`, `app.js:transaction` |
@@ -136,6 +141,8 @@ Chrome 확장과 서버/Outbox 작업자는 HAVE 전체 경계에서 내부 구�
 `sources/*.mmd`는 기존 시퀀스 JSON에서 생성하는 열람용 파일이다. 수정 원본을 확인하고 생성 파일끼리 다른 내용을 유지하지 않는다. QRCode.js의 라이선스 파일도 유지한다.
 
 ## 8. 실행과 변경 유형별 검증
+
+작성자 GUI는 `npm run start:user` 또는 `node scripts/serve.cjs --user`로 실행하고 `http://127.0.0.1:4174/`에 접속한다. 직접 열기는 `prototype/HAVE_사용자_GUI.html`, 브라우저 검증은 `npm run test:user:browser`다. Playwright 또는 playwright-core와 Chrome 실행 환경을 사용한다. 순수 모델 테스트·빌드·구문 검사는 추가 패키지가 필요 없다. 기존 웹의 실행·검증 명령도 유지한다.
 
 저장소 루트에서 실행한다. 웹 빌드·구문 검사·순수 도메인 테스트는 추가 npm 패키지가 필요하지 않다. 브라우저 검사와 그림 렌더링은 Playwright 및 Chrome 실행 환경이 필요하다. 이 프로젝트는 현재 HTML/CSS/JavaScript·Node 스크립트 저장소다.
 
@@ -218,3 +225,4 @@ node tests/extension-browser.cjs
 같은 날 후속 UML 모델링 작업에서는 새 10개 그림·13쪽 PDF의 렌더링과 모델 간 참조, 관련 문서 링크 74개를 확인하고 기존 도메인 테스트 17개를 실행해 통과했다. 공통 렌더러의 함수 재사용 변경은 기존 SVG 13개를 메모리에서 재생성해 결과가 같음을 확인했다. 이번 후속 작업도 제품 코드와 운영 구현 범위를 바꾸지 않았다.
 
 2026-10-28 모델 갱신: 다중도 10개를 코드·유스케이스 조건과 대조하고 경계 사례 18개를 `audit_constraints.cjs`로 확인했다. 수정 원본은 기존 `uml/model.json` 및 `optimized/use-cases.json`이며 설명 파일은 `export_contracts.py`로 생성한다. 부분 렌더링 명령으로 C01·C02·ST01·ST02만 갱신할 수 있다. 전체 UML PDF는 현재 14쪽이며 상태·다중도 상세 PDF는 7쪽이다. 제품 코드와 실제 저장 형식은 바꾸지 않았다.
+

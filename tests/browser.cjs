@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
-const { chromium } = require('playwright');
+let chromium;
+try { ({ chromium } = require('playwright')); } catch (error) { if (error.code !== 'MODULE_NOT_FOUND') throw error; ({ chromium } = require('playwright-core')); }
 const root = path.resolve(__dirname, '..');
 const server = http.createServer((request, response) => {
   const file = path.resolve(root, '.' + decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
@@ -116,3 +117,4 @@ async function run() {
   } finally { await browser.close(); }
 }
 run().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => server.close());
+

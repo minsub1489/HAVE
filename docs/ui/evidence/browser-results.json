@@ -1,0 +1,17 @@
+{
+  "passed": [
+    "teal primary and red guide tokens match the supplied design",
+    "search and status filters show the matching latest version",
+    "keyboard tab navigation and guide dialog return focus",
+    "registration validates fields and PDF bytes while preserving entered values",
+    "understanding answers save, preserve edits during navigation and submit once",
+    "new versions preserve old certificates and do not inherit approval",
+    "public verification separates signature, approval and actual PDF comparison",
+    "save failure keeps entered values and does not commit a submitted work",
+    "conflicting tab saves preserve edits until explicit backup and reload",
+    "loading, first empty list and invalid public link have recovery states",
+    "desktop and mobile screens reflow without horizontal overflow",
+    "standalone HTML loads and shows the same primary action"
+  ],
+  "pageErrors": []
+}

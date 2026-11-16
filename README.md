@@ -16,6 +16,21 @@ AI 에이전트 작업을 어떻게 이해하고 인수인계할지 설계할 �
 - [발표 대본과 학습 해설](docs/presentation/support/)
 - 본 발표는 1~11페이지이며, 12페이지부터는 질의응답용 부록입니다.
 
+## HAVE 사용자 GUI · HCI
+
+청록 메인·빨강 서브의 [공통 디자인 지침](docs/ui/DESIGN.md)을 적용한 **작성자용 인터랙티브 GUI**입니다. 작업 목록·검색 → 4단계 등록 → 이해 확인 → 수정본 등록 → 증명서·파일 비교를 체험할 수 있습니다.
+
+![HAVE 사용자 작업 목록](docs/ui/evidence/desktop-1440.png)
+
+- **설치 없이 실행:** [HAVE_사용자_GUI.html](prototype/HAVE_사용자_GUI.html)을 다운로드하고 Chrome 또는 Edge로 엽니다.
+- **개발 화면:** `npm run start:user` 실행 후 **http://127.0.0.1:4174/** 에 접속합니다. 수정 원본은 `user/`입니다.
+- **설계·화면 명세:** [HCI - GUI 사용자 핵심 기능](docs/ui/HCI-GUI-사용자.md)
+- **검증·제약:** [사용자 GUI 검증 기록](docs/ui/GUI-검증.md)
+
+등록·답변·버전은 별도의 IndexedDB에 저장하며 기존 HumanProof 시연 기록과 분리합니다. PDF 20 MB 제한과 실제 SHA-256 비교, 임시 저장·오류 복구·여러 창의 저장 충돌을 처리합니다. 작성자 화면에는 승인·철회 동작을 제공하지 않습니다. 승인된 자료는 시연 예시이며, 서버 인증·검토자 전달·채점·전자서명·다른 기기의 현재 효력 조회는 연결되지 않았습니다. 팀 지식 연결과 인수인계는 [설계 후보](docs/knowledge-debt.md)로 유지하며 이 GUI의 완료 기능으로 설명하지 않습니다.
+
+추가 패키지 없이 `npm run build`, `npm run check`, `npm test`를 사용할 수 있습니다. 브라우저 검증은 Playwright 또는 playwright-core와 실행 가능한 Chrome이 있는 환경에서 `npm run test:user:browser`로 실행합니다. 기존 `npm run test:browser`도 유지합니다.
+
 ## 크롬 확장 프로그램 형태의 프로토타입
 
 발표용 클릭 프로토타입입니다. 크롬 브라우저 모형에서 보라색 방패 아이콘을 누르면 HumanProof 팝업이 열립니다. HTML 한 개로 동작하며 확장 프로그램 설치가 필요하지 않습니다.
@@ -121,3 +136,4 @@ npm이 없는 Node 환경에서는 `node scripts/build-standalone.cjs`, `node --
 실제 Chrome 통합 검증은 Playwright가 있는 환경에서 `npm run test:browser`로 실행합니다. 설치된 Chrome을 쓸 때는 `CHROME_EXECUTABLE`에 실행 파일 경로를 설정할 수 있습니다. 확장 팝업 테스트는 Chrome API를 모의 구현하므로 실제 툴바 호출과 권한 활성화는 설치 후 수동 점검이 필요합니다.
 
 QR 생성에는 [QRCode.js](https://github.com/davidshimjs/qrcodejs)를 사용하며 해당 라이브러리의 MIT 라이선스를 포함했습니다.
+
