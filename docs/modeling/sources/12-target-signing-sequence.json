@@ -1,0 +1,137 @@
+{
+  "title": "12 / 운영 승인과 서명 - 업무 결과와 발급 상태",
+  "participants": [
+    {
+      "id": "R",
+      "label": "검토자 클라이언트",
+      "planned": true
+    },
+    {
+      "id": "API",
+      "label": "승인 API\n계획",
+      "planned": true
+    },
+    {
+      "id": "DB",
+      "label": "PostgreSQL\n계획",
+      "planned": true
+    },
+    {
+      "id": "W",
+      "label": "서명 작업자\n계획",
+      "planned": true
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "R",
+      "to": "API",
+      "text": "approve(versionId, expectedRevision, idempotencyKey)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "API",
+      "to": "API",
+      "text": "세션·작업 권한·자기 승인 금지\n같은 key/body 처리",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "API",
+      "to": "DB",
+      "text": "transaction / 버전 잠금\n최신 revision·검토 범위 확인",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 승인 조건·revision 위반"
+    },
+    {
+      "type": "message",
+      "from": "API",
+      "to": "R",
+      "text": "409 / 422 · 승인 없음",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "조건 충족"
+    },
+    {
+      "type": "message",
+      "from": "API",
+      "to": "DB",
+      "text": "Approval + Audit + Outbox insert\n버전당 승인 유일 제약",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "DB",
+      "to": "API",
+      "text": "commit",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "API",
+      "to": "R",
+      "text": "승인 기록됨 / signature=PENDING",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "block",
+      "label": "opt commit된 미처리 outbox 존재"
+    },
+    {
+      "type": "message",
+      "from": "W",
+      "to": "DB",
+      "text": "동일 receipt ID / payload 읽기",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "W",
+      "to": "W",
+      "text": "관리된 키로 서명",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 서명 성공"
+    },
+    {
+      "type": "message",
+      "from": "W",
+      "to": "DB",
+      "text": "Receipt READY / keyId·signature 기록",
+      "reply": false
+    },
+    {
+      "type": "else",
+      "label": "서명 실패"
+    },
+    {
+      "type": "message",
+      "from": "W",
+      "to": "DB",
+      "text": "FAILED / 재시도 정보\n승인 기록은 보존",
+      "reply": false
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "인증·권한 실패 401/403은 DB 처리 전에 종료한다. PENDING/FAILED는 서명 검증 완료가 아니다. 같은 요청은 같은 결과를 반환하며 공개 조회 실패는 현재 효력 미확인이다."
+    }
+  ]
+}

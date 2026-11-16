@@ -1,0 +1,321 @@
+{
+  "title": "10 / 현재 구성 - 웹·확장·로컬 저장소",
+  "width": 1410,
+  "height": 1090,
+  "nodes": [
+    {
+      "id": "webpage",
+      "x": 40,
+      "y": 90,
+      "w": 350,
+      "h": 100,
+      "label": "현재 HTTP(S) 페이지\n선택 텍스트 · 제목 · URL",
+      "type": "rect",
+      "fill": "#f8fafc"
+    },
+    {
+      "id": "popup",
+      "x": 465,
+      "y": 90,
+      "w": 365,
+      "h": 100,
+      "label": "«component» popup.js\n사용자 호출 · 미리보기",
+      "type": "rect"
+    },
+    {
+      "id": "records",
+      "x": 910,
+      "y": 90,
+      "w": 380,
+      "h": 100,
+      "label": "«component» records.js\n기록·URL 검증",
+      "type": "rect"
+    },
+    {
+      "id": "store",
+      "x": 910,
+      "y": 255,
+      "w": 380,
+      "h": 95,
+      "label": "chrome.storage.local\n확인한 기여 기록",
+      "type": "rect"
+    },
+    {
+      "id": "json",
+      "x": 465,
+      "y": 255,
+      "w": 365,
+      "h": 95,
+      "label": "JSON 내보내기\n기여 신고 · 승인 명령 아님",
+      "type": "note"
+    },
+    {
+      "id": "ui",
+      "x": 465,
+      "y": 480,
+      "w": 365,
+      "h": 115,
+      "label": "«component» app.js\n화면 · 시연 역할 · workflow",
+      "type": "rect"
+    },
+    {
+      "id": "domain",
+      "x": 910,
+      "y": 480,
+      "w": 380,
+      "h": 115,
+      "label": "«component» domain.js\n정책 · 불변식 · 해시·입력",
+      "type": "rect"
+    },
+    {
+      "id": "repo",
+      "x": 465,
+      "y": 715,
+      "w": 365,
+      "h": 105,
+      "label": "«component» repository.js\nload / commit / revision",
+      "type": "rect"
+    },
+    {
+      "id": "db",
+      "x": 910,
+      "y": 715,
+      "w": 380,
+      "h": 105,
+      "label": "IndexedDB · 작업 aggregate\nPDF + 승인 + 감사 + 회차",
+      "type": "rect"
+    },
+    {
+      "id": "tabs",
+      "x": 40,
+      "y": 480,
+      "w": 350,
+      "h": 115,
+      "label": "다른 웹 탭\nBroadcastChannel 알림",
+      "type": "rect"
+    },
+    {
+      "id": "qr",
+      "x": 465,
+      "y": 950,
+      "w": 365,
+      "h": 95,
+      "label": "QR · URL fragment\n서명 없는 발급 당시 요약",
+      "type": "note"
+    },
+    {
+      "id": "other",
+      "x": 910,
+      "y": 950,
+      "w": 380,
+      "h": 95,
+      "label": "다른 기기 검증 화면\n최신 철회/후속 버전 미확인",
+      "type": "rect",
+      "fill": "#fff5e9"
+    },
+    {
+      "id": "note",
+      "x": 40,
+      "y": 705,
+      "w": 350,
+      "h": 145,
+      "label": "정적 파일 서버만 존재\n계정·REST API·서명 없음\n크롬 모형 HTML은 별도 시연물",
+      "type": "note",
+      "font": 18
+    }
+  ],
+  "edges": [
+    {
+      "points": [
+        [
+          390,
+          140
+        ],
+        [
+          465,
+          140
+        ]
+      ],
+      "label": "activeTab / 사용자 호출",
+      "lx": 425,
+      "ly": 65
+    },
+    {
+      "points": [
+        [
+          830,
+          140
+        ],
+        [
+          910,
+          140
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null
+    },
+    {
+      "points": [
+        [
+          1100,
+          190
+        ],
+        [
+          1100,
+          255
+        ]
+      ],
+      "label": "확인 후 저장",
+      "lx": 1190,
+      "ly": 225
+    },
+    {
+      "points": [
+        [
+          648,
+          190
+        ],
+        [
+          648,
+          255
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null
+    },
+    {
+      "points": [
+        [
+          648,
+          350
+        ],
+        [
+          648,
+          480
+        ]
+      ],
+      "label": "미리보기·사용자 확인\n기여 연결 / 평가 초기화",
+      "lx": 650,
+      "ly": 412
+    },
+    {
+      "points": [
+        [
+          830,
+          538
+        ],
+        [
+          910,
+          538
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null
+    },
+    {
+      "points": [
+        [
+          465,
+          538
+        ],
+        [
+          390,
+          538
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null
+    },
+    {
+      "points": [
+        [
+          648,
+          595
+        ],
+        [
+          648,
+          715
+        ]
+      ],
+      "label": "원자적 저장 요청",
+      "lx": 650,
+      "ly": 658
+    },
+    {
+      "points": [
+        [
+          830,
+          768
+        ],
+        [
+          910,
+          768
+        ]
+      ],
+      "label": "revision",
+      "lx": 870,
+      "ly": 744
+    },
+    {
+      "points": [
+        [
+          648,
+          595
+        ],
+        [
+          850,
+          620
+        ],
+        [
+          850,
+          997
+        ],
+        [
+          830,
+          997
+        ]
+      ],
+      "label": "공개 필드",
+      "lx": 870,
+      "ly": 912
+    },
+    {
+      "points": [
+        [
+          830,
+          997
+        ],
+        [
+          910,
+          997
+        ]
+      ],
+      "label": "요약",
+      "lx": 870,
+      "ly": 978
+    }
+  ],
+  "frames": [
+    {
+      "x": 420,
+      "y": 25,
+      "w": 925,
+      "h": 365,
+      "title": "Chrome 확장 실행 영역 · Manifest V3",
+      "dashed": true
+    },
+    {
+      "x": 20,
+      "y": 440,
+      "w": 1325,
+      "h": 440,
+      "title": "웹 브라우저 실행 영역 · 현재 작업 하나",
+      "dashed": true
+    }
+  ],
+  "labels": []
+}

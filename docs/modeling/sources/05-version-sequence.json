@@ -1,0 +1,130 @@
+{
+  "title": "05 / 새 버전 - 기존 승인 보존과 재검토",
+  "participants": [
+    {
+      "id": "A",
+      "label": "작성자 A",
+      "planned": false
+    },
+    {
+      "id": "UI",
+      "label": "app.js",
+      "planned": false
+    },
+    {
+      "id": "D",
+      "label": "domain.js",
+      "planned": false
+    },
+    {
+      "id": "REP",
+      "label": "Repository",
+      "planned": false
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "A",
+      "to": "UI",
+      "text": "새 버전 PDF·신고·위험도·사유 제출",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "transaction / 대상 versionId 재확인\nvalidatePdf(file): PDF·20 MB",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "digest(PDF bytes)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "D",
+      "to": "UI",
+      "text": "fileHash",
+      "reply": true
+    },
+    {
+      "type": "block",
+      "label": "alt 파일·신고·위험도 모두 동일"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "변경 확인 안내 / 등록 거부",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "유효한 변경"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "makeVersion(n+1) / versions.push\n세 과제 새로 배정·승인 없음",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "validateTransition(before, db)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "REP",
+      "text": "commit(db, expectedRevision)",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 저장 성공"
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "UI",
+      "text": "새 revision",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "새 버전은 이해 과제 대기",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "충돌·저장 실패"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "복원 또는 최신 기록 확인",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "v1 승인 = v1 기록으로 보존. v2는 미승인. 후속 버전 관계는 철회와 별개이며 승인된 파일/검토 범위는 수정하지 않는다."
+    }
+  ]
+}

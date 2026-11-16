@@ -1,0 +1,3565 @@
+{
+  "title": "HAVE UML: 9개 유스케이스 기반",
+  "date": "2026-10-28",
+  "scope": "현재 9개 유스케이스의 요구·분석 설계 모델 / 현재 구현을 대조했으며 서버·전자서명 계획은 별도",
+  "useCases": [
+    "UC-01",
+    "UC-02",
+    "UC-03",
+    "UC-04",
+    "UC-05",
+    "UC-06",
+    "UC-07",
+    "UC-08",
+    "UC-09"
+  ],
+  "classes": [
+    {
+      "id": "Work",
+      "label": "작업",
+      "attributes": [
+        "workId: ID / title: String",
+        "versions, approvals, auditEvents"
+      ],
+      "operations": [
+        {
+          "name": "registerVersion",
+          "signature": "registerVersion(input): Version"
+        },
+        {
+          "name": "versionRelation",
+          "signature": "versionRelation(versionId): Relation"
+        },
+        {
+          "name": "listHistory",
+          "signature": "listHistory(): History"
+        }
+      ]
+    },
+    {
+      "id": "Version",
+      "label": "파일 버전",
+      "attributes": [
+        "versionId: ID / number: Integer",
+        "fileHash: SHA256 / size: Bytes",
+        "aiTool, aiScope, risk[4]",
+        "review: Review / createdAt",
+        "/hasSuccessor: Boolean"
+      ],
+      "operations": [
+        {
+          "name": "attachContributions",
+          "signature": "attachContributions(records)"
+        },
+        {
+          "name": "checkApproval",
+          "signature": "checkApproval(actor): Reasons"
+        },
+        {
+          "name": "approve",
+          "signature": "approve(actor): Approval"
+        }
+      ]
+    },
+    {
+      "id": "Approval",
+      "label": "인간 승인",
+      "attributes": [
+        "approvalId / versionId / reviewer",
+        "approvedAt / reviewDigest",
+        "revokedAt? / revocationReason?",
+        "변경 불가: 대상·검토 범위"
+      ],
+      "operations": [
+        {
+          "name": "createReceipt",
+          "signature": "createReceipt(snapshot): Receipt"
+        },
+        {
+          "name": "revoke",
+          "signature": "revoke(reason)"
+        }
+      ]
+    },
+    {
+      "id": "Receipt",
+      "label": "승인 증명",
+      "attributes": [
+        "receiptId / payload / payloadHash",
+        "fileHash / policyVersion",
+        "현재: signature = null",
+        "승인 객체 안에 포함된 값"
+      ],
+      "operations": [
+        {
+          "name": "publicSummary",
+          "signature": "publicSummary(): PublicSummary"
+        },
+        {
+          "name": "detail",
+          "signature": "detail(): Evidence"
+        }
+      ]
+    },
+    {
+      "id": "Contribution",
+      "label": "버전별 기여 사본",
+      "attributes": [
+        "/key: (versionId, recordId)",
+        "recordId / actorType / stage",
+        "note / sourceUrl / pageTitle",
+        "selectedText? / createdAt",
+        "원본 ID는 버전 사이에 재사용 가능"
+      ],
+      "operations": []
+    },
+    {
+      "id": "AuditEvent",
+      "label": "감사 사건",
+      "attributes": [
+        "eventId / targetVersionId",
+        "actor / action / time / note",
+        "prevHash / eventHash"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Review",
+      "label": "현재 검토",
+      "attributes": [
+        "responses[3] / checks[4] / memo",
+        "returned: Boolean / policySnapshot",
+        "/progress / totalScore",
+        "policy: demo-1.0 / 최소 5점"
+      ],
+      "operations": [
+        {
+          "name": "submit",
+          "signature": "submit(kind, answer, confidence)"
+        },
+        {
+          "name": "evaluate",
+          "signature": "evaluate(kind, score, reason, critical)"
+        },
+        {
+          "name": "requestRevision",
+          "signature": "requestRevision(reason)"
+        },
+        {
+          "name": "resetForEvidence",
+          "signature": "resetForEvidence(records)"
+        },
+        {
+          "name": "passesGate",
+          "signature": "passesGate(): Boolean"
+        },
+        {
+          "name": "canApprove",
+          "signature": "canApprove(): Boolean"
+        },
+        {
+          "name": "archiveRound",
+          "signature": "archiveRound(reason): ReviewRound"
+        }
+      ]
+    },
+    {
+      "id": "GateResponse",
+      "label": "과제 답변",
+      "attributes": [
+        "kind: TeachBack | Fault | WhatIf",
+        "answer / confidence: 0..100",
+        "submitted: Boolean"
+      ],
+      "operations": [
+        {
+          "name": "submit",
+          "signature": "submit(answer, confidence)"
+        },
+        {
+          "name": "setEvaluation",
+          "signature": "setEvaluation(score, reason, critical)"
+        }
+      ]
+    },
+    {
+      "id": "Evaluation",
+      "label": "현재 평가",
+      "attributes": [
+        "score: Integer 0..2",
+        "reason: String",
+        "critical: Boolean"
+      ],
+      "operations": []
+    },
+    {
+      "id": "ReviewRound",
+      "label": "과거 검토 회차",
+      "attributes": [
+        "at / reason",
+        "responseSnapshot: JSON[3]",
+        "checkSnapshot[4] / memoSnapshot",
+        "버전 내 회차별 값 복사 (현재와 분리)"
+      ],
+      "operations": []
+    },
+    {
+      "id": "HAVEWorkflow",
+      "label": "업무 조정",
+      "attributes": [
+        "현재 작업 snapshot / revision"
+      ],
+      "operations": [
+        {
+          "name": "register",
+          "signature": "register(input)"
+        },
+        {
+          "name": "importEvidence",
+          "signature": "importEvidence(json)"
+        },
+        {
+          "name": "submitAnswer",
+          "signature": "submitAnswer(kind, answer, confidence)"
+        },
+        {
+          "name": "evaluate",
+          "signature": "evaluate(kind, score, reason, critical)"
+        },
+        {
+          "name": "requestRevision",
+          "signature": "requestRevision(reason)"
+        },
+        {
+          "name": "approve",
+          "signature": "approve(actor)"
+        },
+        {
+          "name": "registerSuccessor",
+          "signature": "registerSuccessor(input)"
+        },
+        {
+          "name": "revoke",
+          "signature": "revoke(reason)"
+        },
+        {
+          "name": "readEvidence",
+          "signature": "readEvidence(): Evidence"
+        },
+        {
+          "name": "restoreBefore",
+          "signature": "restoreBefore()"
+        }
+      ]
+    },
+    {
+      "id": "WorkspaceRepository",
+      "label": "로컬 저장",
+      "attributes": [
+        "IndexedDB workspace/current",
+        "revision: Integer"
+      ],
+      "operations": [
+        {
+          "name": "load",
+          "signature": "load(): Snapshot"
+        },
+        {
+          "name": "commit",
+          "signature": "commit(snapshot, expectedRevision)"
+        }
+      ]
+    },
+    {
+      "id": "ContributionRecorder",
+      "label": "기여 기록 확장",
+      "attributes": [
+        "chrome.storage.local / records",
+        "activeTab · 사용자 호출"
+      ],
+      "operations": [
+        {
+          "name": "capturePage",
+          "signature": "capturePage()"
+        },
+        {
+          "name": "confirmRecord",
+          "signature": "confirmRecord()"
+        },
+        {
+          "name": "exportJSON",
+          "signature": "exportJSON(): JSON"
+        }
+      ]
+    },
+    {
+      "id": "EvidenceVerifier",
+      "label": "수신자 확인",
+      "attributes": [
+        "요약 / 로컬 확인 범위 / 파일 결과",
+        "서버 서명·최신 조회 없음"
+      ],
+      "operations": [
+        {
+          "name": "openSummary",
+          "signature": "openSummary(link): Verification"
+        },
+        {
+          "name": "validateSummary",
+          "signature": "validateSummary(data): Boolean"
+        },
+        {
+          "name": "compareFile",
+          "signature": "compareFile(bytes): MatchResult"
+        }
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "C01-domain",
+      "title": "Class · 작업·버전·승인·증명의 구조",
+      "category": "Class",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03",
+        "UC-04",
+        "UC-05",
+        "UC-06",
+        "UC-07",
+        "UC-08",
+        "UC-09"
+      ],
+      "kind": "scene",
+      "summary": "다중도 양끝을 감사한 도메인 모델. 감사 사건의 대상 버전 연관을 추가하고 기여 사본의 식별 범위와 구현 상한을 구분했다.",
+      "scene": {
+        "title": "Class · 작업·버전·승인·증명의 구조",
+        "width": 1800,
+        "height": 1160,
+        "nodes": [
+          {
+            "id": "Work",
+            "x": 55,
+            "y": 85,
+            "w": 380,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Work"
+          },
+          {
+            "id": "Version",
+            "x": 675,
+            "y": 85,
+            "w": 460,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Version"
+          },
+          {
+            "id": "Approval",
+            "x": 1350,
+            "y": 85,
+            "w": 395,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Approval"
+          },
+          {
+            "id": "Contribution",
+            "x": 55,
+            "y": 560,
+            "w": 420,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Contribution"
+          },
+          {
+            "id": "Receipt",
+            "x": 1350,
+            "y": 560,
+            "w": 395,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Receipt"
+          },
+          {
+            "id": "AuditEvent",
+            "x": 675,
+            "y": 850,
+            "w": 460,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "AuditEvent"
+          },
+          {
+            "id": "reviewRef",
+            "x": 690,
+            "y": 560,
+            "w": 430,
+            "h": 165,
+            "label": "Review · 현재 검토\n과제 3개 · 평가 · 체크 · 회차\n상세 구조: C02",
+            "type": "rect"
+          },
+          {
+            "id": "notes",
+            "x": 55,
+            "y": 1045,
+            "w": 1690,
+            "h": 85,
+            "label": "다중도는 양방향 해석: Version당 Approval 0..1건 / AuditEvent 하나는 Work 1개와 그 안의 Version 1개를 참조\nContribution은 버전별 사본: 같은 recordId를 다른 버전에 연결 가능 / 구현 상한: 버전 10000·기여 100·과거 회차 1000",
+            "type": "note",
+            "font": 19
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                435,
+                200
+              ],
+              [
+                675,
+                200
+              ]
+            ],
+            "label": "버전 보유",
+            "lx": 555,
+            "ly": 175,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                1135,
+                210
+              ],
+              [
+                1350,
+                210
+              ]
+            ],
+            "label": "승인 대상",
+            "lx": 1242,
+            "ly": 184,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                1547,
+                341
+              ],
+              [
+                1547,
+                560
+              ]
+            ],
+            "label": "증명 payload",
+            "lx": 1547,
+            "ly": 454,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                675,
+                340
+              ],
+              [
+                560,
+                340
+              ],
+              [
+                560,
+                650
+              ],
+              [
+                475,
+                650
+              ]
+            ],
+            "label": "검토 근거",
+            "lx": 560,
+            "ly": 490,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                905,
+                400
+              ],
+              [
+                905,
+                560
+              ]
+            ],
+            "label": "현재 검토",
+            "lx": 1000,
+            "ly": 490,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                245,
+                315
+              ],
+              [
+                245,
+                450
+              ],
+              [
+                615,
+                450
+              ],
+              [
+                615,
+                925
+              ],
+              [
+                675,
+                925
+              ]
+            ],
+            "label": "기록 보존",
+            "lx": 615,
+            "ly": 800,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                1135,
+                350
+              ],
+              [
+                1220,
+                350
+              ],
+              [
+                1220,
+                925
+              ],
+              [
+                1135,
+                925
+              ]
+            ],
+            "label": "사건 대상",
+            "lx": 1220,
+            "ly": 740,
+            "arrow": false
+          }
+        ],
+        "frames": [],
+        "labels": [
+          {
+            "x": 455,
+            "y": 224,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 650,
+            "y": 224,
+            "text": "1..*",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1155,
+            "y": 236,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1320,
+            "y": 236,
+            "text": "0..1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1570,
+            "y": 365,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1570,
+            "y": 545,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 645,
+            "y": 328,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 510,
+            "y": 675,
+            "text": "0..*",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 880,
+            "y": 425,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 880,
+            "y": 545,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 270,
+            "y": 342,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 650,
+            "y": 952,
+            "text": "0..*",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1160,
+            "y": 338,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1175,
+            "y": 952,
+            "text": "0..*",
+            "font": 17,
+            "anchor": "middle"
+          }
+        ]
+      },
+      "relations": [
+        {
+          "from": "Work",
+          "to": "Version",
+          "label": "버전 보유",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "1..*"
+        },
+        {
+          "from": "Version",
+          "to": "Approval",
+          "label": "승인 대상",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..1"
+        },
+        {
+          "from": "Approval",
+          "to": "Receipt",
+          "label": "증명 payload",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "1"
+        },
+        {
+          "from": "Version",
+          "to": "Contribution",
+          "label": "검토 근거",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..*"
+        },
+        {
+          "from": "Version",
+          "to": "Review",
+          "label": "현재 검토",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "1"
+        },
+        {
+          "from": "Work",
+          "to": "AuditEvent",
+          "label": "기록 보존",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..*"
+        },
+        {
+          "from": "Version",
+          "to": "AuditEvent",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..*",
+          "label": "사건 대상"
+        }
+      ]
+    },
+    {
+      "id": "C02-review",
+      "title": "Class · 현재 검토와 과거 회차의 분리",
+      "category": "Class",
+      "useCases": [
+        "UC-02",
+        "UC-03",
+        "UC-04",
+        "UC-08"
+      ],
+      "kind": "scene",
+      "summary": "세 과제의 현재 답변/평가와 과거 회차 스냅샷을 분리한다. 정책 스냅샷은 Review의 값 속성이며 역할 상속이나 자동 AI 평가 클래스를 추가하지 않는다.",
+      "scene": {
+        "title": "Class · 현재 검토와 과거 회차의 분리",
+        "width": 1750,
+        "height": 1090,
+        "nodes": [
+          {
+            "id": "vref",
+            "x": 55,
+            "y": 110,
+            "w": 390,
+            "h": 150,
+            "label": "Version · 파일 버전\n현재 검토 1개를 참조\n상세: C01",
+            "type": "rect"
+          },
+          {
+            "id": "Review",
+            "x": 620,
+            "y": 70,
+            "w": 590,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Review"
+          },
+          {
+            "id": "GateResponse",
+            "x": 620,
+            "y": 595,
+            "w": 565,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "GateResponse"
+          },
+          {
+            "id": "Evaluation",
+            "x": 1320,
+            "y": 620,
+            "w": 380,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "Evaluation"
+          },
+          {
+            "id": "ReviewRound",
+            "x": 55,
+            "y": 610,
+            "w": 440,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "ReviewRound"
+          },
+          {
+            "id": "notes",
+            "x": 55,
+            "y": 900,
+            "w": 1645,
+            "h": 135,
+            "label": "passesGate: 세 답변 제출 + 평가 근거 + 합계 5/6 이상 + 치명 오류 없음 + returned 해제\ncanApprove: passesGate + 체크 4개 + 최종 메모 / 역할·기존 승인·저장 상태 등은 최종 승인 경로에서 추가 검사\n수정 요청: 이전 회차 보존·답변 재제출 / 기여 변경: 이전 회차 보존·평가 초기화, 이미 제출한 답변은 유지\n승인 후 Review 변경 금지. 과거 회차는 현재 점수 계산에 사용하지 않음",
+            "type": "note",
+            "font": 18
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                445,
+                185
+              ],
+              [
+                620,
+                185
+              ]
+            ],
+            "label": "현재 검토",
+            "lx": 532,
+            "ly": 158,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                915,
+                460
+              ],
+              [
+                915,
+                595
+              ]
+            ],
+            "label": "고정 답변 슬롯",
+            "lx": 1035,
+            "ly": 530,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                1185,
+                705
+              ],
+              [
+                1320,
+                705
+              ]
+            ],
+            "label": "현재 평가",
+            "lx": 1252,
+            "ly": 675,
+            "arrow": false
+          },
+          {
+            "points": [
+              [
+                620,
+                340
+              ],
+              [
+                530,
+                340
+              ],
+              [
+                530,
+                700
+              ],
+              [
+                495,
+                700
+              ]
+            ],
+            "label": "이력 보존",
+            "lx": 530,
+            "ly": 520,
+            "arrow": false
+          }
+        ],
+        "frames": [],
+        "labels": [
+          {
+            "x": 466,
+            "y": 210,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 600,
+            "y": 210,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 890,
+            "y": 485,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 890,
+            "y": 580,
+            "text": "3",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1205,
+            "y": 732,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 1290,
+            "y": 732,
+            "text": "0..1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 598,
+            "y": 365,
+            "text": "1",
+            "font": 17,
+            "anchor": "middle"
+          },
+          {
+            "x": 497,
+            "y": 730,
+            "text": "0..*",
+            "font": 17,
+            "anchor": "middle"
+          }
+        ]
+      },
+      "relations": [
+        {
+          "from": "Version",
+          "to": "Review",
+          "label": "현재 검토",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "1"
+        },
+        {
+          "from": "Review",
+          "to": "GateResponse",
+          "label": "고정 답변 슬롯",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "3"
+        },
+        {
+          "from": "GateResponse",
+          "to": "Evaluation",
+          "label": "현재 평가",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..1"
+        },
+        {
+          "from": "Review",
+          "to": "ReviewRound",
+          "label": "이력 보존",
+          "fromMultiplicity": "1",
+          "toMultiplicity": "0..*"
+        }
+      ]
+    },
+    {
+      "id": "C03-collaboration",
+      "title": "Class · 유스케이스를 조정하는 협력 책임",
+      "category": "Class",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03",
+        "UC-04",
+        "UC-05",
+        "UC-06",
+        "UC-07",
+        "UC-08",
+        "UC-09"
+      ],
+      "kind": "scene",
+      "summary": "시퀀스 참여자와 메시지를 정의하는 분석 설계 뷰. 아래 제어/저장 책임은 현재 함수·모듈의 역할을 클래스 형태로 추상화했으며 코드 리팩터링 완료를 뜻하지 않는다.",
+      "scene": {
+        "title": "Class · 유스케이스를 조정하는 협력 책임",
+        "width": 1800,
+        "height": 1090,
+        "nodes": [
+          {
+            "id": "HAVEWorkflow",
+            "x": 65,
+            "y": 85,
+            "w": 760,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "HAVEWorkflow"
+          },
+          {
+            "id": "WorkspaceRepository",
+            "x": 1090,
+            "y": 85,
+            "w": 640,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "WorkspaceRepository"
+          },
+          {
+            "id": "ContributionRecorder",
+            "x": 65,
+            "y": 655,
+            "w": 650,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "ContributionRecorder"
+          },
+          {
+            "id": "EvidenceVerifier",
+            "x": 1090,
+            "y": 555,
+            "w": 640,
+            "h": 0,
+            "label": "",
+            "type": "rect",
+            "classId": "EvidenceVerifier"
+          },
+          {
+            "id": "notes",
+            "x": 65,
+            "y": 955,
+            "w": 1665,
+            "h": 90,
+            "label": "HAVEWorkflow는 Work·Version·Review·Approval·Receipt를 조정 / EvidenceVerifier는 Receipt 공개 요약과 Work 버전 관계 참조\n실제 대응: app.js / domain.js / repository.js / extension 팝업. 서버·실제 인증·전자서명은 이 모델의 구현 범위에 포함하지 않음",
+            "type": "note",
+            "font": 18
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                825,
+                200
+              ],
+              [
+                1090,
+                200
+              ]
+            ],
+            "label": "원자적 저장 / 조회",
+            "lx": 957,
+            "ly": 174,
+            "arrow": true,
+            "dashed": true,
+            "openArrow": true
+          },
+          {
+            "points": [
+              [
+                1410,
+                555
+              ],
+              [
+                1410,
+                303
+              ]
+            ],
+            "label": "로컬 기록 조회",
+            "lx": 1530,
+            "ly": 435,
+            "arrow": true,
+            "dashed": true,
+            "openArrow": true
+          },
+          {
+            "points": [
+              [
+                390,
+                655
+              ],
+              [
+                390,
+                480
+              ]
+            ],
+            "label": "사용자가 JSON 파일 전달\n자동 API 호출 아님",
+            "lx": 570,
+            "ly": 575,
+            "arrow": true,
+            "dashed": true,
+            "openArrow": true
+          }
+        ],
+        "frames": [],
+        "labels": []
+      },
+      "relations": [
+        {
+          "from": "HAVEWorkflow",
+          "to": "WorkspaceRepository",
+          "dependency": true,
+          "label": "저장·조회"
+        },
+        {
+          "from": "EvidenceVerifier",
+          "to": "WorkspaceRepository",
+          "dependency": true,
+          "label": "로컬 조회"
+        },
+        {
+          "from": "ContributionRecorder",
+          "to": "HAVEWorkflow",
+          "dependency": true,
+          "label": "사용자 전달 JSON 계약"
+        }
+      ]
+    },
+    {
+      "id": "SQ01-registration",
+      "title": "Sequence · 등록과 선택적 기여 근거 연결",
+      "category": "Sequence",
+      "useCases": [
+        "UC-01",
+        "UC-08"
+      ],
+      "kind": "sequence",
+      "summary": "정상 등록 뒤 필요할 때만 확장 JSON을 연결한다. 모든 쓰기 성공은 commit 이후에 표시하며 공통 실패 처리는 SQ03을 따른다.",
+      "data": {
+        "title": "Sequence · 등록과 선택적 기여 근거 연결",
+        "participants": [
+          {
+            "id": "A",
+            "label": "작성자"
+          },
+          {
+            "id": "E",
+            "label": "recorder:\nContributionRecorder",
+            "classId": "ContributionRecorder"
+          },
+          {
+            "id": "F",
+            "label": "workflow:\nHAVEWorkflow",
+            "classId": "HAVEWorkflow"
+          },
+          {
+            "id": "V",
+            "label": "version:\nVersion",
+            "classId": "Version"
+          },
+          {
+            "id": "P",
+            "label": "repo:\nWorkspaceRepository",
+            "classId": "WorkspaceRepository"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "from": "A",
+            "to": "F",
+            "text": "register(PDF, AI 신고, 위험 입력)",
+            "reply": false,
+            "call": "HAVEWorkflow.register"
+          },
+          {
+            "type": "note",
+            "text": "register는 Work.registerVersion에 위임해 Version·Review·빈 답변 3개를 준비한다. PDF 검증·SHA-256 계산 후 등록하며 초기 승인은 없다."
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "저장 완료 / 새 revision",
+            "reply": true
+          },
+          {
+            "type": "block",
+            "label": "opt 작성자가 기여 근거를 연결하는 경우"
+          },
+          {
+            "type": "message",
+            "from": "A",
+            "to": "E",
+            "text": "capturePage()",
+            "reply": false,
+            "call": "ContributionRecorder.capturePage"
+          },
+          {
+            "type": "message",
+            "from": "A",
+            "to": "E",
+            "text": "confirmRecord()",
+            "reply": false,
+            "call": "ContributionRecorder.confirmRecord"
+          },
+          {
+            "type": "message",
+            "from": "A",
+            "to": "E",
+            "text": "exportJSON()",
+            "reply": false,
+            "call": "ContributionRecorder.exportJSON"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "A",
+            "text": "확인한 기여 기록 JSON",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "A",
+            "to": "F",
+            "text": "importEvidence(json)",
+            "reply": false,
+            "call": "HAVEWorkflow.importEvidence"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "V",
+            "text": "attachContributions(records)",
+            "reply": false,
+            "call": "Version.attachContributions"
+          },
+          {
+            "type": "message",
+            "from": "V",
+            "to": "F",
+            "text": "회차 보존 / 현재 평가·체크 초기화",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "연결 저장 완료",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "A",
+            "text": "저장된 등록·기여 상태 표시",
+            "reply": true
+          },
+          {
+            "type": "note",
+            "text": "미리보기·사용자 확인·필드 검증·ID 중복 제거가 전제다. 승인된 버전에는 연결하지 않는다. 기여는 신고 데이터이며 승인 명령이 아니다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SQ02-review",
+      "title": "Sequence · 세 답변 제출과 인간 검토·보완",
+      "category": "Sequence",
+      "useCases": [
+        "UC-02",
+        "UC-03"
+      ],
+      "kind": "sequence",
+      "summary": "답변 제출, 평가, 수정 요청을 같은 검토 대상으로 연결한다. 수정 요청은 과거 회차를 남기며 최종 승인과 별개다.",
+      "data": {
+        "title": "Sequence · 세 답변 제출과 인간 검토·보완",
+        "participants": [
+          {
+            "id": "A",
+            "label": "작성자"
+          },
+          {
+            "id": "F",
+            "label": "workflow:\nHAVEWorkflow",
+            "classId": "HAVEWorkflow"
+          },
+          {
+            "id": "R",
+            "label": "review:\nReview",
+            "classId": "Review"
+          },
+          {
+            "id": "B",
+            "label": "검토자"
+          },
+          {
+            "id": "P",
+            "label": "repo:\nWorkspaceRepository",
+            "classId": "WorkspaceRepository"
+          }
+        ],
+        "events": [
+          {
+            "type": "block",
+            "label": "loop 세 과제 각각에 대해 답변 제출"
+          },
+          {
+            "type": "message",
+            "from": "A",
+            "to": "F",
+            "text": "submitAnswer(kind, answer, confidence)",
+            "reply": false,
+            "call": "HAVEWorkflow.submitAnswer"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "R",
+            "text": "submit(kind, answer, confidence)",
+            "reply": false,
+            "call": "Review.submit"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "세 답변 제출됨 / 검토 대기",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "B",
+            "to": "F",
+            "text": "evaluate(kind, score, reason, critical)",
+            "reply": false,
+            "call": "HAVEWorkflow.evaluate"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "R",
+            "text": "evaluate(kind, score, reason, critical)",
+            "reply": false,
+            "call": "Review.evaluate"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "평가 결과·체크·메모 확인",
+            "reply": true
+          },
+          {
+            "type": "block",
+            "label": "opt 검토자가 수정 요청을 등록하는 경우"
+          },
+          {
+            "type": "message",
+            "from": "B",
+            "to": "F",
+            "text": "requestRevision(reason)",
+            "reply": false,
+            "call": "HAVEWorkflow.requestRevision"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "R",
+            "text": "requestRevision(reason)",
+            "reply": false,
+            "call": "Review.requestRevision"
+          },
+          {
+            "type": "message",
+            "from": "R",
+            "to": "F",
+            "text": "현재 회차 보존 / 답변 재제출 준비",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "A",
+            "text": "수정 사유와 답변 재제출 안내",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "note",
+            "text": "Review.submit/evaluate는 GateResponse의 연산으로 위임한다. 5/6 이상이어도 체크·메모 등 승인 조건이 남을 수 있다. 모든 변경의 저장 실패는 SQ03의 공통 복원 원칙을 적용한다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SQ03-approval",
+      "title": "Sequence · 최종 승인과 저장 결과의 분리",
+      "category": "Sequence",
+      "useCases": [
+        "UC-04"
+      ],
+      "kind": "sequence",
+      "summary": "조건 불충족, 원자적 저장 성공, revision 충돌, 저장 실패를 구분한다. 승인 객체·증명 payload의 준비와 승인 완료 표시를 혼동하지 않는다.",
+      "data": {
+        "title": "Sequence · 최종 승인과 저장 결과의 분리",
+        "participants": [
+          {
+            "id": "B",
+            "label": "검토자"
+          },
+          {
+            "id": "F",
+            "label": "workflow:\nHAVEWorkflow",
+            "classId": "HAVEWorkflow"
+          },
+          {
+            "id": "V",
+            "label": "version:\nVersion",
+            "classId": "Version"
+          },
+          {
+            "id": "R",
+            "label": "review:\nReview",
+            "classId": "Review"
+          },
+          {
+            "id": "P",
+            "label": "repo:\nWorkspaceRepository",
+            "classId": "WorkspaceRepository"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "from": "B",
+            "to": "F",
+            "text": "approve(actor)",
+            "reply": false,
+            "call": "HAVEWorkflow.approve"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "V",
+            "text": "checkApproval(actor)",
+            "reply": false,
+            "call": "Version.checkApproval"
+          },
+          {
+            "type": "message",
+            "from": "V",
+            "to": "R",
+            "text": "canApprove()",
+            "reply": false,
+            "call": "Review.canApprove"
+          },
+          {
+            "type": "message",
+            "from": "R",
+            "to": "V",
+            "text": "과제·체크·메모 판정",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "V",
+            "to": "F",
+            "text": "차단 사유 목록",
+            "reply": true
+          },
+          {
+            "type": "block",
+            "label": "alt 승인 조건 불충족"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "차단 사유 표시 / 승인 추가 없음",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "조건 충족"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "V",
+            "text": "approve(actor)",
+            "reply": false,
+            "call": "Version.approve"
+          },
+          {
+            "type": "message",
+            "from": "V",
+            "to": "F",
+            "text": "Approval·Receipt·감사 변경 준비",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, expectedRevision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "block",
+            "label": "alt commit 완료"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "새 revision",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "저장된 승인 증명 / 성공 표시",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "revision 충돌"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "ConflictError",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "F",
+            "text": "restoreBefore()",
+            "reply": false,
+            "call": "HAVEWorkflow.restoreBefore"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "load()",
+            "reply": false,
+            "call": "WorkspaceRepository.load"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "최신 snapshot·revision",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "최신 내용 재확인 / 자동 승인 재시도 없음",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "저장 실패"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "저장 오류",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "F",
+            "text": "restoreBefore()",
+            "reply": false,
+            "call": "HAVEWorkflow.restoreBefore"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "B",
+            "text": "이전 상태 유지 / 오류·입력 백업 안내",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "note",
+            "text": "commit은 작업·승인·감사 aggregate와 revision을 원자적으로 확인·저장한다. 충돌 후 읽은 최신 기록은 workflow에서 무결성을 확인한 뒤 표시한다. 승인 조건에는 역할·기존 승인·저장 상태도 포함된다. 현재 Receipt에 서버 서명은 없다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SQ04-lifecycle",
+      "title": "Sequence · 새 버전·철회·이력 조회",
+      "category": "Sequence",
+      "useCases": [
+        "UC-05",
+        "UC-06",
+        "UC-09"
+      ],
+      "kind": "sequence",
+      "summary": "사용자 요청 한 건을 새 버전 또는 철회로 분기한 표현이다. 같은 작업에서 후속 버전 존재와 과거 승인 철회는 함께 성립할 수 있다.",
+      "data": {
+        "title": "Sequence · 새 버전·철회·이력 조회",
+        "participants": [
+          {
+            "id": "U",
+            "label": "작성자 / 검토자"
+          },
+          {
+            "id": "F",
+            "label": "workflow:\nHAVEWorkflow",
+            "classId": "HAVEWorkflow"
+          },
+          {
+            "id": "W",
+            "label": "work:\nWork",
+            "classId": "Work"
+          },
+          {
+            "id": "A",
+            "label": "approval:\nApproval",
+            "classId": "Approval"
+          },
+          {
+            "id": "P",
+            "label": "repo:\nWorkspaceRepository",
+            "classId": "WorkspaceRepository"
+          }
+        ],
+        "events": [
+          {
+            "type": "block",
+            "label": "alt 새 버전 등록 요청 · 작성자"
+          },
+          {
+            "type": "message",
+            "from": "U",
+            "to": "F",
+            "text": "registerSuccessor(input)",
+            "reply": false,
+            "call": "HAVEWorkflow.registerSuccessor"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "W",
+            "text": "registerVersion(input)",
+            "reply": false,
+            "call": "Work.registerVersion"
+          },
+          {
+            "type": "message",
+            "from": "W",
+            "to": "F",
+            "text": "새 Version·Review / 승인 없음",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "저장 완료 / 이전 승인 보존",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "승인 철회 요청 · 검토자"
+          },
+          {
+            "type": "message",
+            "from": "U",
+            "to": "F",
+            "text": "revoke(reason)",
+            "reply": false,
+            "call": "HAVEWorkflow.revoke"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "A",
+            "text": "revoke(reason)",
+            "reply": false,
+            "call": "Approval.revoke"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "P",
+            "text": "commit(snapshot, revision)",
+            "reply": false,
+            "call": "WorkspaceRepository.commit"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "F",
+            "text": "철회 시각·사유 저장 완료",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "message",
+            "from": "U",
+            "to": "F",
+            "text": "readEvidence()",
+            "reply": false,
+            "call": "HAVEWorkflow.readEvidence"
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "W",
+            "text": "listHistory()",
+            "reply": false,
+            "call": "Work.listHistory"
+          },
+          {
+            "type": "message",
+            "from": "W",
+            "to": "F",
+            "text": "버전·검토 회차·승인·감사 이력",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "F",
+            "to": "U",
+            "text": "권한 범위의 증명서·이력 표시",
+            "reply": true
+          },
+          {
+            "type": "note",
+            "text": "새 버전에는 이전 승인이 상속되지 않는다. 철회는 원본 승인 삭제가 아니며 같은 버전의 재승인은 없다. 현재는 검토자가 최근 승인을 철회한다. 쓰기 실패·충돌은 SQ03처럼 복원하며 실패한 철회를 성공으로 표시하지 않는다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SQ05-verification",
+      "title": "Sequence · QR 요약과 선택 파일의 확인",
+      "category": "Sequence",
+      "useCases": [
+        "UC-07"
+      ],
+      "kind": "sequence",
+      "summary": "입력 형식 확인은 전자서명 진위 검증이 아니다. 현재 효력의 확인 범위와 사용자가 선택한 파일의 바이트 일치를 각각 반환한다.",
+      "data": {
+        "title": "Sequence · QR 요약과 선택 파일의 확인",
+        "participants": [
+          {
+            "id": "U",
+            "label": "검증자 / 수신자"
+          },
+          {
+            "id": "E",
+            "label": "verifier:\nEvidenceVerifier",
+            "classId": "EvidenceVerifier"
+          },
+          {
+            "id": "P",
+            "label": "repo:\nWorkspaceRepository",
+            "classId": "WorkspaceRepository"
+          },
+          {
+            "id": "R",
+            "label": "receipt:\nReceipt",
+            "classId": "Receipt"
+          },
+          {
+            "id": "W",
+            "label": "work:\nWork",
+            "classId": "Work"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "from": "U",
+            "to": "E",
+            "text": "openSummary(link)",
+            "reply": false,
+            "call": "EvidenceVerifier.openSummary"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "E",
+            "text": "validateSummary(data)",
+            "reply": false,
+            "call": "EvidenceVerifier.validateSummary"
+          },
+          {
+            "type": "block",
+            "label": "alt 요약 형식 오류"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "U",
+            "text": "링크 오류 / 유효 표시 없음",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "요약 형식 정상"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "P",
+            "text": "load()",
+            "reply": false,
+            "call": "WorkspaceRepository.load"
+          },
+          {
+            "type": "message",
+            "from": "P",
+            "to": "E",
+            "text": "현재 브라우저의 작업 기록 또는 없음",
+            "reply": true
+          },
+          {
+            "type": "block",
+            "label": "alt 같은 승인 ID의 로컬 기록 존재"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "R",
+            "text": "publicSummary()",
+            "reply": false,
+            "call": "Receipt.publicSummary"
+          },
+          {
+            "type": "message",
+            "from": "R",
+            "to": "E",
+            "text": "로컬 승인·철회 요약",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "W",
+            "text": "versionRelation(versionId)",
+            "reply": false,
+            "call": "Work.versionRelation"
+          },
+          {
+            "type": "message",
+            "from": "W",
+            "to": "E",
+            "text": "후속 버전 관계",
+            "reply": true
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "U",
+            "text": "이 브라우저 기록 기준 상태",
+            "reply": true
+          },
+          {
+            "type": "else",
+            "label": "로컬 기록 없음 / 다른 기기"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "U",
+            "text": "발급 당시 요약 / 최신 효력 미확인",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "block",
+            "label": "opt 수신자가 비교 파일을 선택"
+          },
+          {
+            "type": "message",
+            "from": "U",
+            "to": "E",
+            "text": "compareFile(bytes)",
+            "reply": false,
+            "call": "EvidenceVerifier.compareFile"
+          },
+          {
+            "type": "message",
+            "from": "E",
+            "to": "U",
+            "text": "요약의 해시와 일치 / 불일치",
+            "reply": true
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "end"
+          },
+          {
+            "type": "note",
+            "text": "미선택은 파일 일치 미확인이다. 서버 전송 없이 이 기기에서 SHA-256을 비교한다. 요약이 서명되지 않았으므로 파일 일치가 독립적인 승인 진위·현재 효력 확인을 뜻하지 않는다. 비공개 답변·메모는 공개하지 않는다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ST01-lifecycles",
+      "title": "State · 단일 버전의 검토·승인 절차",
+      "category": "State",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03",
+        "UC-04",
+        "UC-08"
+      ],
+      "kind": "scene",
+      "summary": "범위는 하나의 Version의 검토·승인 절차. 미승인 복합 상태를 4개 하위 상태로 나누고 승인 commit 성공 시 이 절차를 종료한다. 종료는 기록 삭제나 철회 기능 종료가 아니다.",
+      "scene": {
+        "title": "State · 단일 버전의 검토·승인 절차",
+        "width": 1850,
+        "height": 1110,
+        "nodes": [
+          {
+            "id": "start",
+            "x": 22,
+            "y": 230,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point"
+          },
+          {
+            "id": "draft",
+            "x": 220,
+            "y": 180,
+            "w": 320,
+            "h": 100,
+            "label": "답변 작성 중\n세 과제 중 미제출 있음",
+            "type": "rect"
+          },
+          {
+            "id": "pending",
+            "x": 830,
+            "y": 180,
+            "w": 320,
+            "h": 100,
+            "label": "검토 대기\n제출 완료·평가 조건 미달",
+            "type": "rect"
+          },
+          {
+            "id": "passed",
+            "x": 830,
+            "y": 500,
+            "w": 320,
+            "h": 100,
+            "label": "평가 통과\n최종 승인 전",
+            "type": "rect",
+            "fill": "#e8f5ef"
+          },
+          {
+            "id": "revision",
+            "x": 220,
+            "y": 500,
+            "w": 320,
+            "h": 100,
+            "label": "수정 요청\n반려 플래그 또는 치명 오류",
+            "type": "rect",
+            "fill": "#fff0ed"
+          },
+          {
+            "id": "approved",
+            "x": 1530,
+            "y": 180,
+            "w": 280,
+            "h": 145,
+            "label": "승인 완료\n검토 범위 고정\ncommit 후에만 진입",
+            "type": "rect",
+            "fill": "#e8f5ef",
+            "font": 18
+          },
+          {
+            "id": "final",
+            "x": 1670,
+            "y": 420,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point",
+            "final": true
+          },
+          {
+            "id": "guards",
+            "x": 1490,
+            "y": 550,
+            "w": 320,
+            "h": 270,
+            "label": "A : 최종 승인 조건\n세 답변·근거·5/6 이상\n치명 오류 없음·반려 해제\n체크 4개·최종 메모\n검토자 역할·기존 승인 없음\n저장 가능·revision 일치\n실제 계정 인증은 미구현",
+            "type": "note",
+            "font": 16
+          },
+          {
+            "id": "internal",
+            "x": 130,
+            "y": 775,
+            "w": 1250,
+            "h": 60,
+            "label": "T15 : 기여 연결은 과거 회차 보존·평가 초기화 후 상태 재판정 / 자기 전이·거부 조건은 전이표 참조\n모든 전이는 저장 성공 후 확정. 실패는 이전 상태 유지, 충돌은 최신 기록을 별도로 다시 확인",
+            "type": "note",
+            "font": 17
+          },
+          {
+            "id": "foot",
+            "x": 55,
+            "y": 940,
+            "w": 1750,
+            "h": 146,
+            "label": "종료 범위는 이 버전의 검토·승인 절차다. Version·승인·증명·감사 기록은 남고 승인 철회는 ST02에서 계속 다룬다.\nT 번호의 이벤트·조건·액션은 전이표에서 해석 / 후속 버전 등록은 새 Version의 시작이며 기존 버전을 답변 작성 중으로 되돌리지 않음\n다중도: 현재 Review 1개·답변 슬롯 3개·현재 평가 0..1개·Approval 0..1개 / 실패·철회·재제출로 이 제약을 깨지 않음\nS=세 답변 제출 / R=returned / K=치명 오류 / P=평가 근거·정수 점수·5/6 이상·!R·!K",
+            "type": "note",
+            "font": 18
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                29,
+                230
+              ],
+              [
+                220,
+                230
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                540,
+                230
+              ],
+              [
+                830,
+                230
+              ]
+            ],
+            "label": "T01 · submit [S ∧ !K]\n/ 마지막 제출·반려 해제",
+            "lx": 685,
+            "ly": 165
+          },
+          {
+            "points": [
+              [
+                990,
+                280
+              ],
+              [
+                990,
+                500
+              ]
+            ],
+            "label": "evaluate [P]\n/ 현재 평가 기록",
+            "lx": 1020,
+            "ly": 410
+          },
+          {
+            "points": [
+              [
+                830,
+                250
+              ],
+              [
+                700,
+                250
+              ],
+              [
+                700,
+                550
+              ],
+              [
+                540,
+                550
+              ]
+            ],
+            "label": "requestRevision [S] / 회차 보존·초기화\n또는 evaluate [K] / 치명 오류 기록",
+            "lx": 690,
+            "ly": 410
+          },
+          {
+            "points": [
+              [
+                830,
+                550
+              ],
+              [
+                540,
+                550
+              ]
+            ],
+            "label": "requestRevision / 회차 보존·초기화\n또는 evaluate [K] / 치명 오류 기록",
+            "lx": 685,
+            "ly": 628
+          },
+          {
+            "points": [
+              [
+                1150,
+                550
+              ],
+              [
+                1310,
+                550
+              ],
+              [
+                1310,
+                230
+              ],
+              [
+                1150,
+                230
+              ]
+            ],
+            "label": "evaluate [S ∧ !R ∧ !K ∧ !P]\n/ 평가 변경\nattachContributions / 평가 초기화",
+            "lx": 1310,
+            "ly": 360
+          },
+          {
+            "points": [
+              [
+                540,
+                520
+              ],
+              [
+                610,
+                520
+              ],
+              [
+                610,
+                350
+              ],
+              [
+                810,
+                350
+              ],
+              [
+                810,
+                260
+              ],
+              [
+                830,
+                260
+              ]
+            ],
+            "label": "submit [S ∧ !K] / 반려 해제\n또는 evaluate [S ∧ !R ∧ !K ∧ !P]",
+            "lx": 780,
+            "ly": 315
+          },
+          {
+            "points": [
+              [
+                380,
+                600
+              ],
+              [
+                380,
+                720
+              ],
+              [
+                990,
+                720
+              ],
+              [
+                990,
+                600
+              ]
+            ],
+            "label": "evaluate [P] / 현재 평가 기록",
+            "lx": 685,
+            "ly": 705
+          },
+          {
+            "points": [
+              [
+                220,
+                550
+              ],
+              [
+                120,
+                550
+              ],
+              [
+                120,
+                230
+              ],
+              [
+                220,
+                230
+              ]
+            ],
+            "label": "evaluate [!S ∧ !R ∧ !K]\n또는 기여 추가 후 재판정",
+            "lx": 125,
+            "ly": 395
+          },
+          {
+            "points": [
+              [
+                380,
+                280
+              ],
+              [
+                380,
+                500
+              ]
+            ],
+            "label": "evaluate [K]\n/ 치명 오류 기록",
+            "lx": 410,
+            "ly": 400
+          },
+          {
+            "points": [
+              [
+                1450,
+                230
+              ],
+              [
+                1530,
+                230
+              ]
+            ],
+            "label": "T14 · approve [A]\n/ 승인·증명·감사 저장",
+            "lx": 1490,
+            "ly": 140
+          },
+          {
+            "points": [
+              [
+                1670,
+                325
+              ],
+              [
+                1670,
+                408
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          }
+        ],
+        "frames": [
+          {
+            "x": 50,
+            "y": 100,
+            "w": 1400,
+            "h": 760,
+            "title": "Version : 미승인 검토 (Review 하위 상태)"
+          }
+        ],
+        "labels": [
+          {
+            "x": 1670,
+            "y": 470,
+            "text": "이 버전의 검토·승인 절차 종료",
+            "font": 17,
+            "anchor": "middle"
+          }
+        ]
+      },
+      "operationRefs": [
+        "Review.submit",
+        "Review.evaluate",
+        "Review.requestRevision",
+        "Review.resetForEvidence",
+        "Version.attachContributions",
+        "Version.approve"
+      ],
+      "mermaid": "stateDiagram-v2\n    [*] --> Unapproved\n    state \"미승인 검토\" as Unapproved {\n        [*] --> Draft\n        state \"답변 작성 중\" as Draft\n        state \"검토 대기\" as Pending\n        state \"평가 통과\" as Passed\n        state \"수정 요청\" as Revision\n        Draft --> Pending: T01 submit [S AND !K] / 반려 해제\n        Pending --> Passed: T02 evaluate [P]\n        Pending --> Revision: T03 requestRevision / 회차 보존\n        Pending --> Revision: T04 evaluate [K]\n        Passed --> Revision: T05 requestRevision / 회차 보존\n        Passed --> Revision: T06 evaluate [K]\n        Passed --> Pending: T07 evaluate [S AND !R AND !K AND !P]\n        Passed --> Pending: T08 attachContributions / 평가 초기화\n        Revision --> Pending: T09 submit [S AND !K] / 반려 해제\n        Revision --> Pending: T10 evaluate [S AND !R AND !K AND !P]\n        Revision --> Passed: T11 evaluate [P]\n        Revision --> Draft: T12 evaluate [!S AND !R AND !K]\n        Draft --> Revision: T13 evaluate [K]\n    }\n    Unapproved --> Approved: T14 approve [A] / 승인·증명·감사 저장\n    state \"승인 완료\" as Approved\n    Approved --> [*]\n    note right of Approved\n        이 버전의 검토·승인 절차만 종료\n        기록은 유지, 철회는 별도 ST02\n        모든 전이는 commit 성공 후 확정\n    end note\n"
+    },
+    {
+      "id": "ST02-approval",
+      "title": "State · 승인 효력 변경 절차",
+      "category": "State",
+      "useCases": [
+        "UC-04",
+        "UC-05",
+        "UC-06",
+        "UC-09"
+      ],
+      "kind": "scene",
+      "summary": "Approval 저장 성공 후의 효력 변경만 다룬다. 철회는 단방향이며 해당 절차가 끝나도 승인·증명·감사 기록은 계속 조회할 수 있다.",
+      "scene": {
+        "title": "State · 승인 효력 변경 절차",
+        "width": 1450,
+        "height": 680,
+        "nodes": [
+          {
+            "id": "start",
+            "x": 80,
+            "y": 250,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point"
+          },
+          {
+            "id": "active",
+            "x": 220,
+            "y": 190,
+            "w": 340,
+            "h": 120,
+            "label": "미철회 승인\n대상·검토 범위 변경 불가",
+            "type": "rect",
+            "fill": "#e8f5ef"
+          },
+          {
+            "id": "revoked",
+            "x": 880,
+            "y": 190,
+            "w": 350,
+            "h": 120,
+            "label": "승인 철회\n철회 시각·사유 보존",
+            "type": "rect",
+            "fill": "#fff0ed"
+          },
+          {
+            "id": "final",
+            "x": 1360,
+            "y": 250,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point",
+            "final": true
+          },
+          {
+            "id": "note",
+            "x": 65,
+            "y": 400,
+            "w": 1320,
+            "h": 200,
+            "label": "시작: UC-04 승인 commit 성공으로 Approval 1건·Receipt 1건이 이미 존재\nB : 검토자 역할·철회 가능한 대상·미철회·비어 있지 않은 사유·commit 성공 (현재 UI는 최근 승인 선택)\n종료: 이 Approval의 효력 변경 절차 종료. 기록 삭제 아님. 조회·다운로드는 새 승인/증명 생성 아님.\n새 버전은 새 Review와 미승인 상태로 시작 / 후속 버전 존재와 과거 승인 철회는 동시에 가능\n실패는 이전 상태 유지. 같은 버전 재승인·철회 취소 화살표와 자동 삭제/타임아웃은 추가하지 않음",
+            "type": "note",
+            "font": 18
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                87,
+                250
+              ],
+              [
+                220,
+                250
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                560,
+                250
+              ],
+              [
+                880,
+                250
+              ]
+            ],
+            "label": "revoke(reason) [B]\n/ 철회·감사 원자적 저장",
+            "lx": 720,
+            "ly": 175
+          },
+          {
+            "points": [
+              [
+                1230,
+                250
+              ],
+              [
+                1348,
+                250
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          }
+        ],
+        "frames": [],
+        "labels": []
+      },
+      "operationRefs": [
+        "Version.approve",
+        "Approval.revoke",
+        "Work.registerVersion",
+        "Work.listHistory"
+      ],
+      "mermaid": "stateDiagram-v2\n    [*] --> Active\n    state \"미철회 승인\" as Active\n    state \"승인 철회\" as Revoked\n    Active --> Revoked: revoke(reason) [B] / 철회·감사 저장\n    Revoked --> [*]\n    note right of Revoked\n        효력 변경 절차 종료이며 기록 삭제 아님\n        후속 버전과 철회는 동시에 가능\n        같은 버전의 재승인 없음\n    end note\n"
+    },
+    {
+      "id": "AC01-workflow",
+      "title": "Activity · 책임별 승인 흐름과 재작업",
+      "category": "Activity",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03",
+        "UC-04",
+        "UC-05",
+        "UC-07",
+        "UC-08",
+        "UC-09"
+      ],
+      "kind": "scene",
+      "summary": "작성자·시스템·검토자·수신자의 스윔레인으로 정상 경로와 보완·재검토·저장 실패를 표현한다. 이 흐름은 대표 승인 시나리오이며 철회 요청은 SQ04·ST01에서 별도로 다룬다.",
+      "scene": {
+        "title": "Activity · 책임별 승인 흐름과 재작업",
+        "width": 1410,
+        "height": 1580,
+        "nodes": [
+          {
+            "id": "start",
+            "x": 190,
+            "y": 70,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point"
+          },
+          {
+            "id": "register",
+            "x": 65,
+            "y": 120,
+            "w": 250,
+            "h": 85,
+            "label": "UC-01 PDF·AI 신고 등록\nUC-08 기여 연결 (선택)",
+            "type": "rect"
+          },
+          {
+            "id": "input",
+            "x": 408,
+            "y": 120,
+            "w": 264,
+            "h": 85,
+            "label": "입력 검증·해시\n버전·세 과제 저장",
+            "type": "rect"
+          },
+          {
+            "id": "answer",
+            "x": 65,
+            "y": 265,
+            "w": 250,
+            "h": 85,
+            "label": "UC-02 세 이해 과제 제출",
+            "type": "rect"
+          },
+          {
+            "id": "eval",
+            "x": 760,
+            "y": 265,
+            "w": 250,
+            "h": 100,
+            "label": "UC-03 답변·근거·PDF 검토\n평가·체크 4개·메모",
+            "type": "rect"
+          },
+          {
+            "id": "request",
+            "x": 760,
+            "y": 425,
+            "w": 250,
+            "h": 75,
+            "label": "UC-04 최종 승인 요청",
+            "type": "rect"
+          },
+          {
+            "id": "guard",
+            "x": 415,
+            "y": 403,
+            "w": 250,
+            "h": 115,
+            "label": "승인 조건\n충족?",
+            "type": "diamond",
+            "fill": "#fff5e9"
+          },
+          {
+            "id": "repair",
+            "x": 65,
+            "y": 420,
+            "w": 250,
+            "h": 115,
+            "label": "파일 · 신고 · 위험도\n변경?",
+            "type": "diamond",
+            "fill": "#fff5e9"
+          },
+          {
+            "id": "save",
+            "x": 408,
+            "y": 605,
+            "w": 264,
+            "h": 85,
+            "label": "승인·감사 원자적 저장\nrevision 검사",
+            "type": "rect"
+          },
+          {
+            "id": "saved",
+            "x": 433,
+            "y": 758,
+            "w": 214,
+            "h": 104,
+            "label": "commit\n성공?",
+            "type": "diamond",
+            "fill": "#fff5e9"
+          },
+          {
+            "id": "failed",
+            "x": 760,
+            "y": 730,
+            "w": 250,
+            "h": 115,
+            "label": "복원·최신 기록 확인\n입력 재확인 후 수동 재시도\n자동 승인 재시도 없음",
+            "type": "rect",
+            "font": 17
+          },
+          {
+            "id": "receipt",
+            "x": 408,
+            "y": 935,
+            "w": 264,
+            "h": 75,
+            "label": "UC-09 증명서·이력 조회",
+            "type": "rect"
+          },
+          {
+            "id": "qr",
+            "x": 1095,
+            "y": 935,
+            "w": 260,
+            "h": 75,
+            "label": "UC-07 QR 열기",
+            "type": "rect"
+          },
+          {
+            "id": "check",
+            "x": 408,
+            "y": 1075,
+            "w": 264,
+            "h": 90,
+            "label": "요약 형식 검증\n로컬 현재 정보 범위 표시",
+            "type": "rect"
+          },
+          {
+            "id": "choose",
+            "x": 1103,
+            "y": 1072,
+            "w": 245,
+            "h": 100,
+            "label": "파일\n선택?",
+            "type": "diamond",
+            "fill": "#fff5e9"
+          },
+          {
+            "id": "hash",
+            "x": 408,
+            "y": 1230,
+            "w": 264,
+            "h": 105,
+            "label": "선택 파일 SHA-256 비교\n일치/불일치·확인 범위\n각각 표시",
+            "type": "rect"
+          },
+          {
+            "id": "unverified",
+            "x": 1095,
+            "y": 1250,
+            "w": 260,
+            "h": 75,
+            "label": "파일 일치 미확인",
+            "type": "rect"
+          },
+          {
+            "id": "final",
+            "x": 1225,
+            "y": 1370,
+            "w": 0,
+            "h": 0,
+            "label": "",
+            "type": "point",
+            "final": true
+          },
+          {
+            "id": "merge-register",
+            "type": "diamond",
+            "x": 175,
+            "y": 95,
+            "w": 30,
+            "h": 20,
+            "label": "",
+            "fill": "white"
+          },
+          {
+            "id": "merge-answer",
+            "type": "diamond",
+            "x": 175,
+            "y": 225,
+            "w": 30,
+            "h": 25,
+            "label": "",
+            "fill": "white"
+          },
+          {
+            "id": "merge-evaluate",
+            "type": "diamond",
+            "x": 715,
+            "y": 292,
+            "w": 30,
+            "h": 30,
+            "label": "",
+            "fill": "white"
+          },
+          {
+            "id": "merge-request",
+            "type": "diamond",
+            "x": 870,
+            "y": 385,
+            "w": 30,
+            "h": 25,
+            "label": "",
+            "fill": "white"
+          },
+          {
+            "id": "scopeNote",
+            "x": 55,
+            "y": 1430,
+            "w": 1300,
+            "h": 105,
+            "label": "새 버전은 UC-05 / 철회 UC-06은 SQ04·ST01 / 수정 요청 시 시스템이 회차 보존·평가 초기화·저장 후 재제출 안내\n빈 마름모는 택일 경로의 병합, 스윔레인은 병렬 실행이 아님 / 보완 대상은 작성자 우선 후 검토자 조건 확인\n기여·답변·평가에도 공통 저장 실패 처리를 적용 / 현재 수신자 확인은 서명 없는 QR의 확인 범위 표시",
+            "type": "note",
+            "font": 17
+          },
+          {
+            "id": "request-revision",
+            "type": "rect",
+            "x": 760,
+            "y": 555,
+            "w": 250,
+            "h": 90,
+            "label": "UC-03 수정 요청 등록\n회차 보존·초기화 요청",
+            "font": 17
+          }
+        ],
+        "edges": [
+          {
+            "points": [
+              [
+                190,
+                77
+              ],
+              [
+                190,
+                95
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                315,
+                162
+              ],
+              [
+                408,
+                162
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                540,
+                205
+              ],
+              [
+                540,
+                238
+              ],
+              [
+                205,
+                238
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                315,
+                307
+              ],
+              [
+                715,
+                307
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                885,
+                365
+              ],
+              [
+                885,
+                385
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                760,
+                462
+              ],
+              [
+                665,
+                462
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                415,
+                461
+              ],
+              [
+                375,
+                461
+              ],
+              [
+                375,
+                385
+              ],
+              [
+                190,
+                385
+              ],
+              [
+                190,
+                420
+              ]
+            ],
+            "label": "[작성자 보완]",
+            "lx": 285,
+            "ly": 371
+          },
+          {
+            "points": [
+              [
+                65,
+                477
+              ],
+              [
+                40,
+                477
+              ],
+              [
+                40,
+                105
+              ],
+              [
+                175,
+                105
+              ]
+            ],
+            "label": "[예] 새 버전 등록",
+            "lx": 175,
+            "ly": 235
+          },
+          {
+            "points": [
+              [
+                540,
+                518
+              ],
+              [
+                540,
+                605
+              ]
+            ],
+            "label": "[예]",
+            "lx": 570,
+            "ly": 558
+          },
+          {
+            "points": [
+              [
+                540,
+                690
+              ],
+              [
+                540,
+                758
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                647,
+                810
+              ],
+              [
+                760,
+                810
+              ]
+            ],
+            "label": "[실패]",
+            "lx": 705,
+            "ly": 790
+          },
+          {
+            "points": [
+              [
+                885,
+                730
+              ],
+              [
+                885,
+                710
+              ],
+              [
+                1030,
+                710
+              ],
+              [
+                1030,
+                397
+              ],
+              [
+                900,
+                397
+              ]
+            ],
+            "label": "재확인 후 요청",
+            "lx": 1135,
+            "ly": 600
+          },
+          {
+            "points": [
+              [
+                540,
+                862
+              ],
+              [
+                540,
+                935
+              ]
+            ],
+            "label": "[예]",
+            "lx": 572,
+            "ly": 903
+          },
+          {
+            "points": [
+              [
+                672,
+                973
+              ],
+              [
+                1095,
+                973
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                1095,
+                986
+              ],
+              [
+                1025,
+                986
+              ],
+              [
+                1025,
+                1120
+              ],
+              [
+                672,
+                1120
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                672,
+                1146
+              ],
+              [
+                1035,
+                1146
+              ],
+              [
+                1035,
+                1122
+              ],
+              [
+                1103,
+                1122
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                1225,
+                1172
+              ],
+              [
+                1225,
+                1250
+              ]
+            ],
+            "label": "[아니오]",
+            "lx": 1280,
+            "ly": 1210
+          },
+          {
+            "points": [
+              [
+                1103,
+                1122
+              ],
+              [
+                1048,
+                1122
+              ],
+              [
+                1048,
+                1280
+              ],
+              [
+                672,
+                1280
+              ]
+            ],
+            "label": "[예] 선택 파일",
+            "lx": 872,
+            "ly": 1257
+          },
+          {
+            "points": [
+              [
+                672,
+                1305
+              ],
+              [
+                1038,
+                1305
+              ],
+              [
+                1038,
+                1370
+              ],
+              [
+                1213,
+                1370
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                1225,
+                1325
+              ],
+              [
+                1225,
+                1358
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null
+          },
+          {
+            "points": [
+              [
+                190,
+                535
+              ],
+              [
+                190,
+                600
+              ],
+              [
+                760,
+                600
+              ]
+            ],
+            "label": "[아니오] 답변 보완",
+            "lx": 315,
+            "ly": 579
+          },
+          {
+            "points": [
+              [
+                540,
+                403
+              ],
+              [
+                540,
+                378
+              ],
+              [
+                730,
+                378
+              ],
+              [
+                730,
+                322
+              ]
+            ],
+            "label": "[그 외 보완]",
+            "lx": 630,
+            "ly": 371
+          },
+          {
+            "points": [
+              [
+                190,
+                115
+              ],
+              [
+                190,
+                120
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                190,
+                250
+              ],
+              [
+                190,
+                265
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                745,
+                307
+              ],
+              [
+                760,
+                307
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                885,
+                410
+              ],
+              [
+                885,
+                425
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                885,
+                645
+              ],
+              [
+                700,
+                645
+              ],
+              [
+                700,
+                238
+              ],
+              [
+                205,
+                238
+              ]
+            ],
+            "label": null,
+            "lx": null,
+            "ly": null,
+            "arrow": true
+          }
+        ],
+        "frames": [
+          {
+            "x": 25,
+            "y": 15,
+            "w": 330,
+            "h": 1390,
+            "title": "작성자",
+            "fill": "#fbfcff"
+          },
+          {
+            "x": 370,
+            "y": 15,
+            "w": 340,
+            "h": 1390,
+            "title": "HAVE 시스템"
+          },
+          {
+            "x": 725,
+            "y": 15,
+            "w": 325,
+            "h": 1390,
+            "title": "검토자"
+          },
+          {
+            "x": 1065,
+            "y": 15,
+            "w": 315,
+            "h": 1390,
+            "title": "검증자 / 수신자"
+          }
+        ],
+        "labels": []
+      },
+      "mermaid": "flowchart TD\n    Start((시작)) --> Input[작성자: PDF·AI 신고 / 선택적 기여 연결]\n    Input --> Register[시스템: 검증·해시·버전 저장]\n    Register --> Answers[작성자: 세 이해 과제 제출]\n    Answers --> Review[검토자: 평가·근거·체크·메모]\n    Review --> Request[검토자: 최종 승인 요청]\n    Request --> Gate{시스템: 승인 조건 충족?}\n    Gate -->|작성자 보완 필요| Repair{보완 대상 선택}\n    Repair -->|PDF·신고 변경 / UC-05| Input\n    Repair -->|답변 보완| Revision[검토자: 수정 요청 / 시스템: 회차 보존·초기화·저장]\n    Revision --> Answers\n    Gate -->|그 외 평가·체크·메모 보완| Review\n    Gate -->|예| Commit[시스템: 승인·감사 원자적 저장]\n    Commit --> Saved{commit 성공?}\n    Saved -->|아니오| Restore[복원·최신 기록 확인 / 자동 재승인 없음]\n    Restore --> Request\n    Saved -->|예| Evidence[증명서·이력 조회]\n    Evidence --> QR[수신자: QR 요약·확인 범위 확인]\n    QR --> File{파일 선택?}\n    File -->|예| Compare[SHA-256 비교 / 일치·불일치]\n    File -->|아니오| Unknown[파일 일치 미확인]\n    Compare --> End((종료))\n    Unknown --> End\n"
+    }
+  ],
+  "lecture": {
+    "filename": "Ch06_요구 모델링_정적-동적-final (1).pdf",
+    "pages": {
+      "process": [
+        15,
+        16
+      ],
+      "classes": [
+        18,
+        40
+      ],
+      "sequence": [
+        43,
+        48
+      ],
+      "state": [
+        51,
+        54
+      ],
+      "activity": [
+        56,
+        58
+      ],
+      "validation": [
+        60,
+        63
+      ]
+    }
+  },
+  "constraints": [
+    "한 버전 승인 최대 한 건",
+    "승인된 검토 범위 불변",
+    "새 버전에 승인 상속 없음",
+    "철회와 후속 버전 관계 독립",
+    "서명 없는 QR 요약의 신뢰 범위 명시",
+    "모든 쓰기 성공 표시는 commit 이후"
+  ],
+  "cardinalityAudit": [
+    {
+      "id": "R01",
+      "source": "Work",
+      "target": "Version",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "1..*",
+      "result": "유지",
+      "condition": "작업은 첫 버전 저장 성공 후 존재. 현재 스키마는 버전 1~10000개.",
+      "useCases": [
+        "UC-01",
+        "UC-05"
+      ]
+    },
+    {
+      "id": "R02",
+      "source": "Version",
+      "target": "Review",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "1",
+      "result": "유지·조건 명시",
+      "condition": "버전마다 현재 검토 1개. 재제출·수정 요청은 현재 검토 수를 늘리지 않음.",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03",
+        "UC-05",
+        "UC-08"
+      ]
+    },
+    {
+      "id": "R03",
+      "source": "Review",
+      "target": "GateResponse",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "3",
+      "result": "유지",
+      "condition": "빈 초안 포함 고정 슬롯 3개. 답변 회수·재제출로 슬롯을 추가/삭제하지 않음.",
+      "useCases": [
+        "UC-01",
+        "UC-02",
+        "UC-03"
+      ]
+    },
+    {
+      "id": "R04",
+      "source": "GateResponse",
+      "target": "Evaluation",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..1",
+      "result": "유지·범위 명시",
+      "condition": "답변 슬롯의 현재 평가만 0..1개. 이전 회차의 평가는 스냅샷 값으로 별도 보존.",
+      "useCases": [
+        "UC-02",
+        "UC-03",
+        "UC-08"
+      ]
+    },
+    {
+      "id": "R05",
+      "source": "Review",
+      "target": "ReviewRound",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..*",
+      "result": "유지·상한 명시",
+      "condition": "수정 요청·신규 근거 연결 성공마다 과거 회차 1개. 스키마 상한 1000개.",
+      "useCases": [
+        "UC-03",
+        "UC-08"
+      ]
+    },
+    {
+      "id": "R06",
+      "source": "Version",
+      "target": "Contribution",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..*",
+      "result": "식별 범위 보완",
+      "condition": "버전별 사본의 개념 키는 (versionId,recordId). 버전 내 중복 금지·최대 100개, 버전 간 원본 ID 재사용 가능.",
+      "useCases": [
+        "UC-08",
+        "UC-05"
+      ]
+    },
+    {
+      "id": "R07",
+      "source": "Version",
+      "target": "Approval",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..1",
+      "result": "유지",
+      "condition": "승인 전 0건, 승인 저장 성공 후 1건. 철회해도 삭제하거나 같은 버전을 재승인하지 않음.",
+      "useCases": [
+        "UC-04",
+        "UC-05",
+        "UC-06"
+      ]
+    },
+    {
+      "id": "R08",
+      "source": "Approval",
+      "target": "Receipt",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "1",
+      "result": "유지·범위 명시",
+      "condition": "현재 로컬 모델: 승인과 payload를 같은 저장에 생성. 재다운로드는 새 증명이 아님. 운영 비동기 서명은 별도 0..1 설계.",
+      "useCases": [
+        "UC-04",
+        "UC-09"
+      ]
+    },
+    {
+      "id": "R09",
+      "source": "Work",
+      "target": "AuditEvent",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..*",
+      "result": "유지",
+      "condition": "사건은 작업에 속하며 삭제/재작성하지 않음. 사건 대상 버전은 같은 작업 안에 존재해야 함.",
+      "useCases": [
+        "UC-01",
+        "UC-03",
+        "UC-04",
+        "UC-05",
+        "UC-06",
+        "UC-08"
+      ]
+    },
+    {
+      "id": "R10",
+      "source": "Version",
+      "target": "AuditEvent",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..*",
+      "result": "누락 연관 추가",
+      "condition": "감사 사건은 정확히 대상 버전 1개를 가리킴. 단순히 Work 소속만 그리면 이 제약이 사라짐.",
+      "useCases": [
+        "UC-01",
+        "UC-03",
+        "UC-04",
+        "UC-05",
+        "UC-06",
+        "UC-08"
+      ]
+    }
+  ],
+  "stateSpecification": {
+    "scope": "단일 Version의 검토·승인 절차",
+    "start": "UC-01/05의 첫 버전 저장 성공 후 빈 답변 슬롯 3개·미승인 검토",
+    "end": "UC-04 승인·증명·감사 commit 성공으로 해당 버전 검토·승인 절차 종료",
+    "notEnd": [
+      "평가 통과",
+      "반려/수정 요청",
+      "저장 실패",
+      "후속 버전 생성"
+    ],
+    "symbols": {
+      "S": "세 답변 모두 제출",
+      "R": "수정 요청 플래그 returned",
+      "K": "현재 평가 중 치명 오류 존재",
+      "P": "gatesPassed: S·평가 근거·정수 0..2점·5/6 이상·!R·!K",
+      "A": "P·체크 4개·메모·검토자 역할·기존 승인 없음·저장 가능·revision 일치·commit 성공"
+    },
+    "transitions": [
+      {
+        "id": "T01",
+        "source": "작성 중",
+        "target": "검토 대기",
+        "event": "Review.submit",
+        "guard": "S && !K",
+        "action": "답변·확신도 저장, 마지막 제출 시 R 해제"
+      },
+      {
+        "id": "T02",
+        "source": "검토 대기",
+        "target": "평가 통과",
+        "event": "Review.evaluate",
+        "guard": "P",
+        "action": "현재 평가 기록"
+      },
+      {
+        "id": "T03",
+        "source": "검토 대기",
+        "target": "수정 요청",
+        "event": "Review.requestRevision",
+        "guard": "S && 미승인 && 사유 있음",
+        "action": "회차 +1, 제출·평가·체크·메모 초기화, R=true"
+      },
+      {
+        "id": "T04",
+        "source": "검토 대기",
+        "target": "수정 요청",
+        "event": "Review.evaluate",
+        "guard": "K",
+        "action": "치명 오류 평가 기록"
+      },
+      {
+        "id": "T05",
+        "source": "평가 통과",
+        "target": "수정 요청",
+        "event": "Review.requestRevision",
+        "guard": "미승인 && 사유 있음",
+        "action": "회차 +1, 제출·평가·체크·메모 초기화, R=true"
+      },
+      {
+        "id": "T06",
+        "source": "평가 통과",
+        "target": "수정 요청",
+        "event": "Review.evaluate",
+        "guard": "K",
+        "action": "치명 오류 평가 기록"
+      },
+      {
+        "id": "T07",
+        "source": "평가 통과",
+        "target": "검토 대기",
+        "event": "Review.evaluate",
+        "guard": "S && !R && !K && !P",
+        "action": "현재 평가·근거 변경"
+      },
+      {
+        "id": "T08",
+        "source": "평가 통과",
+        "target": "검토 대기",
+        "event": "Version.attachContributions",
+        "guard": "신규 근거 && 미승인",
+        "action": "회차 +1, 평가·체크·메모 초기화, 제출 유지"
+      },
+      {
+        "id": "T09",
+        "source": "수정 요청",
+        "target": "검토 대기",
+        "event": "Review.submit",
+        "guard": "S && !K",
+        "action": "재제출 완료 시 R 해제"
+      },
+      {
+        "id": "T10",
+        "source": "수정 요청",
+        "target": "검토 대기",
+        "event": "Review.evaluate",
+        "guard": "S && !R && !K && !P",
+        "action": "치명 오류 해제 후 미통과 평가"
+      },
+      {
+        "id": "T11",
+        "source": "수정 요청",
+        "target": "평가 통과",
+        "event": "Review.evaluate",
+        "guard": "P",
+        "action": "치명 오류 해제 후 통과 평가"
+      },
+      {
+        "id": "T12",
+        "source": "수정 요청",
+        "target": "작성 중",
+        "event": "Review.evaluate",
+        "guard": "!S && !R && !K",
+        "action": "부분 제출 답변의 치명 오류 해제"
+      },
+      {
+        "id": "T13",
+        "source": "작성 중",
+        "target": "수정 요청",
+        "event": "Review.evaluate",
+        "guard": "K && 대상 답변 제출됨",
+        "action": "부분 제출 상태에서도 가능한 치명 오류 평가"
+      },
+      {
+        "id": "T14",
+        "source": "미승인 복합 상태",
+        "target": "승인 완료·절차 종료",
+        "event": "Version.approve",
+        "guard": "A",
+        "action": "승인 1건·증명 1건·감사 생성, 검토 범위 고정"
+      },
+      {
+        "id": "T15",
+        "source": "모든 미승인 하위 상태",
+        "target": "R/S로 재판정",
+        "event": "Version.attachContributions",
+        "guard": "신규 근거 && 입력·상한 유효",
+        "action": "회차 +1, 평가·체크·메모 초기화; R/제출은 유지"
+      }
+    ],
+    "classification": "K 또는 R → 수정 요청; 그 외 P → 평가 통과; 그 외 S → 검토 대기; 나머지 → 답변 작성 중",
+    "persistence": "실패 시 전이 취소. 충돌 시 이전 요청 성공으로 표시하지 않고 최신 상태를 검증·조회한다.",
+    "finalMeaning": "UML 최종 노드는 해당 상태기계의 실행 종료를 뜻하며 객체/저장 데이터 삭제를 뜻하지 않는다.",
+    "supplement": "순서-상태-다이어그램-작성법-보조.pdf p11~16"
+  }
+}

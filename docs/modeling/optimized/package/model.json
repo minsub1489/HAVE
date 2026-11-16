@@ -1,0 +1,25 @@
+{
+  "id": "PK01-have",
+  "date": "2026-11-02",
+  "title": "HAVE 패키지 다이어그램",
+  "scope": "현재 9개 유스케이스 기반 논리 설계 · 기존 분석 클래스 14개를 책임별로 그룹화",
+  "width": 1540,
+  "height": 1130,
+  "packages": [
+    {"id":"presentation","name":"화면 · Presentation","x":80,"y":160,"w":560,"h":190,"color":"#eaf1ff","classes":[],"lines":["작성자 · 검토자 · 수신자 화면","입력 · 검토 결과 · 승인 요약 표시","UC-01~09의 웹 사용자 접점"],"mapping":"현재 대응: index.html · styles.css · app.js 화면 부분"},
+    {"id":"application","name":"업무 조정 · Application","x":80,"y":445,"w":560,"h":245,"color":"#eaf1ff","classes":["HAVEWorkflow","EvidenceVerifier"],"lines":["HAVEWorkflow · 등록 / 검토 / 승인 / 철회 / 이력","EvidenceVerifier · 공개 요약 확인 / 선택 파일 비교","도메인 판정 호출 · 저장 완료 후 성공 처리"],"mapping":"현재 대응: app.js의 업무 조정 · 검증 흐름"},
+    {"id":"domain","name":"도메인 · Domain","x":920,"y":445,"w":540,"h":380,"color":"#edf7f1","classes":["Work","Version","Contribution","AuditEvent","Review","GateResponse","Evaluation","ReviewRound","Approval","Receipt"],"lines":["Work · Version · Contribution · AuditEvent","Review · GateResponse · Evaluation · ReviewRound","Approval · Receipt","","특정 버전 · PDF 해시 · 검토 범위에 승인 고정","3종 과제 · 평가 · 회차 보존 · 승인 조건 판정","새 버전 승인 미상속 · 철회 기록 보존"],"mapping":"현재 대응: domain.js 규칙 + app.js의 도메인 처리"},
+    {"id":"persistence","name":"로컬 저장 · Persistence","x":80,"y":810,"w":560,"h":190,"color":"#f1edf9","classes":["WorkspaceRepository"],"lines":["WorkspaceRepository · 조회 / 조건부 저장","IndexedDB 원자적 저장 · revision 충돌 검사","저장 실패 시 업무 조정 계층에서 복원"],"mapping":"현재 대응: repository.js"},
+    {"id":"capture","name":"기여 수집 · Contribution Capture","x":920,"y":160,"w":540,"h":190,"color":"#fff4e5","classes":["ContributionRecorder"],"lines":["ContributionRecorder · 근거 수집 / 확인 / JSON 내보내기","사용자 호출 탭만 접근 · 로컬 기록 저장","UC-08의 확장 측 책임"],"mapping":"현재 대응: extension/popup.js · records.js"}
+  ],
+  "dependencies": [
+    {"from":"presentation","to":"application","points":"360,350 360,445","label":"업무 요청 · 결과 확인","lx":380,"ly":402},
+    {"from":"application","to":"domain","points":"640,565 920,565","label":"모델 · 규칙 사용","lx":690,"ly":540},
+    {"from":"application","to":"persistence","points":"360,690 360,810","label":"조회 · commit 호출","lx":380,"ly":757}
+  ],
+  "integrationNote": [
+    "확장 연동: JSON 내보내기 → 사용자 선택 → 웹 미리보기·확인",
+    "웹 업무 조정에서 검증 후 버전에 기여 사본 연결",
+    "파일 교환이며 패키지 간 직접 호출·import가 아님"
+  ]
+}

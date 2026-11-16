@@ -1,0 +1,41 @@
+{
+  "date":"2026-11-02",
+  "scope":"첨부 10개 유스케이스 중 UC06 최종 승인 및 반려 · UC10 승인 철회 / 운영 서비스 분석·설계안",
+  "classes":[
+    {"id":"ApprovalCase","label":"최종 결정 대상","package":"domain","attrs":["caseId / versionId / revision","status: PENDING | REJECTED | APPROVED"],"ops":["approve(actor): Approval","reject(actor, reason)"]},
+    {"id":"VersionSnapshot","label":"버전 스냅샷","package":"domain","attrs":["versionId / authorId / fileHash","aiDisclosureHash / reviewDigest"],"ops":[]},
+    {"id":"ReviewSnapshot","label":"검토 결과 스냅샷","package":"domain","attrs":["reviewId / policyVersion / totalScore","allSubmitted / hasCritical / checks / memo"],"ops":["passes(): Boolean"]},
+    {"id":"Approval","label":"승인 기록","package":"domain","attrs":["approvalId / versionId / approverId","approvedAt / reviewDigest / revokedAt?"],"ops":["revoke(actor, reason): Revocation"]},
+    {"id":"Receipt","label":"승인 증명서","package":"domain","attrs":["receiptId / payload / payloadHash","signingStatus: PENDING | READY | FAILED"],"ops":[]},
+    {"id":"Revocation","label":"철회 기록","package":"domain","attrs":["revocationId / actorId / reason / revokedAt"],"ops":[]},
+    {"id":"AuditEvent","label":"결정 감사 기록","package":"domain","attrs":["eventId / caseId / versionId","actorId / action / reason / occurredAt"],"ops":[]},
+    {"id":"OutboxEvent","label":"증명서 서명 요청","package":"domain","attrs":["eventId / receiptId / payloadHash","deliveryStatus / retryCount"],"ops":[]},
+    {"id":"ApprovalService","label":"승인 업무 조정","package":"application","attrs":[],"ops":["decide(command): Result","revoke(command): Result"]},
+    {"id":"AuthorizationPolicy","label":"권한 정책","package":"authorization","attrs":[],"ops":["authorize(actor, target, action)"]},
+    {"id":"ApprovalRepository","label":"트랜잭션 저장 계약","package":"persistence","attrs":[],"ops":["loadForUpdate(id): Aggregate","commit(changes, revision, key): Result"]}
+  ],
+  "relations":[
+    {"from":"ApprovalCase","to":"VersionSnapshot","fm":"0..1","tm":"1","label":"현재 결정 대상"},
+    {"from":"VersionSnapshot","to":"ReviewSnapshot","fm":"1","tm":"1","label":"고정된 검토 범위"},
+    {"from":"ApprovalCase","to":"Approval","fm":"1","tm":"0..1","label":"최종 승인"},
+    {"from":"Approval","to":"Receipt","fm":"1","tm":"1","label":"발급 기록"},
+    {"from":"Approval","to":"Revocation","fm":"1","tm":"0..1","label":"단방향 철회"},
+    {"from":"ApprovalCase","to":"AuditEvent","fm":"1","tm":"0..*","label":"결정 이력"},
+    {"from":"Receipt","to":"OutboxEvent","fm":"1","tm":"1","label":"동일 요청 재전달"},
+    {"from":"ApprovalService","to":"ApprovalCase","dep":true,"label":"approve / reject"},
+    {"from":"ApprovalService","to":"Approval","dep":true,"label":"revoke"},
+    {"from":"ApprovalService","to":"ReviewSnapshot","dep":true,"label":"passes"},
+    {"from":"ApprovalService","to":"AuthorizationPolicy","dep":true,"label":"authorize"},
+    {"from":"ApprovalService","to":"ApprovalRepository","dep":true,"label":"load / commit"}
+  ],
+  "guards":{
+    "G":"로그인한 담당 최종 승인자 · 작업 접근 권한 · 자기 승인 금지 · 대상 revision 일치",
+    "A":"G + 대기 상태 + 기존 승인 없음 + 답변 3개 제출·평가 근거 + 5/6 이상 + 치명 오류 없음 + 수정 요청 해제 + 체크 4개·메모",
+    "J":"G + 대기 상태 + 반려 사유 필수 (점수 통과는 반려의 필수 조건이 아님)",
+    "R":"로그인한 철회 권한자 + 승인 ID·revision 일치 + 미철회 승인 + 철회 사유 필수"
+  },
+  "contracts":[
+    {"id":"UC06","name":"최종 승인 및 반려","pre":"검토가 끝난 특정 버전의 결정 대상이 생성되어 대기 중이며 담당 최종 승인자가 배정되어 있다.","post":"승인은 Approval·Receipt(PENDING)·감사·Outbox를 같은 트랜잭션에 기록한다. 반려는 사유·감사만 기록하며 승인과 증명서를 만들지 않는다.","exception":"권한·승인 조건 미충족은 차단한다. revision 충돌은 최신 상태를 확인하며 자동 승인 재시도하지 않는다. commit 실패는 전체 변경을 취소한다."},
+    {"id":"UC10","name":"승인 철회","pre":"특정 승인 ID가 존재하고 아직 철회되지 않았으며 담당자에게 철회 권한이 있다.","post":"원본 승인·증명서를 남기고 철회자·시각·사유와 감사를 함께 저장한다. 철회 취소 및 같은 버전 재승인은 허용하지 않는다.","exception":"미승인 대상·권한 없음·빈 사유는 거부한다. 같은 멱등 키의 재요청은 기존 결과를 돌려준다. 별도 중복 철회는 기존 철회 상태를 안내한다."}
+  ]
+}

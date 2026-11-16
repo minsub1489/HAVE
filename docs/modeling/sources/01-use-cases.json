@@ -1,0 +1,348 @@
+{
+  "title": "01 / 유스케이스 - 사용자 목표와 경계",
+  "width": 1410,
+  "height": 990,
+  "nodes": [
+    {
+      "id": "a",
+      "x": 100,
+      "y": 190,
+      "w": 0,
+      "h": 0,
+      "label": "작성자",
+      "type": "actor"
+    },
+    {
+      "id": "r",
+      "x": 1310,
+      "y": 240,
+      "w": 0,
+      "h": 0,
+      "label": "검토자",
+      "type": "actor"
+    },
+    {
+      "id": "v",
+      "x": 1310,
+      "y": 625,
+      "w": 0,
+      "h": 0,
+      "label": "검증자 / 수신자",
+      "type": "actor"
+    },
+    {
+      "id": "register",
+      "x": 230,
+      "y": 85,
+      "w": 360,
+      "h": 95,
+      "label": "UC-01\nPDF · AI 신고 등록",
+      "type": "ellipse"
+    },
+    {
+      "id": "answer",
+      "x": 230,
+      "y": 230,
+      "w": 360,
+      "h": 95,
+      "label": "UC-02\n세 이해 과제 제출",
+      "type": "ellipse"
+    },
+    {
+      "id": "version",
+      "x": 230,
+      "y": 380,
+      "w": 360,
+      "h": 95,
+      "label": "UC-05\n새 버전 등록",
+      "type": "ellipse"
+    },
+    {
+      "id": "import",
+      "x": 230,
+      "y": 530,
+      "w": 360,
+      "h": 95,
+      "label": "UC-08\n기여 수집 · 확인 · 연결",
+      "type": "ellipse"
+    },
+    {
+      "id": "eval",
+      "x": 770,
+      "y": 85,
+      "w": 360,
+      "h": 95,
+      "label": "UC-03\n평가 · 수정 요청",
+      "type": "ellipse"
+    },
+    {
+      "id": "approve",
+      "x": 770,
+      "y": 230,
+      "w": 360,
+      "h": 95,
+      "label": "UC-04\n특정 버전 최종 승인",
+      "type": "ellipse"
+    },
+    {
+      "id": "revoke",
+      "x": 770,
+      "y": 380,
+      "w": 360,
+      "h": 95,
+      "label": "UC-06\n승인 철회 · 사유 기록",
+      "type": "ellipse"
+    },
+    {
+      "id": "qr",
+      "x": 770,
+      "y": 530,
+      "w": 360,
+      "h": 95,
+      "label": "UC-07a\nQR 요약 · 확인 범위",
+      "type": "ellipse"
+    },
+    {
+      "id": "file",
+      "x": 770,
+      "y": 670,
+      "w": 360,
+      "h": 95,
+      "label": "UC-07b\n선택 파일 해시 비교",
+      "type": "ellipse"
+    },
+    {
+      "id": "cond",
+      "x": 230,
+      "y": 670,
+      "w": 360,
+      "h": 95,
+      "label": "승인 조건 확인",
+      "type": "ellipse"
+    },
+    {
+      "id": "planned",
+      "x": 470,
+      "y": 840,
+      "w": 430,
+      "h": 95,
+      "label": "서명 · 최신 효력 조회\n[운영 계획]",
+      "type": "ellipse",
+      "planned": true
+    }
+  ],
+  "edges": [
+    {
+      "points": [
+        [
+          125,
+          185
+        ],
+        [
+          230,
+          132
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          125,
+          185
+        ],
+        [
+          230,
+          277
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          125,
+          185
+        ],
+        [
+          175,
+          425
+        ],
+        [
+          230,
+          425
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          125,
+          185
+        ],
+        [
+          175,
+          577
+        ],
+        [
+          230,
+          577
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          235
+        ],
+        [
+          1130,
+          132
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          235
+        ],
+        [
+          1130,
+          277
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          235
+        ],
+        [
+          1190,
+          427
+        ],
+        [
+          1130,
+          427
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          620
+        ],
+        [
+          1130,
+          577
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          620
+        ],
+        [
+          1130,
+          717
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          1285,
+          620
+        ],
+        [
+          1220,
+          888
+        ],
+        [
+          900,
+          888
+        ]
+      ],
+      "label": null,
+      "lx": null,
+      "ly": null,
+      "arrow": false,
+      "dashed": true
+    },
+    {
+      "points": [
+        [
+          770,
+          278
+        ],
+        [
+          665,
+          278
+        ],
+        [
+          665,
+          718
+        ],
+        [
+          590,
+          718
+        ]
+      ],
+      "label": "«include»",
+      "lx": 665,
+      "ly": 490,
+      "dashed": true,
+      "openArrow": true
+    }
+  ],
+  "frames": [
+    {
+      "x": 205,
+      "y": 15,
+      "w": 980,
+      "h": 955,
+      "title": "HAVE · 웹 + Chrome 기여 기록 확장"
+    }
+  ],
+  "labels": []
+}

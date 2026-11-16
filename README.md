@@ -2,6 +2,18 @@
 
 AI 작업의 인간 검토·승인 기록을 특정 PDF 버전에 연결하는 소프트웨어공학 팀 프로젝트의 발표용 프로토타입입니다.
 
+## 작업을 시작하기 전에
+
+[프로젝트 맥락과 작업 인수인계](docs/project-context.md)에서 목적·대상 사용자, 작업물별 구현 범위, 승인 규칙, 전체 서비스 요구와 미정 사항, 수정 위치와 검증 방법을 확인할 수 있습니다. 다음 구현·문서·발표 작업의 시작점입니다. 자동 작업자를 위한 짧은 안내는 [AGENTS.md](AGENTS.md)에 있습니다.
+
+HAVE는 프로젝트명이고 HumanProof는 이 저장소의 프로토타입 명칭입니다. 현재 MVP의 9개 유스케이스 개요와 운영 서비스의 전체 요구사항을 구분해 관리합니다.
+
+## 발표 자료
+
+- [최종 제출 발표 PPT](<docs/presentation/HAVE_프로젝트 계획서(시스템 개발 제안 요청서).pptx>)
+- [발표 대본과 학습 해설](docs/presentation/support/)
+- 본 발표는 1~11페이지이며, 12페이지부터는 질의응답용 부록입니다.
+
 ## 크롬 확장 프로그램 형태의 프로토타입
 
 발표용 클릭 프로토타입입니다. 크롬 브라우저 모형에서 보라색 방패 아이콘을 누르면 HumanProof 팝업이 열립니다. HTML 한 개로 동작하며 확장 프로그램 설치가 필요하지 않습니다.
@@ -55,7 +67,7 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory prototype/dist
 
 - PDF 파일 형식·20 MB 크기 검사와 SHA-256 비교는 실제로 동작합니다.
 - 자기 승인, 과제 미통과, 치명 오류, 미완료 체크리스트는 승인을 차단합니다.
-- 역할은 시연을 위한 전환 기능입니다. 실제 계정 인증·서버 권한 검사·DB·전자서명은 연결하지 않았습니다.
+- 역할은 시연을 위한 전환 기능입니다. 실제 계정 인증·서버 권한 검사·서버 DB·전자서명은 연결하지 않았습니다.
 - 시연 기록은 현재 브라우저에 저장됩니다. 다른 기기의 QR 화면에는 발급 당시 요약만 표시하며 현재 효력을 확인했다고 표시하지 않습니다.
 - PDF·작업·승인·감사 기록은 IndexedDB에 저장됩니다. 저장 실패는 롤백하며, 여러 탭의 변경 충돌은 revision 검사로 차단합니다.
 - 수정 요청은 이전 검토 회차를 보존하고 현재 평가·체크리스트를 초기화합니다. 승인된 답변과 기여 근거는 영수증의 검토 범위 해시에 고정됩니다.
@@ -97,6 +109,12 @@ npm이 없는 Node 환경에서는 `node scripts/build-standalone.cjs`, `node --
 
 - [설치와 수동 점검](extension/README.md)
 - [현재 구조 평가와 운영 MVP 설계](docs/architecture.md)
+- [강의 기반 요구 모델링·다이어그램 해설](docs/modeling/README.md)
+- [최신 통합 클래스와 설계 패턴](docs/modeling/integrated/class-views/index.html)
+- [확정 서버 패키지와 책임](docs/subsystem-decision.md)
+- [최신 UI 가이드](docs/ui/DESIGN.md)
+- [9개 유스케이스 기반 Class·Sequence·State·Activity](docs/modeling/optimized/uml/README.md)
+- 유스케이스·클래스·시퀀스·상태·활동 그림 모음
 
 실제 Chrome 통합 검증은 Playwright가 있는 환경에서 `npm run test:browser`로 실행합니다. 설치된 Chrome을 쓸 때는 `CHROME_EXECUTABLE`에 실행 파일 경로를 설정할 수 있습니다. 확장 팝업 테스트는 Chrome API를 모의 구현하므로 실제 툴바 호출과 권한 활성화는 설치 후 수동 점검이 필요합니다.
 

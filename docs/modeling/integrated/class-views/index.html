@@ -1,0 +1,84 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+  <title>HAVE 통합 클래스와 설계 패턴</title><style>
+  body{margin:0;background:#f4f7fb;color:#18324e;font:16px/1.6 "Malgun Gothic",sans-serif}
+  main{max-width:1400px;margin:auto;padding:24px}section{background:white;margin:24px 0;padding:20px;border:1px solid #bccadc}
+  img{display:block;max-width:100%;height:auto;margin:auto}nav{display:flex;flex-wrap:wrap;gap:14px}a{color:#245697}
+  table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px;border:1px solid #bccadc}
+  </style><main><h1>HAVE 통합 클래스와 설계 패턴</h1>
+  <nav><a href="#overview">통합 그림</a><a href="#relations">관계 대응표</a>
+  <a href="#work">01  작업·버전·권한·감사</a><a href="#review">02  검토·이해 과제</a><a href="#approval">03  최종 결정·철회</a><a href="#certificate">04  증명서·공유·검증</a><a href="#observer">옵서버 · 작업 상태 변경 통지</a><a href="#strategy">전략 · 위험 등급별 검토 정책</a><a href="#bridge">브리지 · 저장 계약과 구현 분리</a><a href="#singleton">싱글턴 · DB 연결 풀</a><a href="#adapter">어댑터 · 외부 파일 저장소</a><a href="#factory">추상 팩토리 · 환경별 인프라 조립</a></nav>
+  <section id="overview"><h2>통합 클래스 개요</h2>
+    <p>네 영역을 확대해 읽을 수 있다. 황색 R 번호는 아래 대응표의 관계를 가리킨다.</p><a href="overview.svg"><img src="overview.svg" alt="통합 클래스 개요"></a>
+    <p><a href="overview.png">PNG</a> · <a href="overview.svg">확대용 SVG</a></p></section>
+  <section id="relations"><h2>관계 대응표와 다중도</h2><table>
+  <tr><th>번호</th><th>첫 클래스와 다중도</th><th>관계</th><th>둘째 클래스와 다중도</th></tr><tr id="R01"><th>R01</th><td><a href="#work">WorkVersion</a> · 1</td>
+    <td>평가 사본 보존</td><td><a href="#review">RiskAssessment</a> · 0..*</td></tr>
+<tr id="R02"><th>R02</th><td><a href="#work">WorkVersion</a> · 1</td>
+    <td>요청 {진행 중 최대 1개}</td><td><a href="#review">ReviewRequest</a> · 0..*</td></tr>
+<tr id="R03"><th>R03</th><td><a href="#work">User</a> · 1</td>
+    <td>지정 검토자 {요청자와 다름}</td><td><a href="#review">ReviewRequest</a> · 0..*</td></tr>
+<tr id="R04"><th>R04</th><td><a href="#work">WorkVersion</a> · 1</td>
+    <td>검토 회차</td><td><a href="#review">Review</a> · 0..*</td></tr>
+<tr id="R05"><th>R05</th><td><a href="#work">Revision</a> · 0..1</td>
+    <td>보완 근거 {아래 XOR 조건}</td><td><a href="#review">Review</a> · 0..1</td></tr>
+<tr id="R06"><th>R06</th><td><a href="#work">Revision</a> · 0..*</td>
+    <td>수정 전 버전</td><td><a href="#work">WorkVersion</a> · 1</td></tr>
+<tr id="R07"><th>R07</th><td><a href="#work">Revision</a> · 0..1</td>
+    <td>재제출 버전 {SUBMITTED이면 1}</td><td><a href="#work">WorkVersion</a> · 0..1</td></tr>
+<tr id="R08"><th>R08</th><td><a href="#work">WorkVersion</a> · 1</td>
+    <td>최종 결정 {검토 완료 후}</td><td><a href="#approval">ApprovalCase</a> · 0..1</td></tr>
+<tr id="R09"><th>R09</th><td><a href="#approval">ApprovalCase</a> · 0..1</td>
+    <td>고정된 승인 근거 회차</td><td><a href="#review">Review</a> · 1</td></tr>
+<tr id="R10"><th>R10</th><td><a href="#work">Revision</a> · 0..1</td>
+    <td>최종 반려 근거 {Review와 XOR}</td><td><a href="#approval">ApprovalCase</a> · 0..1</td></tr>
+<tr id="R11"><th>R11</th><td><a href="#approval">Approval</a> · 1</td>
+    <td>발급 레코드 {서명 전에도 존재}</td><td><a href="#certificate">Certificate</a> · 1</td></tr>
+<tr id="R12"><th>R12</th><td><a href="#certificate">Certificate</a> · 1</td>
+    <td>동일 서명 요청 재전달</td><td><a href="#approval">OutboxEvent</a> · 1</td></tr></table>
+  <p>Revision의 보완 근거는 Review 또는 반려 ApprovalCase 중 하나다. 새 버전은 이전 승인을 상속하지 않는다.</p>
+  <details><summary>영역 내부 관계의 전체 제약 보기</summary><ul><li>User [1] — WorkMember [0..*] · 사용자별 참여</li>
+<li>Work [1] — WorkMember [1..*] · 멤버십 {userId, workId 유일}</li>
+<li>User [1] — Work [0..*] · 작성자 / owner</li>
+<li>Work [1] — WorkVersion [0..*] · 버전 {제출 시 1개 이상}</li>
+<li>WorkVersion [0..1] — WorkVersion [0..1] · 직전 버전 / 후속 버전 {비순환}</li>
+<li>WorkVersion [1] — AiDisclosure [1] · 제출 시 고정 사본</li>
+<li>AiDisclosure [1] — AiToolUsage [0..*] · 도구 목록 {noAiUsed와 일관}</li>
+<li>WorkVersion [1] — Contribution [0..*] · 기여 사본 {버전 내 recordId 유일}</li>
+<li>WorkVersion [0..*] — EvidenceItem [0..*] · 불변 자료 참조</li>
+<li>ReviewRequest [0..*] — RiskAssessment [1] · 요청에 사용한 위험 근거</li>
+<li>ReviewRequest [1] — Challenge [1..*] · 정책에 따른 과제</li>
+<li>ReviewRequest [1] — Review [0..1] · 취소 전 검토 개시</li>
+<li>Challenge [1] — ChallengeResponse [0..1] · 현재 회차 답변</li>
+<li>ChallengeResponse [1] — Evaluation [0..1] · 현재 평가</li>
+<li>Review [1] — Evaluation [0..*] · 해당 회차 평가</li>
+<li>Review [1] — Feedback [0..1] · 판정 확정 후 불변</li>
+<li>ApprovalCase [1] — Approval [0..1] · 승인 시에만 생성</li>
+<li>Approval [1] — Revocation [0..1] · 단방향 철회 {기록 보존}</li>
+<li>Certificate [1] — ShareLink [0..*] · 공유 {링크 만료 ≠ 승인 철회}</li>
+<li>ShareLink [1] — QRCode [0..1] · 동일 링크의 QR 표현</li>
+<li>Certificate [0..1] — VerificationResult [0..*] · 형식 오류 시 대상 미식별 허용</li>
+<li>Work [1] — AuditEvent [0..*] · 변경 이력 {append-only}</li>
+<li>WorkVersion [0..1] — AuditEvent [0..*] · 버전 대상 {동일 Work}</li></ul></details></section>
+  <section id="work"><h2>01  작업·버전·권한·감사</h2>
+    <a href="work.svg"><img src="work.svg" alt="01  작업·버전·권한·감사"></a>
+    <p><a href="work.svg">확대용 SVG</a></p></section><section id="review"><h2>02  검토·이해 과제</h2>
+    <a href="review.svg"><img src="review.svg" alt="02  검토·이해 과제"></a>
+    <p><a href="review.svg">확대용 SVG</a></p></section><section id="approval"><h2>03  최종 결정·철회</h2>
+    <a href="approval.svg"><img src="approval.svg" alt="03  최종 결정·철회"></a>
+    <p><a href="approval.svg">확대용 SVG</a></p></section><section id="certificate"><h2>04  증명서·공유·검증</h2>
+    <a href="certificate.svg"><img src="certificate.svg" alt="04  증명서·공유·검증"></a>
+    <p><a href="certificate.svg">확대용 SVG</a></p></section>
+  <section id="observer"><h2>옵서버 · 작업 상태 변경 통지</h2>
+    <p>도메인 연결 · WorkVersion 상태 변경 → StatusChange. 감사 이벤트와 발급 요청은 해당 변경과 함께 커밋하고 알림 전송은 커밋 이후 처리한다.</p><a href="observer.svg"><img src="observer.svg" alt="옵서버 · 작업 상태 변경 통지"></a>
+    <p><a href="observer.svg">확대용 SVG</a></p></section><section id="strategy"><h2>전략 · 위험 등급별 검토 정책</h2>
+    <p>도메인 연결 · RiskAssessment로 전략 선택, Challenge 생성, ChallengeResponse 평가. 세 전략은 첨부 그림의 설계 제안이다.</p><a href="strategy.svg"><img src="strategy.svg" alt="전략 · 위험 등급별 검토 정책"></a>
+    <p><a href="strategy.svg">확대용 SVG</a></p></section><section id="bridge"><h2>브리지 · 저장 계약과 구현 분리</h2>
+    <p>인프라 연결 · JdbcPersistence의 연결 획득은 싱글턴 상세에 표시한다.</p><a href="bridge.svg"><img src="bridge.svg" alt="브리지 · 저장 계약과 구현 분리"></a>
+    <p><a href="bridge.svg">확대용 SVG</a></p></section><section id="singleton"><h2>싱글턴 · DB 연결 풀</h2>
+    <p>연결 풀의 인스턴스 범위 · 서버 프로세스 내부.</p><a href="singleton.svg"><img src="singleton.svg" alt="싱글턴 · DB 연결 풀"></a>
+    <p><a href="singleton.svg">확대용 SVG</a></p></section><section id="adapter"><h2>어댑터 · 외부 파일 저장소</h2>
+    <p>도메인 연결 · WorkVersion.fileUri와 EvidenceItem.uri는 저장된 파일의 참조다. FileStore 연산은 통합 클래스 모델의 표기를 사용했다.</p><a href="adapter.svg"><img src="adapter.svg" alt="어댑터 · 외부 파일 저장소"></a>
+    <p><a href="adapter.svg">확대용 SVG</a></p></section><section id="factory"><h2>추상 팩토리 · 환경별 인프라 조립</h2>
+    <p>제품군 연결 · IPersistence는 브리지, FileStore는 어댑터 상세에 표시한다.</p><a href="factory.svg"><img src="factory.svg" alt="추상 팩토리 · 환경별 인프라 조립"></a>
+    <p><a href="factory.svg">확대용 SVG</a></p></section>
+  </main></html>

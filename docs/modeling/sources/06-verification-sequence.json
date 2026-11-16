@@ -1,0 +1,137 @@
+{
+  "title": "06 / QR와 파일 검증 - 확인 범위 분리",
+  "participants": [
+    {
+      "id": "V",
+      "label": "검증자 / 수신자",
+      "planned": false
+    },
+    {
+      "id": "UI",
+      "label": "app.js\nverifyScreen",
+      "planned": false
+    },
+    {
+      "id": "D",
+      "label": "domain.js",
+      "planned": false
+    },
+    {
+      "id": "LOCAL",
+      "label": "현재 브라우저\n작업 기록",
+      "planned": false
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "V",
+      "to": "UI",
+      "text": "QR URL 열기",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "parseRecord → publicRecord(payload)",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 요약 형식·해시·날짜 오류"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "V",
+      "text": "유효하지 않은 링크 표시",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "유효한 요약"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "LOCAL",
+      "text": "receipt ID에 해당하는 로컬 승인 찾기",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 로컬 승인 존재"
+    },
+    {
+      "type": "message",
+      "from": "LOCAL",
+      "to": "UI",
+      "text": "로컬 철회 / 후속 버전 정보",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "V",
+      "text": "이 브라우저 기록의 상태 표시",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "로컬 승인 없음 · 다른 기기"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "V",
+      "text": "발급 당시 요약 / 최신 효력 미확인",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "block",
+      "label": "opt 검증자가 파일 선택"
+    },
+    {
+      "type": "message",
+      "from": "V",
+      "to": "UI",
+      "text": "비교할 파일 바이트 제공",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "digest(bytes) = SHA-256",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "D",
+      "to": "UI",
+      "text": "선택 파일 해시",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "V",
+      "text": "요약의 fileHash와 비교 → 일치 / 불일치",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "파일 미선택 = 파일 일치 미확인. 일치하더라도 승인 현재 효력·문서 정확성·실제 이해를 보증하지 않는다. 요약에는 전자서명이 없다."
+    }
+  ]
+}

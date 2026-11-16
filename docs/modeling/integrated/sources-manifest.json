@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-03",
+  "note": "ZIP/PDF were read at task start; unavailable originals at finalization are represented by preserved class-view snapshots, not guessed full-file hashes.",
+  "inputs": [
+    {
+      "path": "HAVE_v2_UC01_02_03.zip",
+      "availableAtFinalization": false,
+      "sha256": null
+    },
+    {
+      "path": "HAVE_UC01_02_03.zip",
+      "availableAtFinalization": false,
+      "sha256": null
+    },
+    {
+      "path": "UC04_chatGPT.pdf",
+      "availableAtFinalization": false,
+      "sha256": null
+    },
+    {
+      "path": "UC05_chatGPT.pdf",
+      "availableAtFinalization": false,
+      "sha256": null
+    },
+    {
+      "path": "UC07_UML_.png",
+      "availableAtFinalization": true,
+      "sha256": "faacd304644e2da3d02e2fa98ab675857ac7c8253538b6cc346e34c81e650eb3"
+    },
+    {
+      "path": "HAVE_UC08_UML_.png",
+      "availableAtFinalization": true,
+      "sha256": "daa181c86afa56b3eaa01473be8d57d5509024057fd3c2b752408e2cd0424bb4"
+    },
+    {
+      "path": "UC09_UML_.png",
+      "availableAtFinalization": true,
+      "sha256": "28d5a272e3285c52da7616c321460e8c9691ade09859bbe5931cde290f85bbed"
+    },
+    {
+      "path": "docs/modeling/uc06-uc10/model.json",
+      "availableAtFinalization": true,
+      "sha256": "44e791d001e1a356843819eff77fdc17f2fb49b62ed3c96f5844b38ae9ba305d"
+    }
+  ],
+  "classReferences": [
+    {
+      "path": "references\\HAVE_UC08_UML_.png",
+      "sha256": "daa181c86afa56b3eaa01473be8d57d5509024057fd3c2b752408e2cd0424bb4"
+    },
+    {
+      "path": "references\\UC01_v1_Class.png",
+      "sha256": "aa6228ae10fe9f2b7116e9f190fd47dc74012b7fc590438f181499ed55fc4123"
+    },
+    {
+      "path": "references\\UC01_v2_Class.png",
+      "sha256": "1ce16d4af2f6d9046cf09bccb5b286ceb5d33e845810c5a633244d208d64d3d8"
+    },
+    {
+      "path": "references\\UC02_v1_Class.png",
+      "sha256": "bbe44e6f82c29832e176871019885c396ac866b27d1cc286f6af64b3887dd47c"
+    },
+    {
+      "path": "references\\UC02_v2_Class.png",
+      "sha256": "f9c7b9950beb0ec407217c20ef0d89b3aba86249f84616bcb22afdbc7b00d1e8"
+    },
+    {
+      "path": "references\\UC03_v1_Class.png",
+      "sha256": "4a67fee9afbe7a372fca019ef153b566a9ba71fc988256e5aae7df347fb1d4c5"
+    },
+    {
+      "path": "references\\UC03_v2_Class.png",
+      "sha256": "7d633e18797d6e4408e2f1c2bbca6b5106e2298b9e6e5d5b8aa26ded91d90d43"
+    },
+    {
+      "path": "references\\UC04_PDF_Class.png",
+      "sha256": "634f4a8b000b6ad4e1b024097d710d04dd17916b573b5c1c7bd506a2b55da3d9"
+    },
+    {
+      "path": "references\\UC05_PDF_Class.png",
+      "sha256": "b8899955f2baa5ef9ea9601f67158eec267f110d3ed904a7891dfc66cb0c7346"
+    },
+    {
+      "path": "references\\UC07_UML_.png",
+      "sha256": "faacd304644e2da3d02e2fa98ab675857ac7c8253538b6cc346e34c81e650eb3"
+    },
+    {
+      "path": "references\\UC09_UML_.png",
+      "sha256": "28d5a272e3285c52da7616c321460e8c9691ade09859bbe5931cde290f85bbed"
+    }
+  ]
+}

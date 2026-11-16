@@ -1,0 +1,156 @@
+{
+  "title": "07 / Chrome 기여 기록 - 확인과 재평가",
+  "participants": [
+    {
+      "id": "A",
+      "label": "작성자 A",
+      "planned": false
+    },
+    {
+      "id": "EXT",
+      "label": "Chrome 확장",
+      "planned": false
+    },
+    {
+      "id": "UI",
+      "label": "웹 app.js",
+      "planned": false
+    },
+    {
+      "id": "D",
+      "label": "domain.js",
+      "planned": false
+    },
+    {
+      "id": "REP",
+      "label": "Repository",
+      "planned": false
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "A",
+      "to": "EXT",
+      "text": "현재 탭 근거 미리보기·수정·저장",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "EXT",
+      "to": "EXT",
+      "text": "records 검증 / chrome.storage.local",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "EXT",
+      "to": "A",
+      "text": "JSON 내보내기",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "A",
+      "to": "UI",
+      "text": "미승인 버전에서 JSON 선택",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "≤1 MB / parseContributionExport\n형식·100개·필드·URL 검증",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "대상 버전과 내용 미리보기",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "A",
+      "to": "UI",
+      "text": "확인한 기록 연결",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "transaction / 역할·versionId·미승인 재확인",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 모두 중복·100개 초과·승인됨·대상 변경"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "연결 거부 / 이유 표시",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "연결 가능한 신규 기록"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "중복 제거 / 이전 ReviewRound 보존\n기여 추가·평가/체크/메모 초기화",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "validateTransition(before, db)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "REP",
+      "text": "commit(db, expectedRevision)",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt commit 성공"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "연결 완료 / 검토자 재평가 필요",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "충돌·저장 실패"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "A",
+      "text": "복원 또는 최신 기록 확인",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "기여 추가는 기존 제출 답변을 그대로 둘 수 있다. 승인 후에는 연결하지 않고 새 버전을 요구한다. 자동 AI 탐지·자동 승인 기능은 없다."
+    }
+  ]
+}

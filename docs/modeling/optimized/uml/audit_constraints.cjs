@@ -1,0 +1,45 @@
+// Exercise the current domain's actual validation at model-relevant boundaries.
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const domain = require('../../../../prototype/dist/domain.js');
+const model = JSON.parse(fs.readFileSync(path.join(__dirname, 'model.json'), 'utf8'));
+const ucs = JSON.parse(fs.readFileSync(path.join(__dirname, '../use-cases.json'), 'utf8'));
+const at='2026-10-28T00:00:00.000Z';
+const checks=[];
+const check=(name,task)=>{task();checks.push({name,result:'PASS'});};
+(async()=>{
+  const bytes=Buffer.from('%PDF-1.4\nmodel audit\n%%EOF');
+  const hash=await domain.digest(bytes);
+  const version=n=>({id:'ver-'+n,n,fileName:'report.pdf',fileData:bytes.toString('base64'),size:bytes.length,hash,tool:'ChatGPT',scope:'신고',risk:[1,1,1,1],reason:'등록',createdAt:at,policy:{...domain.POLICY},
+    gates:[0,1,2].map(()=>({answer:'답변',confidence:80,submitted:true,evaluation:{score:2,reason:'평가 근거',critical:false}})),checks:[true,true,true,true],memo:'최종 메모',returned:false,contributions:[],reviewRounds:[]});
+  const base=()=>({schema:2,workId:'work-1',title:'모델 감사',versions:[version(1)],approvals:[],events:[]});
+  const rec=id=>({id,actorType:'HUMAN',stage:'verification',note:'기여 근거',sourceUrl:'https://example.org/report',pageTitle:'자료',selectedText:'',createdAt:at});
+  const valid=data=>domain.validateDatabase(data);
+  const rejects=data=>assert.throws(()=>valid(data));
+  check('R01 작업의 첫 버전은 필수',()=>{const d=base();d.versions=[];rejects(d);});
+  check('R01 두 버전 허용 및 버전 번호 연속',()=>{const d=base();d.versions.push(version(2));valid(d);});
+  check('R03 답변 슬롯은 정확히 3개',()=>{for(const n of [2,4]){const d=base();d.versions[0].gates=Array.from({length:n},()=>structuredClone(version(1).gates[0]));rejects(d);}});
+  check('R04 현재 평가 없음 허용',()=>{const d=base();d.versions[0].gates.forEach(g=>g.evaluation=null);valid(d);});
+  check('R04 현재 평가를 배열 여러 개로 둘 수 없음',()=>{const d=base();d.versions[0].gates[0].evaluation=[{score:2,reason:'근거',critical:false}];rejects(d);});
+  check('R06 같은 원본 recordId를 다른 버전에 재사용 가능',()=>{const d=base();d.versions.push(version(2));d.versions.forEach(v=>v.contributions=[rec('same-source')]);valid(d);});
+  check('R06 같은 버전의 recordId 중복은 거부',()=>{const d=base();d.versions[0].contributions=[rec('same'),rec('same')];rejects(d);});
+  check('R06 기여 100개 허용·101개 거부',()=>{const d=base();d.versions[0].contributions=Array.from({length:100},(_,i)=>rec('r-'+i));valid(d);d.versions[0].contributions.push(rec('r-100'));rejects(d);});
+  check('R05 과거 회차 1000개 허용·1001개 거부',()=>{const d=base();const v=d.versions[0];const r={at,reason:'수정',gates:structuredClone(v.gates),checks:[...v.checks],memo:v.memo};v.reviewRounds=Array.from({length:1000},()=>structuredClone(r));valid(d);v.reviewRounds.push(structuredClone(r));rejects(d);});
+  const approved=base(),v=approved.versions[0];
+  const a={id:'receipt-1',serial:'HP-2026-0001',title:approved.title,versionId:v.id,n:v.n,fileName:v.fileName,fileHash:v.hash,approvedAt:at,reviewer:'검토자 B',score:6,memo:v.memo,checks:[...v.checks],evaluations:structuredClone(v.gates.map(g=>g.evaluation)),revokedAt:null};
+  a.payload=structuredClone(a);a.payloadHash=await domain.digestText(domain.canonical(a.payload));approved.approvals.push(a);
+  check('R07 미승인 0건·승인 1건 허용',()=>{valid(base());valid(approved);});
+  check('R07 같은 버전에 별도 승인 추가 거부',()=>{const d=structuredClone(approved);const copy=structuredClone(a);copy.id='receipt-2';copy.payload.id=copy.id;d.approvals.push(copy);rejects(d);});
+  check('R08 저장된 승인에는 증명 payload 필수',()=>{const d=structuredClone(approved);delete d.approvals[0].payload;rejects(d);});
+  check('R07 철회 시 승인·증명 수 유지 및 철회 취소 거부',()=>{const d=structuredClone(approved);d.approvals[0].revokedAt=at;d.approvals[0].revocationReason='철회 근거';domain.validateTransition(approved,d);assert.equal(d.approvals.length,1);assert.ok(d.approvals[0].payload);assert.throws(()=>domain.validateTransition(d,approved));});
+  check('R10 감사 사건의 대상은 실제 버전이어야 함',()=>{const d=base();d.events=[{id:'evt-1',target:'missing-version',actor:'작성자 A',action:'등록',time:at,note:'',prevHash:'0'.repeat(64),eventHash:'0'.repeat(64)}];rejects(d);});
+  check('상태: 통과·미통과·치명 오류·부분 제출의 우선순위',()=>{const d=version(1);assert.equal(domain.status(d)[0],'검토 완료');d.gates[0].evaluation.score=0;d.gates[1].evaluation.score=0;assert.equal(domain.status(d)[0],'검토 대기');d.gates[0].evaluation.critical=true;d.gates[2].submitted=false;assert.equal(domain.status(d)[0],'수정 요청');d.gates[0].evaluation.critical=false;assert.equal(domain.status(d)[0],'이해 과제 대기');d.returned=true;assert.equal(domain.status(d)[0],'수정 요청');});
+  check('상태: 후속 버전과 철회는 독립',()=>{const d=structuredClone(approved);assert.equal(domain.status(v,d.approvals[0],'ver-2')[0],'후속 버전 있음');d.approvals[0].revokedAt=at;assert.equal(domain.status(v,d.approvals[0],'ver-2')[0],'승인 철회');});
+  const relations=model.diagrams.filter(d=>d.category==='Class').flatMap(d=>d.relations||[]);
+  check('다중도 10개는 클래스 관계 양끝과 일치',()=>{for(const r of model.cardinalityAudit)assert.ok(relations.some(e=>e.from===r.source&&e.to===r.target&&e.fromMultiplicity===r.sourceMultiplicity&&e.toMultiplicity===r.targetMultiplicity),r.id);});
+  const ids=new Set(model.cardinalityAudit.map(r=>r.id));
+  check('9개 UC에 사전·사후·예외·연관 제약 연결',()=>{assert.equal(ucs.useCases.length,9);for(const uc of ucs.useCases){for(const k of ['preconditions','postconditions','alternateFlows','cardinalityRefs'])assert.ok(uc[k]?.length,uc.id+':'+k);for(const id of uc.cardinalityRefs)assert.ok(ids.has(id),id);}});
+  fs.writeFileSync(path.join(__dirname,'constraint-audit.json'),JSON.stringify({date:'2026-10-28',productCodeChanged:false,checks},null,2)+'\n');
+  console.log(JSON.stringify({passed:checks.length,relationConstraints:model.cardinalityAudit.length,useCases:ucs.useCases.length}));
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,0 +1,131 @@
+{
+  "title": "04 / 최종 승인 - 조건 확인과 원자적 저장",
+  "participants": [
+    {
+      "id": "R",
+      "label": "검토자 B\n시연 역할",
+      "planned": false
+    },
+    {
+      "id": "UI",
+      "label": "app.js\ntransaction",
+      "planned": false
+    },
+    {
+      "id": "D",
+      "label": "domain.js",
+      "planned": false
+    },
+    {
+      "id": "REP",
+      "label": "Repository",
+      "planned": false
+    },
+    {
+      "id": "DB",
+      "label": "IndexedDB",
+      "planned": false
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "R",
+      "to": "UI",
+      "text": "최종 승인 클릭 → transaction(task)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "before 복사 / ensureReviewer()\napprovalReasons(version)",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt 승인 조건 불충족"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "R",
+      "text": "차단 사유 / 승인 추가 없음",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "승인 조건 충족"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "reviewSnapshot / digestText",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "D",
+      "to": "UI",
+      "text": "검토·신고·payload 해시",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "승인 객체 + audit 구성",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "D",
+      "text": "validateTransition(before, db)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "REP",
+      "text": "commit(db, expectedRevision)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "DB",
+      "text": "readwrite: revision 일치 확인\n작업·승인·감사 aggregate put",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "DB",
+      "to": "REP",
+      "text": "transaction complete",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "UI",
+      "text": "새 revision",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "R",
+      "text": "승인 증명 화면 + 성공 알림",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "정상 경로 기준. 검증 오류·저장 실패·revision 충돌은 04b의 실패 처리로 이어진다. 현재 payload에 서버 서명은 없다."
+    }
+  ]
+}

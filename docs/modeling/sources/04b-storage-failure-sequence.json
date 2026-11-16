@@ -1,0 +1,122 @@
+{
+  "title": "04b / 저장 실패와 충돌 - 승인 성공을 남기지 않기",
+  "participants": [
+    {
+      "id": "U",
+      "label": "사용자"
+    },
+    {
+      "id": "UI",
+      "label": "app.js\ntransaction"
+    },
+    {
+      "id": "REP",
+      "label": "Repository"
+    },
+    {
+      "id": "DB",
+      "label": "IndexedDB"
+    }
+  ],
+  "events": [
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "REP",
+      "text": "commit(db, expectedRevision)",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "DB",
+      "text": "readwrite / current revision 조회",
+      "reply": false
+    },
+    {
+      "type": "block",
+      "label": "alt revision 불일치"
+    },
+    {
+      "type": "message",
+      "from": "DB",
+      "to": "REP",
+      "text": "transaction abort",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "UI",
+      "text": "ConflictError",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "before 복원",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "REP",
+      "text": "load()",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "DB",
+      "text": "현재 작업 readonly 조회",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "REP",
+      "to": "UI",
+      "text": "최신 aggregate / revision",
+      "reply": true
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "verifyIntegrity 후 최신 기록 반영",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "U",
+      "text": "내용 확인 후 다시 진행",
+      "reply": true
+    },
+    {
+      "type": "else",
+      "label": "저장 실패 또는 불변식 검증 오류"
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "UI",
+      "text": "before 복원 / 실패 입력 백업\n이전 화면과 상태로 복귀",
+      "reply": false
+    },
+    {
+      "type": "message",
+      "from": "UI",
+      "to": "U",
+      "text": "오류·복구 방법 표시 / 성공 알림 없음",
+      "reply": true
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "note",
+      "text": "불변식 검증 오류는 commit 전에 발생할 수도 있다. 공통 transaction의 catch에서 복원한다. 충돌을 자동 승인 재시도로 처리하지 않는다."
+    }
+  ]
+}

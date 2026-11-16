@@ -1,0 +1,280 @@
+{
+  "title": "03 / 검토 개념 클래스 - 현재 평가와 이력",
+  "width": 1410,
+  "height": 1030,
+  "nodes": [
+    {
+      "id": "V",
+      "type": "class",
+      "x": 490,
+      "y": 20,
+      "w": 395,
+      "h": 155,
+      "title": "Version · 검토 대상",
+      "attributes": [
+        "versionId / returned",
+        "checks[4], memo"
+      ],
+      "operations": []
+    },
+    {
+      "id": "G",
+      "type": "class",
+      "x": 50,
+      "y": 290,
+      "w": 380,
+      "h": 155,
+      "title": "GateTask · 이해 과제",
+      "attributes": [
+        "index, type, prompt",
+        "Teach-back / Fault Injection",
+        "What-if"
+      ],
+      "operations": []
+    },
+    {
+      "id": "R",
+      "type": "class",
+      "x": 50,
+      "y": 540,
+      "w": 380,
+      "h": 180,
+      "title": "GateResponse · 답변 슬롯",
+      "attributes": [
+        "answer, confidence 0~100",
+        "submitted"
+      ],
+      "operations": [
+        "submit()"
+      ]
+    },
+    {
+      "id": "E",
+      "type": "class",
+      "x": 50,
+      "y": 815,
+      "w": 380,
+      "h": 180,
+      "title": "Evaluation · 현재 평가",
+      "attributes": [
+        "score 0..2, reason",
+        "critical"
+      ],
+      "operations": [
+        "evaluate()"
+      ]
+    },
+    {
+      "id": "Round",
+      "type": "class",
+      "x": 550,
+      "y": 290,
+      "w": 360,
+      "h": 155,
+      "title": "ReviewRound · 과거 회차",
+      "attributes": [
+        "at, reason, checks[4], memo",
+        "수정 요청 / 기여 변경 시 보존"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Snap",
+      "type": "class",
+      "x": 550,
+      "y": 540,
+      "w": 360,
+      "h": 155,
+      "title": "GateSnapshot · 과거 슬롯",
+      "attributes": [
+        "answer, confidence, submitted",
+        "evaluation? · 당시 값 복사"
+      ],
+      "operations": []
+    },
+    {
+      "id": "C",
+      "type": "class",
+      "x": 1035,
+      "y": 290,
+      "w": 325,
+      "h": 155,
+      "title": "Checklist · 현재 체크",
+      "attributes": [
+        "4개 필수 확인 항목",
+        "최종 메모는 Version 값"
+      ],
+      "operations": []
+    },
+    {
+      "id": "note",
+      "x": 550,
+      "y": 815,
+      "w": 805,
+      "h": 170,
+      "label": "실제 코드: Version.gates[] 안에 과제 답변과 현재 평가가 함께 존재\n합계 5/6 이상 + 평가 근거 + 치명 오류 없음 → 검토 완료\n체크 4개 + 최종 메모 + 나머지 조건 → 최종 승인 가능\n과거 회차의 평가와 현재 평가는 별개",
+      "type": "note"
+    }
+  ],
+  "edges": [
+    {
+      "points": [
+        [
+          510,
+          175
+        ],
+        [
+          240,
+          290
+        ]
+      ],
+      "label": "고정 과제",
+      "lx": 310,
+      "ly": 240,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          690,
+          175
+        ],
+        [
+          730,
+          290
+        ]
+      ],
+      "label": "이력 보존",
+      "lx": 790,
+      "ly": 242,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          870,
+          175
+        ],
+        [
+          1197,
+          290
+        ]
+      ],
+      "label": "체크 보유",
+      "lx": 1080,
+      "ly": 240,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          240,
+          445
+        ],
+        [
+          240,
+          540
+        ]
+      ],
+      "label": "빈 초안 포함",
+      "lx": 323,
+      "ly": 495,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          240,
+          720
+        ],
+        [
+          240,
+          815
+        ]
+      ],
+      "label": "현재 평가",
+      "lx": 313,
+      "ly": 767,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          730,
+          445
+        ],
+        [
+          730,
+          540
+        ]
+      ],
+      "label": "그때의 값",
+      "lx": 805,
+      "ly": 497,
+      "arrow": false
+    }
+  ],
+  "frames": [],
+  "labels": [
+    {
+      "x": 505,
+      "y": 195,
+      "text": "1"
+    },
+    {
+      "x": 242,
+      "y": 280,
+      "text": "3"
+    },
+    {
+      "x": 675,
+      "y": 193,
+      "text": "1"
+    },
+    {
+      "x": 735,
+      "y": 280,
+      "text": "0..*"
+    },
+    {
+      "x": 885,
+      "y": 192,
+      "text": "1"
+    },
+    {
+      "x": 1200,
+      "y": 280,
+      "text": "1"
+    },
+    {
+      "x": 220,
+      "y": 467,
+      "text": "1"
+    },
+    {
+      "x": 220,
+      "y": 532,
+      "text": "1"
+    },
+    {
+      "x": 220,
+      "y": 744,
+      "text": "1"
+    },
+    {
+      "x": 213,
+      "y": 806,
+      "text": "0..1"
+    },
+    {
+      "x": 710,
+      "y": 467,
+      "text": "1"
+    },
+    {
+      "x": 710,
+      "y": 532,
+      "text": "3"
+    }
+  ]
+}

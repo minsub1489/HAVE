@@ -1,0 +1,1542 @@
+{
+  "date": "2026-11-03",
+  "scope": "UC01~UC10 전체 서비스 분석·설계 / 프로토타입 구현 목록 아님",
+  "classes": [
+    {
+      "id": "User",
+      "label": "사용자",
+      "group": "identity",
+      "attrs": [
+        "userId: ID",
+        "name: String"
+      ],
+      "ops": [],
+      "ucs": [
+        "01",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "WorkMember",
+      "label": "작업별 참여 권한",
+      "group": "identity",
+      "attrs": [
+        "roles: Set<MemberRole>"
+      ],
+      "ops": [
+        "can(action): Boolean"
+      ],
+      "ucs": [
+        "03",
+        "04",
+        "06",
+        "07",
+        "09",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Work",
+      "label": "작업",
+      "group": "artifact",
+      "attrs": [
+        "workId: ID / title: String",
+        "/currentVersion: WorkVersion?"
+      ],
+      "ops": [
+        "registerVersion(): WorkVersion"
+      ],
+      "ucs": [
+        "01",
+        "02",
+        "05",
+        "09"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "WorkVersion",
+      "label": "결과물 버전",
+      "group": "artifact",
+      "attrs": [
+        "versionId: ID / versionNo: Integer",
+        "fileHash: SHA256 / fileUri: URI",
+        "createdAt: Instant / revision: Integer"
+      ],
+      "ops": [
+        "freeze() / hasSuccessor(): Boolean"
+      ],
+      "ucs": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "AiDisclosure",
+      "label": "AI 사용 신고 사본",
+      "group": "artifact",
+      "attrs": [
+        "usageScope: String / noAiUsed: Boolean"
+      ],
+      "ops": [
+        "canonicalHash(): SHA256"
+      ],
+      "ucs": [
+        "01",
+        "02",
+        "04",
+        "06"
+      ],
+      "kind": "value object"
+    },
+    {
+      "id": "AiToolUsage",
+      "label": "AI 도구 사용 내역",
+      "group": "artifact",
+      "attrs": [
+        "toolName / modelName: String",
+        "usageMethod / contribution: String"
+      ],
+      "ops": [],
+      "ucs": [
+        "01",
+        "04"
+      ],
+      "kind": "value object"
+    },
+    {
+      "id": "Contribution",
+      "label": "버전별 기여 사본",
+      "group": "artifact",
+      "attrs": [
+        "recordId / stage / actorType",
+        "note: String / createdAt: Instant"
+      ],
+      "ops": [],
+      "ucs": [
+        "01",
+        "02",
+        "04",
+        "06"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "EvidenceItem",
+      "label": "근거자료",
+      "group": "artifact",
+      "attrs": [
+        "evidenceId: ID / type: EvidenceType",
+        "title / uri / fileHash?"
+      ],
+      "ops": [],
+      "ucs": [
+        "02",
+        "04",
+        "05"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "RiskAssessment",
+      "label": "위험도 평가 사본",
+      "group": "review",
+      "attrs": [
+        "assessmentId: ID / scores[4]",
+        "total / level / policyVersion"
+      ],
+      "ops": [],
+      "ucs": [
+        "03"
+      ],
+      "kind": "value object"
+    },
+    {
+      "id": "ReviewRequest",
+      "label": "검토 요청",
+      "group": "review",
+      "attrs": [
+        "requestId: ID / state: RequestState",
+        "requestedAt: Instant"
+      ],
+      "ops": [
+        "request() / cancel()"
+      ],
+      "ucs": [
+        "03"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Challenge",
+      "label": "이해 확인 과제",
+      "group": "review",
+      "attrs": [
+        "challengeId: ID / kind: ChallengeType",
+        "prompt / rubric / policyVersion"
+      ],
+      "ops": [],
+      "ucs": [
+        "03",
+        "04"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "ChallengeResponse",
+      "label": "과제 답변",
+      "group": "review",
+      "attrs": [
+        "responseId: ID / answer: String",
+        "submittedAt: Instant?"
+      ],
+      "ops": [
+        "submit(answer)"
+      ],
+      "ucs": [
+        "04"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Evaluation",
+      "label": "과제 평가",
+      "group": "review",
+      "attrs": [
+        "score: Integer / reason: String",
+        "critical: Boolean"
+      ],
+      "ops": [],
+      "ucs": [
+        "04",
+        "06"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Review",
+      "label": "검토 회차",
+      "group": "review",
+      "attrs": [
+        "reviewId: ID / state: ReviewState",
+        "checks[4] / memo / reviewDigest"
+      ],
+      "ops": [
+        "startReview() / recordFeedback()",
+        "requestChanges() / completeReview()",
+        "passes(policy): Boolean"
+      ],
+      "ucs": [
+        "03",
+        "04",
+        "05",
+        "06"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Feedback",
+      "label": "검토 의견·판정",
+      "group": "review",
+      "attrs": [
+        "evaluationSummary / comment: String",
+        "decision: ReviewDecision"
+      ],
+      "ops": [],
+      "ucs": [
+        "04",
+        "05"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Revision",
+      "label": "수정 초안 회차",
+      "group": "review",
+      "attrs": [
+        "revisionId: ID / state: RevisionState",
+        "draftFiles / changeNote / response"
+      ],
+      "ops": [
+        "startRevision() / updateDraft()",
+        "beginValidation() / isValid(): Boolean",
+        "resubmit() / markSubmitted()",
+        "validationFailed() / submissionFailed()"
+      ],
+      "ucs": [
+        "05"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "ApprovalCase",
+      "label": "최종 결정 대상",
+      "group": "approval",
+      "attrs": [
+        "caseId: ID / state: DecisionState",
+        "rejectionReason? / decidedAt?"
+      ],
+      "ops": [
+        "approve(actor): Approval",
+        "reject(actor, reason)"
+      ],
+      "ucs": [
+        "06"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Approval",
+      "label": "승인 기록",
+      "group": "approval",
+      "attrs": [
+        "approvalId: ID / approverId: ID",
+        "approvedAt: Instant / reviewDigest",
+        "/revokedAt: Instant?"
+      ],
+      "ops": [
+        "revoke(actor, reason): Revocation"
+      ],
+      "ucs": [
+        "06",
+        "07",
+        "08",
+        "09",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Certificate",
+      "label": "승인 증명서",
+      "group": "approval",
+      "attrs": [
+        "certificateId: ID / payloadHash: SHA256",
+        "fileHash: SHA256 / immutablePayload",
+        "signingState: SigningState",
+        "signature? / keyId? / issuedAt?"
+      ],
+      "ops": [
+        "publicSummary(): PublicSummary"
+      ],
+      "ucs": [
+        "06",
+        "07",
+        "08",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "Revocation",
+      "label": "철회 기록",
+      "group": "approval",
+      "attrs": [
+        "revocationId: ID / actorId: ID",
+        "reason: String / revokedAt: Instant"
+      ],
+      "ops": [],
+      "ucs": [
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "OutboxEvent",
+      "label": "서명 요청",
+      "group": "approval",
+      "attrs": [
+        "eventId: ID / payloadHash: SHA256",
+        "deliveryState / retryCount"
+      ],
+      "ops": [],
+      "ucs": [
+        "06"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "ShareLink",
+      "label": "공유 링크",
+      "group": "public",
+      "attrs": [
+        "linkId: ID / tokenHash: String",
+        "expiresAt? / disabledAt?"
+      ],
+      "ops": [
+        "create() / invalidate()"
+      ],
+      "ucs": [
+        "07"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "QRCode",
+      "label": "QR 표현",
+      "group": "public",
+      "attrs": [
+        "url: URI / image: Binary"
+      ],
+      "ops": [
+        "generate() / download()"
+      ],
+      "ucs": [
+        "07"
+      ],
+      "kind": "value object"
+    },
+    {
+      "id": "VerificationResult",
+      "label": "검증 결과",
+      "group": "public",
+      "attrs": [
+        "resultId: ID / checkedAt: Instant",
+        "signature: PASS / FAIL / UNKNOWN",
+        "effect: VALID / REVOKED / UNKNOWN",
+        "file: MATCH / DIFFERENT / NOT_CHECKED"
+      ],
+      "ops": [],
+      "ucs": [
+        "08"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "AuditEvent",
+      "label": "업무·승인 감사 이력",
+      "group": "history",
+      "attrs": [
+        "eventId: ID / actorId: ID / action",
+        "versionId? / occurredAt / reason?",
+        "prevHash / eventHash"
+      ],
+      "ops": [],
+      "ucs": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "09",
+        "10"
+      ],
+      "kind": "entity"
+    },
+    {
+      "id": "WorkService",
+      "label": "작업 등록",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "createWork()"
+      ],
+      "ucs": [
+        "01"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "ContributionService",
+      "label": "기여 등록",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "addContribution()"
+      ],
+      "ucs": [
+        "01"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "VersionService",
+      "label": "버전 등록",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "createVersion()"
+      ],
+      "ucs": [
+        "02"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "EvidenceService",
+      "label": "근거 등록",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "addWebSource()",
+        "addSupportFile()"
+      ],
+      "ucs": [
+        "02"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "RiskService",
+      "label": "위험 평가",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "assess()"
+      ],
+      "ucs": [
+        "03"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "GatePolicy",
+      "label": "과제·평가 정책",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "recommend()",
+        "passes()"
+      ],
+      "ucs": [
+        "03",
+        "04",
+        "06"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "ReviewRequestService",
+      "label": "검토 요청",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "request()",
+        "cancel()"
+      ],
+      "ucs": [
+        "03"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "ReviewService",
+      "label": "검토·피드백",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "openReview()",
+        "submitFeedback()"
+      ],
+      "ucs": [
+        "04"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "RevisionService",
+      "label": "수정·재제출",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "openRevision()",
+        "updateDraft()",
+        "resubmit()"
+      ],
+      "ucs": [
+        "05"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "ApprovalService",
+      "label": "승인·반려·철회",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "decide()",
+        "revoke()"
+      ],
+      "ucs": [
+        "06",
+        "10"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "CertificateService",
+      "label": "증명서 조회·공유",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "getDetail()",
+        "generateShareLink()",
+        "getQRCode()"
+      ],
+      "ucs": [
+        "07"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "VerificationService",
+      "label": "진위·효력·파일 비교",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "verify()",
+        "verifyByQR()"
+      ],
+      "ucs": [
+        "08"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "HistoryService",
+      "label": "이력·상태 조회",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "getHistory()",
+        "getVersionState()"
+      ],
+      "ucs": [
+        "09"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "AuthorizationPolicy",
+      "label": "작업 권한",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "authorize()"
+      ],
+      "ucs": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "09",
+        "10"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "AuditLogService",
+      "label": "감사 기록",
+      "group": "application",
+      "attrs": [],
+      "ops": [
+        "append()"
+      ],
+      "ucs": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "10"
+      ],
+      "kind": "control"
+    },
+    {
+      "id": "ReviewRepository",
+      "label": "검토 저장 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "loadContext()",
+        "save(review)"
+      ],
+      "ucs": [
+        "03",
+        "04"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "RevisionRepository",
+      "label": "재제출 저장 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "loadOrCreate()",
+        "saveDraft()",
+        "commitResubmission()"
+      ],
+      "ucs": [
+        "05"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "ApprovalRepository",
+      "label": "승인 원자 저장 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "loadForUpdate()",
+        "commit(changes, revision, key)"
+      ],
+      "ucs": [
+        "06",
+        "10"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "FileStore",
+      "label": "파일 저장 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "put()",
+        "storeRevision()",
+        "discard()"
+      ],
+      "ucs": [
+        "02",
+        "05"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "NotificationGateway",
+      "label": "알림 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "notify(userId, event)"
+      ],
+      "ucs": [
+        "03",
+        "04",
+        "05"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "CertificateRepository",
+      "label": "증명·효력 조회 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "findById()",
+        "findCurrentEffect()"
+      ],
+      "ucs": [
+        "07",
+        "08"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "HistoryRepository",
+      "label": "이력 조회 계약",
+      "group": "ports",
+      "attrs": [],
+      "ops": [
+        "findByWork(workId, filter)"
+      ],
+      "ucs": [
+        "09"
+      ],
+      "kind": "interface"
+    },
+    {
+      "id": "WorkController",
+      "label": "작업 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "createWork()"
+      ],
+      "ucs": [
+        "01"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "ContributionController",
+      "label": "기여 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "addContribution()"
+      ],
+      "ucs": [
+        "01"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "VersionController",
+      "label": "버전 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "uploadVersion()"
+      ],
+      "ucs": [
+        "02"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "EvidenceController",
+      "label": "근거 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "addWebSource()",
+        "addSupportFile()"
+      ],
+      "ucs": [
+        "02"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "RiskController",
+      "label": "위험 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "assess()"
+      ],
+      "ucs": [
+        "03"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "ReviewRequestController",
+      "label": "검토 요청 API",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "request()",
+        "cancel()"
+      ],
+      "ucs": [
+        "03"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "ReviewPage",
+      "label": "검토 화면",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "openReview()",
+        "submitFeedback()"
+      ],
+      "ucs": [
+        "04"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "RevisionPage",
+      "label": "수정 화면",
+      "group": "boundary",
+      "attrs": [],
+      "ops": [
+        "openRevision()",
+        "updateDraft()",
+        "resubmit()"
+      ],
+      "ucs": [
+        "05"
+      ],
+      "kind": "boundary"
+    }
+  ],
+  "relations": [
+    {
+      "a": "User",
+      "b": "WorkMember",
+      "am": "1",
+      "bm": "0..*",
+      "label": "사용자별 참여",
+      "kind": "association"
+    },
+    {
+      "a": "Work",
+      "b": "WorkMember",
+      "am": "1",
+      "bm": "1..*",
+      "label": "멤버십 {userId, workId 유일}",
+      "kind": "association"
+    },
+    {
+      "a": "User",
+      "b": "Work",
+      "am": "1",
+      "bm": "0..*",
+      "label": "작성자 / owner",
+      "kind": "association"
+    },
+    {
+      "a": "Work",
+      "b": "WorkVersion",
+      "am": "1",
+      "bm": "0..*",
+      "label": "버전 {제출 시 1개 이상}",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "WorkVersion",
+      "am": "0..1",
+      "bm": "0..1",
+      "label": "직전 버전 / 후속 버전 {비순환}",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "AiDisclosure",
+      "am": "1",
+      "bm": "1",
+      "label": "제출 시 고정 사본",
+      "kind": "composition"
+    },
+    {
+      "a": "AiDisclosure",
+      "b": "AiToolUsage",
+      "am": "1",
+      "bm": "0..*",
+      "label": "도구 목록 {noAiUsed와 일관}",
+      "kind": "composition"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "Contribution",
+      "am": "1",
+      "bm": "0..*",
+      "label": "기여 사본 {버전 내 recordId 유일}",
+      "kind": "composition"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "EvidenceItem",
+      "am": "0..*",
+      "bm": "0..*",
+      "label": "불변 자료 참조",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "RiskAssessment",
+      "am": "1",
+      "bm": "0..*",
+      "label": "평가 사본 보존",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "ReviewRequest",
+      "am": "1",
+      "bm": "0..*",
+      "label": "요청 {진행 중 최대 1개}",
+      "kind": "association"
+    },
+    {
+      "a": "User",
+      "b": "ReviewRequest",
+      "am": "1",
+      "bm": "0..*",
+      "label": "지정 검토자 {요청자와 다름}",
+      "kind": "association"
+    },
+    {
+      "a": "ReviewRequest",
+      "b": "RiskAssessment",
+      "am": "0..*",
+      "bm": "1",
+      "label": "요청에 사용한 위험 근거",
+      "kind": "association"
+    },
+    {
+      "a": "ReviewRequest",
+      "b": "Challenge",
+      "am": "1",
+      "bm": "1..*",
+      "label": "정책에 따른 과제",
+      "kind": "composition"
+    },
+    {
+      "a": "ReviewRequest",
+      "b": "Review",
+      "am": "1",
+      "bm": "0..1",
+      "label": "취소 전 검토 개시",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "Review",
+      "am": "1",
+      "bm": "0..*",
+      "label": "검토 회차",
+      "kind": "association"
+    },
+    {
+      "a": "Challenge",
+      "b": "ChallengeResponse",
+      "am": "1",
+      "bm": "0..1",
+      "label": "현재 회차 답변",
+      "kind": "composition"
+    },
+    {
+      "a": "ChallengeResponse",
+      "b": "Evaluation",
+      "am": "1",
+      "bm": "0..1",
+      "label": "현재 평가",
+      "kind": "composition"
+    },
+    {
+      "a": "Review",
+      "b": "Evaluation",
+      "am": "1",
+      "bm": "0..*",
+      "label": "해당 회차 평가",
+      "kind": "association"
+    },
+    {
+      "a": "Review",
+      "b": "Feedback",
+      "am": "1",
+      "bm": "0..1",
+      "label": "판정 확정 후 불변",
+      "kind": "composition"
+    },
+    {
+      "a": "Revision",
+      "b": "Review",
+      "am": "0..1",
+      "bm": "0..1",
+      "label": "보완 근거 {아래 XOR 조건}",
+      "kind": "association"
+    },
+    {
+      "a": "Revision",
+      "b": "WorkVersion",
+      "am": "0..*",
+      "bm": "1",
+      "label": "수정 전 버전",
+      "kind": "association"
+    },
+    {
+      "a": "Revision",
+      "b": "WorkVersion",
+      "am": "0..1",
+      "bm": "0..1",
+      "label": "재제출 버전 {SUBMITTED이면 1}",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "ApprovalCase",
+      "am": "1",
+      "bm": "0..1",
+      "label": "최종 결정 {검토 완료 후}",
+      "kind": "association"
+    },
+    {
+      "a": "ApprovalCase",
+      "b": "Review",
+      "am": "0..1",
+      "bm": "1",
+      "label": "고정된 승인 근거 회차",
+      "kind": "association"
+    },
+    {
+      "a": "Revision",
+      "b": "ApprovalCase",
+      "am": "0..1",
+      "bm": "0..1",
+      "label": "최종 반려 근거 {Review와 XOR}",
+      "kind": "association"
+    },
+    {
+      "a": "ApprovalCase",
+      "b": "Approval",
+      "am": "1",
+      "bm": "0..1",
+      "label": "승인 시에만 생성",
+      "kind": "association"
+    },
+    {
+      "a": "Approval",
+      "b": "Certificate",
+      "am": "1",
+      "bm": "1",
+      "label": "발급 레코드 {서명 전에도 존재}",
+      "kind": "association"
+    },
+    {
+      "a": "Approval",
+      "b": "Revocation",
+      "am": "1",
+      "bm": "0..1",
+      "label": "단방향 철회 {기록 보존}",
+      "kind": "composition"
+    },
+    {
+      "a": "Certificate",
+      "b": "OutboxEvent",
+      "am": "1",
+      "bm": "1",
+      "label": "동일 서명 요청 재전달",
+      "kind": "association"
+    },
+    {
+      "a": "Certificate",
+      "b": "ShareLink",
+      "am": "1",
+      "bm": "0..*",
+      "label": "공유 {링크 만료 ≠ 승인 철회}",
+      "kind": "association"
+    },
+    {
+      "a": "ShareLink",
+      "b": "QRCode",
+      "am": "1",
+      "bm": "0..1",
+      "label": "동일 링크의 QR 표현",
+      "kind": "composition"
+    },
+    {
+      "a": "Certificate",
+      "b": "VerificationResult",
+      "am": "0..1",
+      "bm": "0..*",
+      "label": "형식 오류 시 대상 미식별 허용",
+      "kind": "association"
+    },
+    {
+      "a": "Work",
+      "b": "AuditEvent",
+      "am": "1",
+      "bm": "0..*",
+      "label": "변경 이력 {append-only}",
+      "kind": "association"
+    },
+    {
+      "a": "WorkVersion",
+      "b": "AuditEvent",
+      "am": "0..1",
+      "bm": "0..*",
+      "label": "버전 대상 {동일 Work}",
+      "kind": "association"
+    },
+    {
+      "a": "WorkService",
+      "b": "Work",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ContributionService",
+      "b": "Contribution",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ContributionService",
+      "b": "WorkVersion",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VersionService",
+      "b": "WorkVersion",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VersionService",
+      "b": "AiDisclosure",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "EvidenceService",
+      "b": "EvidenceItem",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "RiskService",
+      "b": "RiskAssessment",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "GatePolicy",
+      "b": "Challenge",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "GatePolicy",
+      "b": "Evaluation",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewRequestService",
+      "b": "ReviewRequest",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewService",
+      "b": "Review",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewService",
+      "b": "Feedback",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "RevisionService",
+      "b": "Revision",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ApprovalService",
+      "b": "ApprovalCase",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ApprovalService",
+      "b": "Approval",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ApprovalService",
+      "b": "Revocation",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "CertificateService",
+      "b": "Certificate",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "CertificateService",
+      "b": "ShareLink",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "CertificateService",
+      "b": "QRCode",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VerificationService",
+      "b": "Certificate",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VerificationService",
+      "b": "VerificationResult",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "HistoryService",
+      "b": "AuditEvent",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "HistoryService",
+      "b": "WorkVersion",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "HistoryService",
+      "b": "Approval",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "AuthorizationPolicy",
+      "b": "WorkMember",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "AuditLogService",
+      "b": "AuditEvent",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewService",
+      "b": "ReviewRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewService",
+      "b": "NotificationGateway",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "RevisionService",
+      "b": "RevisionRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "RevisionService",
+      "b": "FileStore",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "RevisionService",
+      "b": "NotificationGateway",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ApprovalService",
+      "b": "ApprovalRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "ApprovalService",
+      "b": "AuthorizationPolicy",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VersionService",
+      "b": "FileStore",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "EvidenceService",
+      "b": "FileStore",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "CertificateService",
+      "b": "CertificateRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "VerificationService",
+      "b": "CertificateRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "HistoryService",
+      "b": "HistoryRepository",
+      "am": "",
+      "bm": "",
+      "label": "사용",
+      "kind": "dependency"
+    },
+    {
+      "a": "WorkController",
+      "b": "WorkService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "ContributionController",
+      "b": "ContributionService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "VersionController",
+      "b": "VersionService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "EvidenceController",
+      "b": "EvidenceService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "RiskController",
+      "b": "RiskService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewRequestController",
+      "b": "ReviewRequestService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "ReviewPage",
+      "b": "ReviewService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    },
+    {
+      "a": "RevisionPage",
+      "b": "RevisionService",
+      "am": "",
+      "bm": "",
+      "label": "호출",
+      "kind": "dependency"
+    }
+  ],
+  "sources": [
+    "HAVE_v2_UC01_02_03.zip",
+    "HAVE_UC01_02_03.zip",
+    "UC04_chatGPT.pdf p3",
+    "UC05_chatGPT.pdf p3",
+    "UC07_UML_.png",
+    "HAVE_UC08_UML_.png",
+    "UC09_UML_.png",
+    "../uc06-uc10/model.json"
+  ]
+}

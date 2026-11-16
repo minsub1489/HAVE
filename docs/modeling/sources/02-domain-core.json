@@ -1,0 +1,374 @@
+{
+  "title": "02 / 핵심 개념 클래스 - 작업·버전·승인",
+  "width": 1450,
+  "height": 1020,
+  "nodes": [
+    {
+      "id": "Work",
+      "type": "class",
+      "x": 500,
+      "y": 20,
+      "w": 350,
+      "h": 130,
+      "title": "Work · 작업",
+      "attributes": [
+        "workId, title"
+      ],
+      "operations": [
+        "registerVersion()"
+      ]
+    },
+    {
+      "id": "Version",
+      "type": "class",
+      "x": 485,
+      "y": 230,
+      "w": 380,
+      "h": 195,
+      "title": "Version · 파일 버전",
+      "attributes": [
+        "versionId, n, fileHash, fileSize",
+        "AI 신고 tool / scope",
+        "fileRef / 현재 fileData",
+        "/hasSuccessor, /reviewProgress"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Approval",
+      "type": "class",
+      "x": 25,
+      "y": 540,
+      "w": 365,
+      "h": 180,
+      "title": "Approval · 인간 승인",
+      "attributes": [
+        "approvalId, versionId, reviewer",
+        "approvedAt, reviewDigest",
+        "revokedAt?, revocationReason?"
+      ],
+      "operations": [
+        "revoke(reason)"
+      ]
+    },
+    {
+      "id": "Contribution",
+      "type": "class",
+      "x": 425,
+      "y": 540,
+      "w": 320,
+      "h": 155,
+      "title": "Contribution · 기여 신고",
+      "attributes": [
+        "id, actorType, stage, note",
+        "sourceUrl, selectedText?",
+        "createdAt"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Risk",
+      "type": "class",
+      "x": 780,
+      "y": 540,
+      "w": 260,
+      "h": 155,
+      "title": "RiskAssessment · 위험",
+      "attributes": [
+        "4개 입력값 / 합계 0~10",
+        "과제 수 자동 변경 없음"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Policy",
+      "type": "class",
+      "x": 1080,
+      "y": 540,
+      "w": 290,
+      "h": 155,
+      "title": "ReviewPolicy · 정책",
+      "attributes": [
+        "demo-1.0 / 과제 3개",
+        "최소 5점 / 최대 6점"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Receipt",
+      "type": "class",
+      "x": 25,
+      "y": 820,
+      "w": 365,
+      "h": 155,
+      "title": "Receipt · 증명 payload",
+      "attributes": [
+        "receiptId, payloadHash",
+        "fileHash, policyVersion",
+        "signatureStatus [운영 계획]"
+      ],
+      "operations": []
+    },
+    {
+      "id": "Audit",
+      "type": "class",
+      "x": 1000,
+      "y": 820,
+      "w": 370,
+      "h": 155,
+      "title": "AuditEvent · 감사 사건",
+      "attributes": [
+        "targetVersionId, actor, time",
+        "action, prevHash, eventHash"
+      ],
+      "operations": []
+    },
+    {
+      "id": "note",
+      "x": 440,
+      "y": 830,
+      "w": 505,
+      "h": 150,
+      "label": "기본 연관 · 삭제/보존 정책 미확정\n현재: Receipt 값은 Approval 안에 포함\n개념 책임 ≠ 실제 JS 메서드\n현재는 한 작업 aggregate 저장",
+      "type": "note"
+    }
+  ],
+  "edges": [
+    {
+      "points": [
+        [
+          675,
+          150
+        ],
+        [
+          675,
+          230
+        ]
+      ],
+      "label": "버전 보유",
+      "lx": 735,
+      "ly": 195,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          505,
+          425
+        ],
+        [
+          208,
+          540
+        ]
+      ],
+      "label": "승인 대상",
+      "lx": 350,
+      "ly": 475,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          570,
+          425
+        ],
+        [
+          585,
+          540
+        ]
+      ],
+      "label": "검토 근거",
+      "lx": 580,
+      "ly": 475,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          750,
+          425
+        ],
+        [
+          910,
+          540
+        ]
+      ],
+      "label": "위험 값",
+      "lx": 850,
+      "ly": 475,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          845,
+          425
+        ],
+        [
+          1225,
+          540
+        ]
+      ],
+      "label": "정책 스냅샷",
+      "lx": 1110,
+      "ly": 470,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          208,
+          720
+        ],
+        [
+          208,
+          820
+        ]
+      ],
+      "label": "개념적 증명",
+      "lx": 295,
+      "ly": 772,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          865,
+          400
+        ],
+        [
+          1410,
+          400
+        ],
+        [
+          1410,
+          795
+        ],
+        [
+          1185,
+          795
+        ],
+        [
+          1185,
+          820
+        ]
+      ],
+      "label": "사건 대상",
+      "lx": 1330,
+      "ly": 780,
+      "arrow": false
+    },
+    {
+      "points": [
+        [
+          865,
+          270
+        ],
+        [
+          995,
+          270
+        ],
+        [
+          995,
+          385
+        ],
+        [
+          865,
+          385
+        ]
+      ],
+      "label": "같은 작업의 버전 순서",
+      "lx": 1170,
+      "ly": 317,
+      "arrow": false
+    }
+  ],
+  "frames": [],
+  "labels": [
+    {
+      "x": 657,
+      "y": 170,
+      "text": "1"
+    },
+    {
+      "x": 653,
+      "y": 223,
+      "text": "1..*"
+    },
+    {
+      "x": 480,
+      "y": 437,
+      "text": "1"
+    },
+    {
+      "x": 185,
+      "y": 531,
+      "text": "0..1"
+    },
+    {
+      "x": 555,
+      "y": 439,
+      "text": "1"
+    },
+    {
+      "x": 592,
+      "y": 530,
+      "text": "0..100"
+    },
+    {
+      "x": 753,
+      "y": 441,
+      "text": "1"
+    },
+    {
+      "x": 913,
+      "y": 531,
+      "text": "1"
+    },
+    {
+      "x": 848,
+      "y": 441,
+      "text": "1"
+    },
+    {
+      "x": 1224,
+      "y": 531,
+      "text": "1"
+    },
+    {
+      "x": 187,
+      "y": 742,
+      "text": "1"
+    },
+    {
+      "x": 186,
+      "y": 809,
+      "text": "0..1"
+    },
+    {
+      "x": 1186,
+      "y": 811,
+      "text": "0..*"
+    },
+    {
+      "x": 887,
+      "y": 401,
+      "text": "1"
+    },
+    {
+      "x": 905,
+      "y": 257,
+      "text": "직전 0..1"
+    },
+    {
+      "x": 915,
+      "y": 415,
+      "text": "후속 0..1"
+    },
+    {
+      "x": 1180,
+      "y": 353,
+      "text": "버전 번호는 작업 안에서 유일"
+    }
+  ]
+}
