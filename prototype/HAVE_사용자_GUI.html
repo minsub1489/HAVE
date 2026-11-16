@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0F766E">
+  <meta name="description" content="HAVE 사용자 GUI: AI 협업 작업 등록, 이해 확인, 버전과 승인 증명서 확인">
+  <title>HAVE · 내 작업</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F766E'/%3E%3Cpath d='m8 16 6 6 10-12' stroke='white' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <style>/* HAVE UI v0.2 — generated from design-tokens.json; edit tokens first. */
+:root {
+  --color-primary: #0F766E;
+  --color-primary-hover: #115E59;
+  --color-primary-soft: #F0FDFA;
+  --color-accent: #C2413B;
+  --color-accent-hover: #A9322D;
+  --color-accent-soft: #FFF1F0;
+  --color-canvas: #F6F7F9;
+  --color-surface: #FFFFFF;
+  --color-text: #172033;
+  --color-muted: #526079;
+  --color-border: #D5DBE5;
+  --color-success: #166534;
+  --color-success-soft: #F0FDF4;
+  --color-warning: #92400E;
+  --color-warning-soft: #FFFBEB;
+  --color-danger: #991B1B;
+  --color-danger-soft: #FEF2F2;
+  --color-neutral: #475569;
+  --color-neutral-soft: #F1F5F9;
+  --color-focus: #0F766E;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-caption: 12px;
+  --font-small: 14px;
+  --font-body: 16px;
+  --font-section: 20px;
+  --font-page: 28px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --line-body: 1.6;
+  --line-heading: 1.35;
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --radius-pill: 999px;
+  --control-height: 44px;
+  --control-textarea-min: 128px;
+  --control-table-row-min: 56px;
+  --layout-sidebar: 232px;
+  --layout-header: 64px;
+  --layout-content-max: 1200px;
+  --layout-form-max: 720px;
+  --layout-public-max: 800px;
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+  --shadow-overlay: 0 12px 32px rgb(23 32 51 / 14%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font-family); font-size: var(--font-body); line-height: var(--line-body); color: var(--color-text); background: var(--color-canvas); }
+button, input, select, textarea { font: inherit; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+  <style>*{box-sizing:border-box}body{margin:0;font-family:Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.6;background:var(--color-canvas);color:var(--color-text);word-break:keep-all}button,input,textarea,select{font:inherit}button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}a{color:var(--color-primary);text-decoration:none}a:hover{text-decoration:underline}h1,h2,h3,p{margin:0}h1{font-size:28px;line-height:1.35;letter-spacing:-.9px;font-weight:700}h2{font-size:20px;line-height:1.4;font-weight:600;letter-spacing:-.5px}h3{font-size:16px;line-height:1.5;font-weight:600}small,.small{font-size:12px}.muted{color:var(--color-muted)}.icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.row{display:flex;align-items:center;gap:12px}.wrap{flex-wrap:wrap}.between{justify-content:space-between}.grow{flex:1;min-width:0}.stack{display:grid;gap:24px}.space-top{margin-top:24px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.skip-link{position:fixed;left:16px;top:-70px;background:var(--color-primary);color:white;padding:12px 20px;border-radius:8px;z-index:1000}.skip-link:focus{top:16px}.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}.sidebar{height:100vh;position:sticky;top:0;border-right:1px solid var(--color-border);background:white;display:flex;flex-direction:column;padding:32px 20px 20px}.brand{display:flex;align-items:center;gap:10px;color:var(--color-text);text-decoration:none!important}.brand-mark{width:36px;height:40px;color:var(--color-primary);display:grid;place-items:center}.brand-mark svg{width:36px;height:40px;stroke-width:1.6}.brand-name{font-size:27px;font-weight:750;letter-spacing:1.1px;line-height:1.15}.brand-caption{font-size:9px;letter-spacing:1.4px;font-weight:600;color:var(--color-muted);margin-top:6px}.workspace-switch{border:1px solid var(--color-border);border-radius:8px;margin:34px 0 30px;padding:12px 10px;gap:9px}.workspace-icon{width:30px;height:30px;border-radius:6px;background:var(--color-neutral-soft);font-weight:700;display:grid;place-items:center;font-size:12px}.workspace-switch b{display:block;font-size:12px}.workspace-switch small{display:block;color:var(--color-muted);font-size:10px}.side-label{font-size:10px;color:var(--color-muted);font-weight:600;letter-spacing:1.5px;margin:0 12px 12px}.navigation{display:grid;gap:6px}.nav-link{height:44px;padding:0 12px;display:flex;align-items:center;gap:12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--color-muted)}.nav-link:hover{background:var(--color-canvas);text-decoration:none}.nav-link.active{background:var(--color-primary-soft);color:var(--color-primary);font-weight:650}.nav-link .count{margin-left:auto;border-radius:5px;min-width:22px;height:22px;display:grid;place-items:center;font-size:11px;background:white;border:1px solid var(--color-border);line-height:1}.sidebar-bottom{margin-top:auto;padding-top:40px}.sidebar-tip{padding:16px 12px;background:var(--color-canvas);border-radius:8px;margin:0 0 16px;font-size:12px;color:var(--color-muted)}.sidebar-tip b{display:block;margin-bottom:5px;color:var(--color-text)}.side-guide{width:100%;display:flex;align-items:center;gap:10px;background:none;color:var(--color-accent);border:0;min-height:44px;padding:0 12px;font-size:14px;text-align:left}.side-footer{font-size:10px;color:var(--color-muted);border-top:1px solid var(--color-border);padding:16px 12px 0;margin-top:16px;letter-spacing:.3px}.content-shell{min-width:0}.topbar{height:64px;background:white;border-bottom:1px solid var(--color-border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}.breadcrumb{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--color-muted)}.breadcrumb strong{color:var(--color-text);font-weight:500}.breadcrumb .icon{width:12px;height:12px}.top-actions{display:flex;align-items:center;gap:20px}.demo-tag{font-size:10px;letter-spacing:1px;border:1px solid var(--color-border);border-radius:5px;padding:3px 8px;color:var(--color-muted);white-space:nowrap}.profile{display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.4}.profile small{display:block;font-size:10px;color:var(--color-muted)}.avatar{width:32px;height:32px;background:#ECF0F2;color:#3D565C;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600}.btn.mobile-menu{display:none}.main{max-width:1264px;margin:auto;padding:40px 32px 24px;min-height:calc(100vh - 64px)}.eyebrow{font-size:10px;letter-spacing:1.7px;font-weight:650;color:var(--color-muted);margin-bottom:10px}.heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px}.heading p{color:var(--color-muted);font-size:14px;margin-top:9px}.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;border:1px solid var(--color-border);border-radius:8px;color:var(--color-text);background:white;font-size:14px;font-weight:550;text-decoration:none;white-space:nowrap;transition:background 150ms,border-color 150ms}.btn:hover{text-decoration:none;background:var(--color-canvas)}.btn.primary{color:white;background:var(--color-primary);border-color:var(--color-primary)}.btn.primary:hover{background:var(--color-primary-hover)}.btn.accent{color:var(--color-accent);background:var(--color-accent-soft);border-color:var(--color-accent)}.btn.danger{color:white;background:var(--color-danger);border-color:var(--color-danger)}.btn.text{border-color:transparent;background:transparent;color:var(--color-primary);padding:0 8px}.btn.icon-only{width:44px;padding:0;flex:none}.btn.full{width:100%}.btn .icon{width:18px;height:18px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:28px}.metric{border:1px solid var(--color-border);border-radius:12px;padding:20px;background:white;position:relative}.metric-label{font-size:12px;color:var(--color-muted);display:flex;justify-content:space-between;align-items:center;gap:8px}.metric-label .icon{width:17px;height:17px;color:var(--color-muted)}.metric-value{display:flex;align-items:baseline;gap:7px;margin-top:12px;font-size:30px;font-weight:650;line-height:1.2;letter-spacing:-1px}.metric-value span{font-size:12px;color:var(--color-muted);font-weight:400;letter-spacing:0}.metric-note{font-size:10px;color:var(--color-muted);margin-top:9px}.attention-strip{display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--color-primary-soft);border:1px solid #A0CDC5;border-left:3px solid var(--color-primary);border-radius:8px;padding:20px 24px;margin-bottom:28px}.attention-copy{display:flex;gap:14px;align-items:flex-start}.attention-copy>.icon{color:var(--color-primary);margin-top:3px}.attention-copy b{font-size:14px;font-weight:600}.attention-copy p{font-size:12px;margin-top:4px;color:var(--color-muted)}.attention-strip .btn{background:transparent;border-color:#8EBEB6;color:var(--color-primary)}.section-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.section-header h2{font-size:18px}.section-header small{color:var(--color-muted)}.work-list{border:1px solid var(--color-border);background:white;border-radius:12px;overflow:hidden}.list-toolbar{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;gap:20px}.tabs{display:flex;gap:24px;overflow:auto;scrollbar-width:thin}.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 0 15px;min-height:44px;font-size:12px;color:var(--color-muted);white-space:nowrap;font-weight:500}.tab.active{color:var(--color-primary);border-color:var(--color-primary);font-weight:650}.tab span{font-size:10px;margin-left:5px;border-radius:4px;padding:2px 5px;background:var(--color-neutral-soft);color:var(--color-muted)}.tab.active span{background:var(--color-primary-soft);color:var(--color-primary)}.search-wrap{display:flex;align-items:center;position:relative;min-width:240px;margin-bottom:10px}.search-wrap .icon{position:absolute;left:12px;width:16px;height:16px;color:var(--color-muted)}.search-wrap input{padding:0 12px 0 36px;height:44px;width:100%;border:1px solid var(--color-muted);border-radius:8px;font-size:12px;background:white;color:var(--color-text)}input::placeholder,textarea::placeholder{color:var(--color-muted);opacity:1}.table-container{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}thead{background:#FAFBFC;font-size:11px;color:var(--color-muted);font-weight:500}th{font-weight:500;padding:13px 16px;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);white-space:nowrap}th:first-child,td:first-child{padding-left:24px}td{padding:21px 16px;font-size:12px;vertical-align:middle;border-bottom:1px solid var(--color-border)}tbody tr:last-child td{border-bottom:0}th:first-child{width:41%}th:nth-child(2){width:18%}th:nth-child(3){width:13%}th:nth-child(4){width:20%}th:last-child{width:8%}.work-title{font-size:14px;font-weight:600;color:var(--color-text);display:inline-flex;align-items:center;min-height:44px;line-height:1.5;text-decoration:none!important}.work-title:hover{color:var(--color-primary)}.file-avatar{width:34px;height:40px;border:1px solid var(--color-border);border-radius:5px;background:#FAFBFC;display:grid;place-items:center;flex:none;color:var(--color-muted)}.file-avatar .icon{width:18px;height:18px}.file-meta{font-size:10px;color:var(--color-muted);display:flex;gap:8px;align-items:center;margin-top:1px}.file-meta span+span:before{content:'·';margin-right:8px}.badge{display:inline-flex;align-items:center;gap:6px;min-height:25px;padding:2px 9px;font-size:11px;font-weight:500;border-radius:20px;white-space:nowrap;color:var(--color-neutral);background:var(--color-neutral-soft)}.badge:before{content:'';width:5px;height:5px;background:currentColor;border-radius:50%}.badge.progress{background:var(--color-primary-soft);color:var(--color-primary)}.badge.warning{background:var(--color-warning-soft);color:var(--color-warning)}.badge.success{background:var(--color-success-soft);color:var(--color-success)}.badge.danger{background:var(--color-danger-soft);color:var(--color-danger)}.table-footer{padding:14px 24px;border-top:1px solid var(--color-border);font-size:11px;color:var(--color-muted);display:flex;justify-content:space-between;gap:16px}.table-footer button{font-size:11px}.work-cards{display:none}.empty{text-align:center;padding:52px 20px}.empty>.icon{width:32px;height:32px;color:var(--color-muted);margin-bottom:14px}.empty h2{font-size:18px}.empty p{color:var(--color-muted);font-size:14px;margin:8px 0 20px}.footnote{font-size:10px;line-height:1.7;color:var(--color-muted);display:flex;gap:8px;align-items:flex-start;padding-top:24px}.footnote .icon{width:14px;height:14px;margin-top:2px}.panel{background:white;border:1px solid var(--color-border);border-radius:12px;overflow:hidden}.panel-head{padding:20px 24px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;gap:16px}.panel-head h2{font-size:16px}.panel-body{padding:24px}.panel-body>p{font-size:14px;color:var(--color-muted)}.panel-foot{padding:16px 24px;background:#FAFBFC;border-top:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;gap:16px}.split{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px}.split>*{min-width:0}.work-context{display:flex;gap:16px;align-items:center;background:white;border:1px solid var(--color-border);border-radius:12px;padding:20px 24px;margin-bottom:24px}.work-context h2{font-size:16px}.context-meta{margin-top:5px;display:flex;gap:12px;align-items:center;font-size:12px;color:var(--color-muted);flex-wrap:wrap}.next-action{padding-left:24px;border-left:1px solid var(--color-border);font-size:12px;color:var(--color-muted);max-width:260px}.next-action b{display:block;color:var(--color-text);margin-bottom:3px}.detail-tabs{display:flex;gap:28px;border-bottom:1px solid var(--color-border);margin-bottom:24px;overflow:auto}.detail-tabs a{color:var(--color-muted);font-size:14px;min-height:48px;display:flex;align-items:center;white-space:nowrap}.detail-tabs a[aria-current]{color:var(--color-primary);font-weight:600;border-bottom:2px solid var(--color-primary)}.detail-tabs a:hover{text-decoration:none}.details{display:grid;gap:24px}.detail-label{font-size:12px;color:var(--color-muted);margin-bottom:7px}.detail-value{font-size:14px;overflow-wrap:anywhere;white-space:pre-wrap}.definition{display:grid;grid-template-columns:100px minmax(0,1fr);gap:14px 20px;font-size:12px}.definition dt{color:var(--color-muted)}.definition dd{margin:0;overflow-wrap:anywhere}.mono{font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all;font-size:11px;line-height:1.8}.hash-details{margin-top:20px;border-top:1px solid var(--color-border);padding-top:16px}.hash-details summary{cursor:pointer;font-size:12px;color:var(--color-primary);min-height:44px;display:flex;align-items:center}.hash-details p{padding:12px;background:var(--color-canvas);border-radius:8px;margin-bottom:8px}.notice{display:flex;gap:12px;padding:16px;border-radius:8px;font-size:12px;line-height:1.8;background:var(--color-primary-soft);color:var(--color-primary)}.notice .icon{margin-top:2px}.notice strong{display:block;font-size:14px;margin-bottom:3px}.notice.warning{background:var(--color-warning-soft);color:var(--color-warning)}.notice.error{background:var(--color-danger-soft);color:var(--color-danger)}.notice.neutral{background:var(--color-neutral-soft);color:var(--color-neutral)}.journey{display:grid;grid-template-columns:repeat(4,1fr);padding:24px;gap:16px}.journey-item{position:relative;font-size:11px;color:var(--color-muted)}.journey-number{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--color-neutral-soft);margin-bottom:9px;font-size:12px}.journey-item.done .journey-number{background:var(--color-primary);color:white}.journey-item.current .journey-number{background:var(--color-primary-soft);border:1px solid var(--color-primary);color:var(--color-primary)}.journey-item.current{color:var(--color-primary);font-weight:600}.journey-item:not(:last-child):after{position:absolute;content:'';height:1px;background:var(--color-border);top:14px;left:40px;right:0}.timeline{padding:0;list-style:none}.timeline li{position:relative;padding:0 0 24px 28px;border-left:1px solid var(--color-border);margin-left:7px}.timeline li:last-child{border-left:0;padding-bottom:0}.timeline li:before{content:'';position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--color-primary);outline:5px solid white}.timeline b{font-size:14px;display:block}.timeline p{font-size:12px;color:var(--color-muted);margin-top:5px}.field{display:block;margin-bottom:24px}.field>span,.field>label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:550;margin-bottom:8px}.required{font-size:10px;font-weight:400;color:var(--color-muted)}input[type=text],textarea,select{width:100%;color:var(--color-text);background:white;border:1px solid var(--color-muted);border-radius:8px;min-height:44px;padding:10px 12px;font-size:14px}textarea{resize:vertical;min-height:128px;line-height:1.8}input[aria-invalid=true],textarea[aria-invalid=true],select[aria-invalid=true]{border-color:var(--color-danger);outline-color:var(--color-danger)}.hint{font-size:12px;color:var(--color-muted);margin-top:7px}.field-error{font-size:12px;color:var(--color-danger);margin-top:6px}.error-summary{margin-bottom:24px}.error-summary:empty{display:none}.error-summary a{color:inherit;text-decoration:underline;display:block;min-height:30px}.form-layout{max-width:1000px;display:grid;grid-template-columns:minmax(0,720px) minmax(200px,240px);gap:32px}.form-layout>section{min-width:0}.form-aside{padding:16px 0;color:var(--color-muted);font-size:12px}.form-aside h2{font-size:14px;color:var(--color-text);margin-bottom:12px}.form-aside p{margin-bottom:16px;line-height:1.9}.form-progress{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}.form-step{border-top:2px solid var(--color-border);padding:12px 0 0;color:var(--color-muted);font-size:12px;min-width:0}.form-step span{font-size:10px;display:block;margin-bottom:4px}.form-step.active{border-color:var(--color-primary);color:var(--color-primary);font-weight:600}.form-step.done{border-color:var(--color-primary)}.form-section-heading{margin-bottom:24px}.form-section-heading p{font-size:12px;color:var(--color-muted);margin-top:8px}.dropzone{border:1px dashed var(--color-muted);background:#FAFCFC;border-radius:8px;text-align:center;padding:32px 16px;position:relative;cursor:pointer}.dropzone.dragover{background:var(--color-primary-soft);border-color:var(--color-primary)}.dropzone:focus-within{outline:2px solid var(--color-primary);outline-offset:3px}.dropzone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.dropzone>.icon{width:28px;height:28px;color:var(--color-primary);margin-bottom:12px}.dropzone b{display:block;font-size:14px}.dropzone p{font-size:12px;color:var(--color-muted);margin:7px 0}.upload-feedback{font-size:12px;word-break:break-all}.selected-file{display:flex;align-items:center;gap:12px;background:var(--color-primary-soft);padding:16px;border-radius:8px;color:var(--color-primary);font-size:12px;margin-top:12px}.selected-file b{display:block}.wizard-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.wizard-actions>div{display:flex;gap:12px}.saved-at{color:var(--color-muted);font-size:12px;min-height:24px;margin-bottom:16px}.reviewer-choice{border:1px solid var(--color-border);border-radius:8px;padding:16px;display:flex;gap:12px;align-items:center;margin-bottom:12px;cursor:pointer}.reviewer-choice:has(input:checked){background:var(--color-primary-soft);border-color:var(--color-primary)}.reviewer-choice input{accent-color:var(--color-primary);width:18px;height:18px}.reviewer-choice b{font-size:14px}.reviewer-choice small{display:block;color:var(--color-muted)}.registration-summary{border-top:1px solid var(--color-border);padding-top:24px;margin-top:24px}.registration-summary h3{margin-bottom:16px}.question{margin-top:24px}.question h2{font-size:20px;margin-top:8px}.question-text{background:var(--color-canvas);padding:20px;border-left:3px solid var(--color-primary);font-size:14px;margin:24px 0;line-height:1.9}.question-ref{border-top:1px solid var(--color-border);padding-top:16px;margin-top:16px;color:var(--color-muted)}.confidence-row{display:flex;gap:16px;align-items:center}.confidence-row input{flex:1;accent-color:var(--color-primary);height:44px;min-width:0}.confidence-row output{font-size:14px;font-weight:600;min-width:40px}.task-list{list-style:none;padding:0;display:grid;gap:24px;margin:0}.task-list li{display:flex;align-items:flex-start;gap:12px;font-size:12px;color:var(--color-muted)}.task-list li>span{width:24px;height:24px;border:1px solid var(--color-border);border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px}.task-list b{display:block;color:var(--color-text);margin-bottom:4px}.task-list .active>span{background:var(--color-primary);color:white;border-color:var(--color-primary)}.task-list .active b{color:var(--color-primary)}.receipt{max-width:760px;background:white;border:1px solid var(--color-border);border-radius:12px;padding:32px}.receipt-header{display:flex;justify-content:space-between;gap:24px;padding-bottom:24px;border-bottom:1px solid var(--color-border)}.receipt-emblem{width:64px;height:64px;background:var(--color-primary-soft);color:var(--color-primary);display:grid;place-items:center;border-radius:50%}.receipt-emblem .icon{width:32px;height:32px}.receipt h2{font-size:24px}.receipt-title{font-size:20px;font-weight:600;margin:24px 0}.receipt .definition{grid-template-columns:140px 1fr;font-size:14px;gap:20px}.receipt-bottom{margin-top:24px;padding-top:24px;border-top:1px solid var(--color-border);display:flex;gap:12px;flex-wrap:wrap}.result-row{padding:20px 0;display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid var(--color-border)}.result-row:last-child{border:0}.result-row h3{font-size:14px}.result-row p{font-size:12px;color:var(--color-muted);margin-top:5px}.public-header{height:80px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--color-border);background:white}.public-header .brand-name{font-size:24px}.public-main{max-width:848px;margin:auto;padding:40px 24px}.public-main .heading{margin-bottom:24px}.public-main .panel+.panel{margin-top:24px}dialog{padding:0;border:1px solid var(--color-border);border-radius:12px;width:calc(100% - 32px);max-width:520px;color:var(--color-text);max-height:calc(100dvh - 48px);box-shadow:0 24px 80px #17203326}dialog::backdrop{background:#17203366}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--color-border)}.dialog-head h2{font-size:18px}.dialog-body{padding:24px;overflow:auto;max-height:65dvh;font-size:14px}.dialog-body p+p{margin-top:16px}.dialog-body ol{padding-left:20px}.dialog-body li{padding-bottom:16px}.dialog-body b{display:block}.dialog-actions{display:flex;justify-content:flex-end;gap:12px;padding:0 24px 24px}.menu-dialog .navigation{padding:16px 0}.loading-screen{min-height:80vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:24px;text-align:center}.loading-screen h1{font-size:20px}.loading-screen p{font-size:14px;color:var(--color-muted)}.loading-mark{width:44px;height:44px;border-radius:10px;background:var(--color-primary);color:white;font-weight:700;font-size:24px}.skeleton{height:18px;width:280px;max-width:80%;border-radius:4px;background:var(--color-border);animation:pulse 1.2s infinite alternate}.skeleton.short{width:180px}@keyframes pulse{to{opacity:.4}}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--color-text);color:white;padding:12px 20px;border-radius:8px;z-index:200;max-width:calc(100vw - 32px);width:max-content;font-size:14px;box-shadow:0 4px 20px #1720331a;visibility:hidden}#toast.show{visibility:visible}.storage-alert{border-bottom:1px solid var(--color-danger);background:var(--color-danger-soft);padding:16px 32px;color:var(--color-danger);font-size:12px}.print-only{display:none}
+@media(min-width:1600px){.main{padding-top:48px}}
+@media(max-width:1190px){.list-toolbar{flex-wrap:wrap;gap:0}.search-wrap{margin:0 0 16px;width:100%}.tabs{width:100%}.metrics{gap:12px}.metric{padding:16px}.split{grid-template-columns:minmax(0,1fr) 280px}.work-title{font-size:12px}td,th{padding-left:12px;padding-right:12px}}
+@media(max-width:1023px){.shell{display:block}.sidebar{display:none}.btn.mobile-menu{display:inline-flex}.topbar{padding:0 24px}.main{padding:32px 24px 24px}.split{grid-template-columns:1fr}.form-layout{grid-template-columns:minmax(0,720px)}.form-aside{display:none}.next-action{max-width:220px}.profile small{display:none}.profile{gap:8px}.breadcrumb{margin-right:auto}.work-title{font-size:14px}}
+@media(max-width:767px){.main{padding:28px 16px 20px}h1{font-size:24px}.topbar{padding:0 16px;gap:8px}.breadcrumb{font-size:11px;gap:7px}.breadcrumb>.crumb-workspace,.breadcrumb>.icon{display:none}.top-actions{gap:12px}.demo-tag{font-size:9px}.profile>div{display:none}.heading{gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px}.heading p{font-size:12px;line-height:1.9}.heading>.btn{width:100%}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:24px}.metric{padding:16px}.metric-label{font-size:11px}.metric-value{font-size:26px;margin-top:9px}.metric-note{font-size:9px}.attention-strip{padding:16px;gap:16px;align-items:flex-start;flex-direction:column;margin-bottom:24px}.attention-strip>.btn{margin-left:34px}.attention-copy p{font-size:11px}.section-header h2{font-size:16px}.section-header small{font-size:10px}.list-toolbar{padding:8px 16px 0}.tabs{gap:20px}.tab{font-size:11px}.search-wrap{min-width:0;margin-bottom:16px}.table-container{display:none}.work-cards{display:block}.work-card{padding:20px 16px;border-top:1px solid var(--color-border)}.work-card .work-title{min-height:44px;font-size:14px}.work-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.work-card-meta dt{font-size:10px;color:var(--color-muted)}.work-card-meta dd{font-size:12px;margin:4px 0 0}.work-card>.row{align-items:flex-start}.table-footer{padding:12px 16px}.table-footer span:last-child{display:none}.footnote{font-size:10px}.work-context{padding:16px;gap:12px;flex-wrap:wrap}.work-context h2{font-size:14px}.work-context .next-action{max-width:none;width:100%;padding:12px 0 0;border:0;border-top:1px solid var(--color-border)}.context-meta{font-size:11px;gap:8px}.detail-tabs{gap:24px}.detail-tabs a{font-size:12px}.panel-head{padding:16px}.panel-body{padding:20px 16px}.panel-foot{padding:16px;flex-wrap:wrap}.panel-foot .btn{width:100%}.journey{padding:20px 16px;gap:8px}.journey-item{font-size:10px}.journey-item:after{left:34px!important}.definition{grid-template-columns:80px 1fr;gap:12px}.form-progress{gap:8px}.form-step{font-size:11px}.wizard-actions{gap:16px}.wizard-actions>div{width:100%;justify-content:space-between;gap:8px}.wizard-actions>.btn{order:2;width:100%}.receipt{padding:24px 16px}.receipt-header{gap:12px}.receipt h2{font-size:20px}.receipt-emblem{width:48px;height:48px;flex:none}.receipt-emblem .icon{width:26px;height:26px}.receipt-title{font-size:18px}.receipt .definition{font-size:12px;grid-template-columns:85px 1fr;gap:16px 12px}.receipt-bottom .btn{flex:1}.public-header{padding:0 16px;height:64px}.public-header .brand-caption{display:none}.public-main{padding:28px 16px}.result-row{gap:12px;flex-wrap:wrap}.result-row>div{width:100%}.dialog-head{padding:16px}.dialog-body{padding:20px 16px}.dialog-actions{padding:0 16px 20px}.notice{padding:14px;font-size:12px}.storage-alert{padding:16px}.question h2{font-size:18px}.question-text{padding:16px}.upload-feedback{font-size:11px}}
+.btn.btn.mobile-menu{display:none}.search-wrap input[type=text]{padding-left:36px}.brand-caption{white-space:nowrap}.result-row{align-items:flex-start;flex-wrap:wrap}.result-row>div{flex:1;min-width:190px}
+@media(max-width:1023px){.btn.btn.mobile-menu{display:inline-flex}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.sidebar,.topbar,.heading,.detail-tabs,.work-context,.footnote,.receipt-bottom,.btn,#toast,.skip-link{display:none!important}.shell{display:block}.main{padding:0;max-width:none}.receipt{border:0;max-width:none}.print-only{display:block}.receipt-emblem{print-color-adjust:exact}}
+
+.search-wrap input[type=text]{padding-left:36px}.brand-caption{white-space:nowrap}.result-row{flex-wrap:wrap}.result-row>div{min-width:0}.result-row p{overflow-wrap:anywhere}
+</style>
+  <script>(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.HumanProof = api;
+})(globalThis, function () {
+  'use strict';
+  const MAX_PDF_BYTES = 20 * 1024 * 1024;
+  const POLICY = Object.freeze({ version: 'demo-1.0', minimumScore: 5, gateCount: 3 });
+  const canonical = value => JSON.stringify(value, (_, item) =>
+    item && typeof item === 'object' && !Array.isArray(item)
+      ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+  const digest = async bytes => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)),
+    byte => byte.toString(16).padStart(2, '0')).join('');
+  const digestText = text => digest(new TextEncoder().encode(text));
+  const text = (value, max, required = true) => typeof value === 'string' && value.length <= max && (!required || value.trim().length > 0);
+  const date = value => typeof value === 'string' && value.length <= 32 && Number.isFinite(Date.parse(value));
+  const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+  const id = value => text(value, 100) && /^[\w-]+$/.test(value);
+  function requireValue(valid, message) { if (!valid) throw new Error(message); }
+
+  function gatesPassed(version) {
+    return version.gates.length === POLICY.gateCount && !version.returned && version.gates.every(gate =>
+      gate.submitted && gate.evaluation && Number.isInteger(gate.evaluation.score) && gate.evaluation.score >= 0 && gate.evaluation.score <= 2 &&
+      text(gate.evaluation.reason, 5000) && !gate.evaluation.critical) &&
+      version.gates.reduce((sum, gate) => sum + gate.evaluation.score, 0) >= POLICY.minimumScore;
+  }
+  function status(version, approval, latestId) {
+    if (approval?.revokedAt) return ['승인 철회', 'red'];
+    if (approval && latestId && version.id !== latestId) return ['후속 버전 있음', 'orange'];
+    if (approval) return ['승인 완료', 'green'];
+    if (version.returned || version.gates.some(gate => gate.evaluation?.critical)) return ['수정 요청', 'orange'];
+    if (gatesPassed(version)) return ['검토 완료', 'purple'];
+    if (version.gates.every(gate => gate.submitted)) return ['검토 대기', 'purple'];
+    return ['이해 과제 대기', 'purple'];
+  }
+  function publicRecord(value) {
+    requireValue(value && id(value.id) && text(value.title, 100) && text(value.fileName, 255) && hash(value.fileHash) &&
+      Number.isInteger(value.n) && value.n > 0 && value.n <= 10000 && date(value.approvedAt) && text(value.serial, 100) &&
+      (!value.revokedAt || date(value.revokedAt)) && text(value.revocationReason || '', 2000, false), '검증 링크의 승인 요약이 올바르지 않습니다.');
+    return { id: value.id, title: value.title, n: value.n, fileName: value.fileName, fileHash: value.fileHash,
+      approvedAt: value.approvedAt, serial: value.serial, revokedAt: value.revokedAt || null, revocationReason: value.revocationReason || '' };
+  }
+  function validateDatabase(data) {
+    requireValue(data?.schema === 2 && id(data.workId) && text(data.title, 100) && Array.isArray(data.versions) &&
+      data.versions.length > 0 && data.versions.length <= 10000 && Array.isArray(data.approvals) && Array.isArray(data.events), '저장된 작업 구조가 올바르지 않습니다.');
+    const ids = new Set();
+    data.versions.forEach((version, index) => {
+      requireValue(id(version.id) && !ids.has(version.id) && version.n === index + 1 && text(version.fileName, 255) &&
+        hash(version.hash) && Number.isInteger(version.size) && version.size > 0 && version.size <= MAX_PDF_BYTES &&
+        typeof version.fileData === 'string' && version.fileData.length <= Math.ceil(MAX_PDF_BYTES / 3) * 4 &&
+        text(version.tool, 100) && text(version.scope, 5000) && text(version.reason, 2000) && date(version.createdAt) &&
+        Array.isArray(version.risk) && version.risk.length === 4 && version.risk.every((n, i) => Number.isInteger(n) && n >= 0 && n <= [3, 3, 2, 2][i]) &&
+        Array.isArray(version.gates) && version.gates.length === 3 && Array.isArray(version.checks) && version.checks.length === 4 &&
+        version.checks.every(n => typeof n === 'boolean') && text(version.memo, 5000, false) && typeof version.returned === 'boolean', '저장된 파일 버전이 올바르지 않습니다.');
+      ids.add(version.id);
+      for (const gate of version.gates) {
+        requireValue(text(gate.answer, 10000, false) && typeof gate.submitted === 'boolean' && (!gate.submitted || gate.answer.trim()) &&
+          Number.isFinite(gate.confidence) && gate.confidence >= 0 && gate.confidence <= 100, '저장된 과제 답변이 올바르지 않습니다.');
+        if (gate.evaluation) requireValue(Number.isInteger(gate.evaluation.score) && gate.evaluation.score >= 0 && gate.evaluation.score <= 2 &&
+          text(gate.evaluation.reason, 5000, false) && typeof gate.evaluation.critical === 'boolean', '저장된 평가가 올바르지 않습니다.');
+      }
+      if (version.policy) requireValue(canonical(version.policy) === canonical(POLICY), '지원하지 않는 시연 평가 정책입니다.');
+      if (version.contributions) {
+        requireValue(Array.isArray(version.contributions) && version.contributions.length <= 100 &&
+          new Set(version.contributions.map(item => item?.id)).size === version.contributions.length, '기여 기록 개수 또는 ID가 올바르지 않습니다.');
+        version.contributions.forEach(validateContribution);
+      }
+      if (version.reviewRounds) {
+        requireValue(Array.isArray(version.reviewRounds) && version.reviewRounds.length <= 1000, '검토 회차 기록이 올바르지 않습니다.');
+        for (const round of version.reviewRounds) requireValue(date(round.at) && text(round.reason, 2000) && text(round.memo, 5000, false) &&
+          Array.isArray(round.gates) && round.gates.length === 3 && round.gates.every(gate => text(gate.answer, 10000, false) &&
+            Number.isFinite(gate.confidence) && gate.confidence >= 0 && gate.confidence <= 100 && (!gate.evaluation ||
+              (Number.isInteger(gate.evaluation.score) && gate.evaluation.score >= 0 && gate.evaluation.score <= 2 && text(gate.evaluation.reason, 5000, false)))), '이전 검토 회차가 올바르지 않습니다.');
+      }
+    });
+    const approved = new Set(), receiptIds = new Set();
+    for (const approval of data.approvals) {
+      publicRecord(approval);
+      const version = data.versions.find(item => item.id === approval.versionId);
+      requireValue(version && !approved.has(version.id) && !receiptIds.has(approval.id) && approval.fileHash === version.hash && approval.n === version.n &&
+        approval.fileName === version.fileName && approval.title === data.title && approval.payload && hash(approval.payloadHash) &&
+        approval.payload.versionId === version.id && approval.payload.fileHash === version.hash && approval.payload.id === approval.id &&
+        text(approval.memo, 5000) && Number.isInteger(approval.score) && approval.score >= 5 && approval.score <= 6 &&
+        approval.payload.approvedAt === approval.approvedAt && approval.payload.memo === approval.memo && approval.payload.score === approval.score &&
+        gatesPassed(version) && version.checks.every(Boolean) && version.memo === approval.memo &&
+        canonical(approval.evaluations) === canonical(version.gates.map(gate => gate.evaluation)) &&
+        canonical(approval.checks) === canonical(version.checks), '승인 기록과 대상 버전이 일치하지 않습니다.');
+      approved.add(version.id); receiptIds.add(approval.id);
+    }
+    for (const event of data.events) requireValue(id(event.id) && text(event.action, 200) && text(event.actor, 100) &&
+      text(event.note, 10000, false) && ids.has(event.target) && date(event.time) && hash(event.prevHash) && hash(event.eventHash), '감사 기록 구조가 올바르지 않습니다.');
+    return data;
+  }
+  async function verifyIntegrity(data, decode) {
+    validateDatabase(data);
+    for (const version of data.versions) {
+      const bytes = decode(version.fileData);
+      requireValue(bytes.length === version.size && await digest(bytes) === version.hash, '저장된 PDF의 해시가 일치하지 않습니다.');
+    }
+    for (const approval of data.approvals) {
+      const version = data.versions.find(item => item.id === approval.versionId);
+      requireValue(await digestText(canonical(approval.payload)) === approval.payloadHash &&
+        await digestText(canonical({ tool: version.tool, scope: version.scope })) === approval.aiDisclosureHash &&
+        approval.payload.aiDisclosureHash === approval.aiDisclosureHash, '승인 영수증의 내용 해시가 일치하지 않습니다.');
+      if (approval.reviewDigest) requireValue(await digestText(canonical(reviewSnapshot(version))) === approval.reviewDigest &&
+        approval.payload.reviewDigest === approval.reviewDigest, '승인된 답변·검토 범위가 변경되었습니다.');
+    }
+    requireValue(await verifyChain(data.events), '감사 해시 체인이 일치하지 않습니다.');
+    return data;
+  }
+  async function verifyChain(events) {
+    let previous = '0'.repeat(64);
+    const seen = new Set();
+    for (const event of events) {
+      const body = { id: event.id, action: event.action, actor: event.actor, note: event.note, target: event.target, time: event.time };
+      if (seen.has(event.id) || event.prevHash !== previous || event.eventHash !== await digestText(previous + canonical(body))) return false;
+      seen.add(event.id); previous = event.eventHash;
+    }
+    return true;
+  }
+  function reviewSnapshot(version) {
+    return { policy: version.policy || POLICY, gates: version.gates, checks: version.checks, memo: version.memo, contributions: version.contributions || [] };
+  }
+  function validateTransition(before, after) {
+    validateDatabase(after);
+    if (before.workId !== after.workId) return; // Explicit new-work/reset action creates another aggregate.
+    requireValue(after.versions.length >= before.versions.length && after.events.length >= before.events.length && after.approvals.length >= before.approvals.length,
+      '기존 버전·승인·감사 기록을 삭제할 수 없습니다.');
+    requireValue(canonical(after.events.slice(0, before.events.length)) === canonical(before.events), '기존 감사 기록을 수정할 수 없습니다.');
+    before.versions.forEach((version, index) => {
+      const next = after.versions[index];
+      for (const key of ['id', 'n', 'fileData', 'hash', 'tool', 'scope', 'fileName', 'size', 'risk', 'reason', 'createdAt'])
+        requireValue(canonical(version[key]) === canonical(next[key]), '파일·AI 신고·위험도 변경은 새 버전으로 등록하세요.');
+      if (before.approvals.some(item => item.versionId === version.id)) requireValue(canonical(version) === canonical(next), '승인된 검토 범위는 변경할 수 없습니다.');
+    });
+    before.approvals.forEach((approval, index) => {
+      const next = after.approvals[index];
+      const immutable = item => Object.fromEntries(Object.entries(item).filter(([key]) => !['revokedAt', 'revocationReason'].includes(key)));
+      requireValue(canonical(immutable(approval)) === canonical(immutable(next)) &&
+        (!approval.revokedAt || (approval.revokedAt === next.revokedAt && approval.revocationReason === next.revocationReason)), '기존 승인이나 철회 기록을 수정할 수 없습니다.');
+    });
+  }
+  function validateContribution(item) {
+    requireValue(item && id(item.id) && ['AI', 'HUMAN'].includes(item.actorType) &&
+      ['idea', 'draft', 'verification', 'revision'].includes(item.stage) && text(item.note, 2000) &&
+      text(item.selectedText || '', 5000, false) && text(item.pageTitle || '', 300, false) && date(item.createdAt), '기여 기록이 올바르지 않습니다.');
+    if (item.sourceUrl) {
+      const url = new URL(item.sourceUrl);
+      requireValue(['https:', 'http:'].includes(url.protocol) && !url.username && !url.password && !url.search && !url.hash && item.sourceUrl.length <= 2000,
+        '근거 URL은 HTTP(S) 주소만 허용하며 검색어·토큰·비밀번호를 포함할 수 없습니다.');
+    }
+    return item;
+  }
+  function parseContributionExport(input) {
+    requireValue(input?.format === 'humanproof-contributions' && input.schema === 1 && Array.isArray(input.records) &&
+      input.records.length > 0 && input.records.length <= 100, 'HumanProof 확장 프로그램 JSON 파일을 선택하세요. 최대 100개 기록을 가져올 수 있습니다.');
+    return input.records.map(record => {
+      // Copy only known fields. Extension data is self-reported evidence, never an approval command.
+      const item = { id: record.id, actorType: record.actorType, stage: record.stage, note: record.note, sourceUrl: record.sourceUrl || '',
+        selectedText: record.selectedText || '', pageTitle: record.pageTitle || '', createdAt: record.createdAt };
+      return validateContribution(item);
+    });
+  }
+  return { MAX_PDF_BYTES, POLICY, canonical, digest, digestText, gatesPassed, status, publicRecord, validateDatabase,
+    verifyIntegrity, verifyChain, validateTransition, reviewSnapshot, validateContribution, parseContributionExport };
+});
+
+</script>
+  <script>(function (root) {
+  'use strict';
+  class ConflictError extends Error {
+    constructor() { super('다른 탭에서 작업이 변경되었습니다. 최신 기록을 불러왔습니다. 내용을 확인한 뒤 다시 진행하세요.'); this.name = 'ConflictError'; }
+  }
+  class Repository {
+    constructor(indexedDB = root.indexedDB, databaseName = 'humanproof-demo') { this.indexedDB = indexedDB; this.databaseName = databaseName; }
+    async open() {
+      if (!this.indexedDB) throw new Error('브라우저에서 IndexedDB 저장소를 사용할 수 없습니다. Chrome의 일반 창에서 다시 열어 주세요.');
+      this.connection = await new Promise((resolve, reject) => {
+        const request = this.indexedDB.open(this.databaseName, 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('workspace');
+        request.onerror = () => reject(request.error);
+        request.onblocked = () => reject(new Error('다른 창이 저장소 업그레이드를 막고 있습니다. 기존 HumanProof 창을 닫아 주세요.'));
+        request.onsuccess = () => resolve(request.result);
+      });
+      this.connection.onversionchange = () => this.connection.close();
+      return this;
+    }
+    load() {
+      return new Promise((resolve, reject) => {
+        const transaction = this.connection.transaction('workspace', 'readonly');
+        const request = transaction.objectStore('workspace').get('current');
+        transaction.oncomplete = () => resolve(request.result || null);
+        transaction.onabort = () => reject(transaction.error || new Error('저장된 작업을 읽을 수 없습니다.'));
+      });
+    }
+    commit(data, expectedRevision) {
+      const snapshot = structuredClone(data);
+      return new Promise((resolve, reject) => {
+        const transaction = this.connection.transaction('workspace', 'readwrite');
+        const store = transaction.objectStore('workspace');
+        let conflict = false;
+        const request = store.get('current');
+        request.onsuccess = () => {
+          if ((request.result?.revision || 0) !== expectedRevision) { conflict = true; transaction.abort(); return; }
+          store.put({ revision: expectedRevision + 1, data: snapshot }, 'current');
+        };
+        transaction.oncomplete = () => resolve(expectedRevision + 1);
+        transaction.onabort = () => reject(conflict ? new ConflictError() : transaction.error || new Error('브라우저 저장에 실패했습니다.'));
+      });
+    }
+  }
+  const api = { Repository, ConflictError };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.HumanProofStorage = api;
+})(globalThis);
+
+</script>
+  <script>(function (root, factory) {
+  const api = factory(typeof module === 'object' && module.exports ? require('../prototype/dist/domain.js') : root.HumanProof);
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.HaveUserModel = api;
+})(globalThis, function (shared) {
+  'use strict';
+  const STATUS = Object.freeze({
+    CHALLENGE_PENDING: { label: '이해 확인 대기', tone: 'progress', action: '이해 확인하기' },
+    REVIEW_PENDING: { label: '검토 대기', tone: 'progress', action: '진행 상황 보기' },
+    REVISION_REQUIRED: { label: '수정 요청', tone: 'warning', action: '수정 내용 확인' },
+    APPROVED: { label: '승인 완료', tone: 'success', action: '증명서 보기' }
+  });
+  const REVIEWERS = ['김지은', '이도현'];
+  const uid = prefix => prefix + '-' + crypto.randomUUID();
+  const latest = work => work.versions.at(-1);
+  const decode = value => Uint8Array.from(atob(value), c => c.charCodeAt(0));
+  function encode(bytes) {
+    let result = '';
+    for (let i = 0; i < bytes.length; i += 8192) result += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    return btoa(result);
+  }
+  async function prepareFile(name, bytes) {
+    if (bytes.length > shared.MAX_PDF_BYTES) throw new Error('20 MB 이하의 PDF를 선택해 주세요.');
+    if (!/\.pdf$/i.test(name) || new TextDecoder().decode(bytes.subarray(0, 5)) !== '%PDF-') throw new Error('PDF 파일만 등록할 수 있어요. 파일 형식을 확인해 주세요.');
+    if (name.length > 255) throw new Error('파일 이름을 255자 이내로 줄여 주세요.');
+    return { name, size: bytes.length, data: encode(bytes), hash: await shared.digest(bytes) };
+  }
+  function validateRegistration(form, step = -1) {
+    const errors = {}, check = index => step === -1 || step === index;
+    if (check(0)) {
+      if (!form.title?.trim() || form.title.trim().length > 100) errors.title = '작업명을 1~100자로 입력해 주세요.';
+      if (!form.file) errors.file = '검토할 PDF 파일을 선택해 주세요.';
+      if (form.isVersion && !form.reason?.trim()) errors.reason = '변경 사유를 입력해 주세요.';
+      if ((form.reason || '').length > 2000) errors.reason = '변경 사유를 2,000자 이내로 입력해 주세요.';
+    }
+    if (check(1)) {
+      if (!form.tool?.trim() || form.tool.length > 100) errors.tool = 'AI 도구·모델을 100자 이내로 입력해 주세요.';
+      if (!form.scope?.trim() || form.scope.length > 5000) errors.scope = 'AI 사용 범위를 5,000자 이내로 입력해 주세요.';
+    }
+    if (check(2) && (!form.contribution?.trim() || form.contribution.length > 2000)) errors.contribution = '직접 수행한 일을 2,000자 이내로 입력해 주세요.';
+    if (check(3) && !REVIEWERS.includes(form.reviewer)) errors.reviewer = '검토자 한 명을 선택해 주세요.';
+    return errors;
+  }
+  function makeVersion(form, n, at) {
+    return { id: uid('version'), n, file: structuredClone(form.file), tool: form.tool.trim(), scope: form.scope.trim(),
+      contribution: form.contribution.trim(), reason: form.reason?.trim() || '최초 등록', reviewer: form.reviewer,
+      status: 'CHALLENGE_PENDING', answers: ['', '', ''], confidence: [80, 80, 80], approval: null, createdAt: at, feedback: '' };
+  }
+  function assertForm(form) {
+    const errors = validateRegistration(form);
+    if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
+  }
+  function createWork(form, at = new Date().toISOString()) {
+    assertForm(form);
+    const version = makeVersion(form, 1, at);
+    return { id: uid('work'), title: form.title.trim(), owner: '민섭', versions: [version], events: [{ version: 1, action: '작업 등록 · 이해 확인 배정', actor: '민섭', at }] };
+  }
+  function appendVersion(work, form, at = new Date().toISOString()) {
+    if (!form.reason?.trim()) throw new Error('변경 사유를 입력해 주세요.');
+    if (!['APPROVED', 'REVISION_REQUIRED'].includes(latest(work).status)) throw new Error('수정 요청 또는 승인 완료 후 새 버전을 등록할 수 있어요.');
+    assertForm(form);
+    const next = structuredClone(work), version = makeVersion(form, latest(work).n + 1, at);
+    next.versions.push(version);
+    next.events.push({ version: version.n, action: '새 버전 등록', actor: '민섭', at, note: form.reason.trim() });
+    return next;
+  }
+  function submitAnswers(work, answers, confidence, at = new Date().toISOString()) {
+    if (latest(work).status !== 'CHALLENGE_PENDING') throw new Error('이미 제출한 답변은 수정할 수 없어요. 새 검토 요청을 기다려 주세요.');
+    if (!Array.isArray(answers) || answers.length !== 3 || answers.some(a => typeof a !== 'string' || !a.trim() || a.length > 10000)) throw new Error('모든 문항에 답변을 입력해 주세요.');
+    if (!Array.isArray(confidence) || confidence.length !== 3 || confidence.some(c => !Number.isFinite(c) || c < 0 || c > 100)) throw new Error('확신도는 0~100%로 입력해 주세요.');
+    const next = structuredClone(work), v = latest(next);
+    v.answers = answers.map(a => a.trim()); v.confidence = [...confidence]; v.status = 'REVIEW_PENDING';
+    next.events.push({ version: v.n, action: '이해 확인 답변 제출 · 검토 대기', actor: '민섭', at });
+    return next;
+  }
+  function statusOf(work, version = latest(work)) {
+    if (version.status === 'APPROVED' && version.id !== latest(work).id) return { label: '이전 버전 승인', tone: 'neutral', action: '이전 증명서 보기' };
+    return STATUS[version.status] || { label: '상태 확인 필요', tone: 'neutral', action: '상세 보기' };
+  }
+  function filterWorks(works, query = '', filter = 'all') {
+    const q = query.trim().toLocaleLowerCase();
+    return works.filter(w => (!q || (w.title + ' ' + latest(w).file.name + ' ' + latest(w).reviewer).toLocaleLowerCase().includes(q)) &&
+      (filter === 'all' || (filter === 'attention' && ['CHALLENGE_PENDING', 'REVISION_REQUIRED'].includes(latest(w).status)) ||
+       (filter === 'ongoing' && latest(w).status === 'REVIEW_PENDING') || (filter === 'approved' && latest(w).status === 'APPROVED')));
+  }
+  function certificateFor(work, n = latest(work).n) {
+    const version = work.versions.find(v => v.n === Number(n));
+    return version?.status === 'APPROVED' && version.approval ? version : null;
+  }
+  function publicRecord(work, n) {
+    const v = certificateFor(work, n);
+    if (!v) throw new Error('이 버전에는 발급된 증명서가 없어요.');
+    return { title: work.title, version: v.n, fileName: v.file.name, fileHash: v.file.hash, ...v.approval };
+  }
+  function samplePdf() {
+    const stream = 'BT /F1 20 Tf 48 760 Td (HAVE / User GUI) Tj /F1 12 Tf 0 -40 Td (Human approval is bound to one file version.) Tj 0 -24 Td (This is a local demonstration PDF.) Tj ET';
+    const objects = ['<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>', '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`];
+    let out = '%PDF-1.4\n'; const offsets = [0];
+    objects.forEach((object, i) => { offsets.push(out.length); out += `${i + 1} 0 obj\n${object}\nendobj\n`; });
+    const xref = out.length;
+    out += 'xref\n0 6\n0000000000 65535 f \n' + offsets.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+    return new TextEncoder().encode(out + `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  }
+  async function seed() {
+    const file = await prepareFile('HAVE_시스템_설계.pdf', samplePdf());
+    const rows = [
+      ['work-design', 'AI 협업 서비스 요구사항 명세서', 'CHALLENGE_PENDING', 2, '2026-11-16T00:20:00Z'],
+      ['work-research', '캠퍼스 서비스 사용자 조사 보고서', 'REVIEW_PENDING', 1, '2026-11-15T08:40:00Z'],
+      ['work-architecture', 'HAVE 시스템 아키텍처 설계', 'APPROVED', 1, '2026-11-15T05:10:00Z'],
+      ['work-policy', 'AI 사용 가이드라인 및 운영 정책', 'REVISION_REQUIRED', 1, '2026-11-14T07:30:00Z'],
+      ['work-plan', '소프트웨어공학 프로젝트 기획서', 'APPROVED', 1, '2026-11-13T02:00:00Z']
+    ];
+    const works = rows.map(([id, title, status, count, at], i) => {
+      const work = createWork({ title, file, tool: 'ChatGPT · GPT-4o', scope: '문서 구조와 초안 작성에 사용했습니다. 사실 확인과 최종 수정은 직접 수행했습니다.', contribution: '요구사항을 비교하고 출처를 확인한 뒤, 버전과 승인 정책을 직접 수정했습니다.', reviewer: REVIEWERS[i % 2] }, at);
+      work.id = id; work.demo = true;
+      if (count === 2) work.versions.push(makeVersion({ ...latest(work), file, contribution: latest(work).contribution, reason: '용어와 승인 범위 보완' }, 2, at));
+      work.versions.forEach((v, index) => { v.id = `${id}-v${index + 1}`; v.file.name = title.replaceAll(' ', '_') + `_v${v.n}.pdf`; });
+      const v = latest(work); v.status = status;
+      if (status === 'REVIEW_PENDING') v.answers = ['버전은 승인 대상을 식별하고 해시는 파일 바이트를 비교합니다.', '파일 이름으로 승인 여부를 판단할 수 없습니다.', '승인자 관계와 승인 완료 조건을 함께 변경해야 합니다.'];
+      if (status === 'REVISION_REQUIRED') v.feedback = 'AI가 작성한 내용과 직접 수정한 부분을 구분해 주세요. 운영 정책 3절에 출처를 추가하고, 수정한 파일을 새 버전으로 제출해 주세요.';
+      if (status === 'APPROVED') {
+        v.approval = { serial: `HAVE-DEMO-2026-${String(i + 1).padStart(4, '0')}`, at, actor: v.reviewer };
+        work.events.push({ version: v.n, action: '검토 통과 · 승인 기록 · 증명서 발급 (시연)', actor: v.reviewer, at });
+      }
+      return work;
+    });
+    return { schema: 1, works, draft: null };
+  }
+  return { STATUS, REVIEWERS, latest, decode, encode, prepareFile, validateRegistration, createWork, appendVersion, submitAnswers, statusOf, filterWorks, certificateFor, publicRecord, samplePdf, seed };
+});
+</script>
+  <script>/* HAVE author workspace. Server review and signing are intentionally unconnected. */
+'use strict';
+const M = HaveUserModel;
+const $ = selector => document.querySelector(selector);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const paths = {
+  shield: '<path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6z"/><path d="m8 12 3 3 5-6"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', arrow: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
+  chevron: '<path d="m9 5 7 7-7 7"/>', search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+  check: '<path d="m5 12 4 4 10-10"/>', upload: '<path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/>',
+  download: '<path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>', close: '<path d="m6 6 12 12M18 6 6 18"/>',
+  book: '<path d="M12 5v16M12 5C8 2 4 3 2 4v15c4-2 7-1 10 2 3-3 6-4 10-2V4c-2-1-6-2-10 1Z"/>',
+  link: '<path d="m10 13 4-4M8 16l-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m4 0 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(1 -1)"/>',
+  edit: '<path d="m16 3 5 5-12 12-6 1 1-6ZM14 5l5 5"/>', award: '<circle cx="12" cy="8" r="5"/><path d="m8 12-2 10 6-3 6 3-2-10"/>',
+  refresh: '<path d="M20 7a9 9 0 0 0-15-2L2 8m0-6v6h6M4 17a9 9 0 0 0 15 2l3-3m0 6v-6h-6"/>'
+};
+const icon = name => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.file}</svg>`;
+const repo = new HumanProofStorage.Repository(globalThis.indexedDB, 'have-author-gui-v1');
+let state, revision = 0, route = location.hash || '#works', query = '', filter = 'all', sort = 'newest';
+let editor = null, editorStep = 0, editorErrors = {}, dirty = false, saving = false, storageError = '', savedAt = '';
+let questionIndex = 0, answerDraft = null, comparison = null, compareRequest = 0, toastTimer, fileChecking = false;
+let conflictSnapshot = null;
+const questions = [
+  { name: '선택 이유 설명', type: 'Teach-back', title: '버전과 파일 해시의 역할을 설명해 주세요.', prompt: '파일 버전 ID와 SHA-256을 함께 기록하는 이유는 무엇인가요? 각각이 무엇을 확인하는지 자신의 말로 설명해 주세요.' },
+  { name: '오류 발견', type: 'Fault Injection', title: '검증용 문단에 숨은 오류를 찾아보세요.', prompt: '아래 설명의 오류를 찾고, 수정 방향과 그 이유를 적어 주세요.', reference: '“승인 여부는 파일 이름으로 확인한다. 파일 이름이 같으면 내용이 변경되어도 기존 승인이 유지된다.”' },
+  { name: '조건 변경 대응', type: 'What-if', title: '승인자가 두 명이 된다면 무엇이 바뀔까요?', prompt: '승인자가 1명에서 2명으로 늘어날 때, 데이터 구조와 승인 상태 처리에서 변경할 부분을 설명해 주세요.' }
+];
+const stamp = value => new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Seoul' }).format(new Date(value)).replace(/\. /g, '.').replace(/\.$/, '') + ' KST';
+const size = bytes => bytes < 1024 * 1024 ? (bytes / 1024).toFixed(1) + ' KB' : (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+const badge = (label, tone = 'neutral') => `<span class="badge ${tone}">${esc(label)}</span>`;
+const statusBadge = (work, version = M.latest(work)) => { const s = M.statusOf(work, version); return badge(s.label, s.tone); };
+const link = (hash, text, className = '', extra = '') => `<a href="${esc(hash)}" data-route="${esc(hash)}" class="${className}" ${extra}>${text}</a>`;
+const workRoute = (work, tab = 'overview') => `#work/${work.id}/${tab}`;
+const brand = () => `<a class="brand" href="#works" data-route="#works" aria-label="HAVE 내 작업">${'<span class="brand-mark">' + icon('shield') + '</span>'}<span><span class="brand-name">HAVE</span><span class="brand-caption" style="display:block">HUMAN APPROVAL</span></span></a>`;
+function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 4000); }
+function announce(message) { $('#announcer').textContent = message; }
+function heading(title, description, action = '', eyebrow = '') { return `<div class="heading"><div>${eyebrow ? `<div class="eyebrow">${eyebrow}</div>` : ''}<h1 tabindex="-1">${esc(title)}</h1><p>${esc(description)}</p></div>${action}</div>`; }
+function notice(title, text, tone = '', extra = '') { return `<div class="notice ${tone}">${icon('info')}<div><strong>${esc(title)}</strong>${esc(text)}${extra}</div></div>`; }
+function footnote() { return `<footer class="footnote">${icon('info')}<span>로컬 데모 · 입력한 파일과 기록은 현재 브라우저에 저장됩니다. 검토자 전달·계정 인증·전자서명은 연결되지 않았습니다.</span></footer>`; }
+function navMarkup() {
+  const attention = M.filterWorks(state.works, '', 'attention').length;
+  return `<nav class="navigation" aria-label="주 메뉴">${[
+    ['#works', 'grid', '내 작업', state.works.length], ['#attention', 'clock', '내 확인 필요', attention], ['#certificates', 'award', '승인 증명서', '']
+  ].map(([hash, glyph, text, count]) => link(hash, `${icon(glyph)}${text}${count !== '' ? `<span class="count">${count}</span>` : ''}`, `nav-link ${route === hash || (hash === '#works' && route.startsWith('#work/')) ? 'active' : ''}`, route === hash ? 'aria-current="page"' : '')).join('')}</nav>`;
+}
+function shell(body, label = '내 작업') {
+  return `<div class="shell"><aside class="sidebar">${brand()}<div style="margin-top:48px"><div class="side-label">WORKSPACE</div>${navMarkup()}</div><div class="sidebar-bottom"><div class="sidebar-tip"><b>기록이 모여, 신뢰가 됩니다.</b>AI의 기여와 사람의 검토를<br>하나의 버전에 연결하세요.</div><button class="side-guide" data-action="guide">${icon('book')}HAVE 사용 가이드${icon('chevron')}</button><div class="side-footer">HAVE · SOFTWARE ENGINEERING</div></div></aside><div class="content-shell"><header class="topbar"><button class="btn icon-only mobile-menu" data-action="menu" aria-label="주 메뉴 열기" aria-haspopup="dialog">${icon('menu')}</button><div class="breadcrumb"><span>소프트웨어공학</span>${icon('chevron')}<strong>${esc(label)}</strong></div><div class="top-actions"><span class="demo-tag">LOCAL DEMO</span><div class="profile"><span class="avatar">민</span><span>민섭<small>작성자 워크스페이스</small></span></div></div></header>${storageError ? `<div role="alert" class="storage-alert">${esc(storageError)} <button class="btn" data-action="retry-save">다시 저장</button></div>` : ''}<main id="main" class="main">${body}${footnote()}</main></div></div>`;
+}
+function listScreen() {
+  const attentionOnly = route === '#attention';
+  const all = state.works.length, attention = M.filterWorks(state.works, '', 'attention').length;
+  const approved = M.filterWorks(state.works, '', 'approved').length, ongoing = M.filterWorks(state.works, '', 'ongoing').length;
+  const next = M.filterWorks(state.works, '', 'attention')[0];
+  const metrics = [['전체 작업', all, 'file', '버전별 기록을 한곳에서'], ['내 확인 필요', attention, 'edit', '이해 확인 또는 수정 요청'], ['검토 진행 중', ongoing, 'clock', '검토자의 확인을 기다려요'], ['승인 완료', approved, 'shield', '승인된 버전의 증명서 확인']];
+  const counts = { all, attention, ongoing, approved };
+  const title = attentionOnly ? '내 확인이 필요한 작업' : '내 작업';
+  return heading(title, 'AI와 만든 결과물, 사람의 검토와 승인까지 한곳에서 관리하세요.', link('#new', icon('plus') + '작업 등록', 'btn primary'), 'MY WORKSPACE') +
+    `<div class="metrics">${metrics.map(([label, count, glyph, note]) => `<div class="metric"><div class="metric-label">${label}${icon(glyph)}</div><div class="metric-value">${count}<span>건</span></div><div class="metric-note">${note}</div></div>`).join('')}</div>` +
+    (state.draft ? `<div class="attention-strip"><div class="attention-copy">${icon('file')}<div><b>이어서 작성할 작업이 있어요</b><p>${esc(state.draft.title || '제목 없는 작업')} · 임시 저장한 입력을 불러올 수 있어요.</p></div></div>${link('#new', '이어서 작성하기' + icon('arrow'), 'btn')}</div>` : next ? `<div class="attention-strip"><div class="attention-copy">${icon('clock')}<div><b>다음 단계로 이어가 볼까요?</b><p>${esc(next.title)} · ${esc(M.statusOf(next).label)} · v${M.latest(next).n}</p></div></div>${link(workRoute(next, M.latest(next).status === 'CHALLENGE_PENDING' ? 'challenge' : 'overview'), M.statusOf(next).action + icon('arrow'), 'btn')}</div>` : '') +
+    `<section aria-label="작업 목록"><div class="section-header"><h2>작업 목록 <span class="muted small">${all}</span></h2><label class="sr-only" for="sort">정렬</label><select id="sort" aria-label="작업 정렬" style="width:auto;min-height:44px;font-size:12px;background:transparent;border:0"><option value="newest" ${sort === 'newest' ? 'selected' : ''}>최근 변경순</option><option value="title" ${sort === 'title' ? 'selected' : ''}>작업명순</option></select></div><div class="work-list"><div class="list-toolbar"><div class="tabs" role="tablist" aria-label="작업 상태">${[['all', '전체'], ['attention', '내 확인 필요'], ['ongoing', '검토 진행 중'], ['approved', '승인 완료']].map(([key, text]) => `<button class="tab ${filter === key ? 'active' : ''}" role="tab" id="filter-${key}" aria-selected="${filter === key}" aria-controls="work-results" tabindex="${filter === key ? '0' : '-1'}" data-filter="${key}">${text}<span>${counts[key]}</span></button>`).join('')}</div><div class="search-wrap">${icon('search')}<label for="search" class="sr-only">작업 검색</label><input id="search" type="text" placeholder="작업명, 파일명, 검토자 검색" value="${esc(query)}" autocomplete="off"></div></div><div id="work-results" role="tabpanel" aria-labelledby="filter-${filter}" tabindex="0">${workResults()}</div></div></section>`;
+}
+function workResults() {
+  const rows = M.filterWorks(state.works, query, filter).sort((a, b) => sort === 'title' ? a.title.localeCompare(b.title, 'ko') : M.latest(b).createdAt.localeCompare(M.latest(a).createdAt));
+  if (!rows.length) return `<div class="empty">${icon('search')}<h2>${state.works.length ? '조건에 맞는 작업이 없어요' : '아직 등록한 작업이 없어요'}</h2><p>${state.works.length ? '검색어나 상태 필터를 바꿔 다시 찾아보세요.' : '첫 작업을 등록하고 검토 과정을 시작해 보세요.'}</p>${state.works.length ? '<button class="btn" data-action="clear-filter">필터 초기화</button>' : link('#new', '작업 등록', 'btn primary')}</div>`;
+  const titleCell = w => `<div class="row">${'<span style="color:var(--color-muted)">' + icon('file') + '</span>'}<div class="grow">${link(workRoute(w), esc(w.title), 'work-title')}<div class="file-meta"><span>v${M.latest(w).n}</span><span>PDF</span><span>${w.demo ? '시연 자료' : '내가 등록한 작업'}</span></div></div></div>`;
+  return `<div class="table-container"><table style="width:100%;border-collapse:collapse"><caption class="sr-only">내 작업 ${rows.length}건</caption><thead><tr>${['작업명 / 버전', '현재 상태', '검토자', '최근 변경 시각', '상세'].map(t => `<th scope="col">${t}</th>`).join('')}</tr></thead><tbody>${rows.map(w => `<tr><td>${titleCell(w)}</td><td>${statusBadge(w)}</td><td>${esc(M.latest(w).reviewer)}</td><td class="muted" style="font-size:11px">${stamp(M.latest(w).createdAt)}</td><td>${link(workRoute(w), icon('chevron'), 'btn text icon-only', `aria-label="${esc(w.title)} 상세 보기"`)}</td></tr>`).join('')}</tbody></table></div><div class="work-cards">${rows.map(w => `<article class="work-card">${titleCell(w)}<dl class="work-card-meta"><div><dt>현재 상태</dt><dd>${statusBadge(w)}</dd></div><div><dt>검토자</dt><dd>${esc(M.latest(w).reviewer)}</dd></div><div style="grid-column:1/-1"><dt>최근 변경 시각</dt><dd>${stamp(M.latest(w).createdAt)}</dd></div></dl></article>`).join('')}</div><div class="table-footer"><span>총 ${rows.length}개 작업</span><span>승인은 표시된 버전에만 적용됩니다.</span></div>`;
+}
+function context(work) {
+  const v = M.latest(work), s = M.statusOf(work);
+  const next = { CHALLENGE_PENDING: '세 문항의 답변을 작성해 주세요.', REVIEW_PENDING: `${v.reviewer} 님의 검토를 기다리고 있어요.`, REVISION_REQUIRED: '피드백을 반영하고 새 버전을 제출해 주세요.', APPROVED: '승인된 버전의 증명서를 확인하세요.' }[v.status] || '상태를 다시 확인해 주세요.';
+  return `<section class="work-context" aria-label="작업 요약">${icon('file')}<div class="grow"><h2>${esc(work.title)}</h2><div class="context-meta"><span>대상 버전 v${v.n}</span>${statusBadge(work)}<span>검토자 ${esc(v.reviewer)}</span></div></div><div class="next-action"><b>다음 행동</b>${esc(next)}</div></section>`;
+}
+function detailTabs(work, tab) {
+  return `<nav class="detail-tabs" aria-label="작업 상세">${[['overview', '작업 정보'], ['challenge', '이해 확인'], ['certificate', '증명서'], ['history', '버전 · 이력']].map(([key, text]) => link(workRoute(work, key), text, '', tab === key ? 'aria-current="page"' : '')).join('')}</nav>`;
+}
+function journey(v) {
+  const at = v.status === 'APPROVED' ? 4 : v.status === 'REVIEW_PENDING' ? 2 : 1;
+  return `<div class="journey">${['작업 등록', '이해 확인', '사람의 검토', '승인 · 발급'].map((text, i) => `<div class="journey-item ${i < at ? 'done' : i === at ? 'current' : ''}"><span class="journey-number">${i < at ? '✓' : i + 1}</span>${text}</div>`).join('')}</div>`;
+}
+function fileInfo(v) {
+  return `<dl class="definition"><dt>대상 버전</dt><dd>v${v.n}</dd><dt>등록 파일</dt><dd>${esc(v.file.name)}</dd><dt>파일 크기</dt><dd>${size(v.file.size)}</dd><dt>등록 시각</dt><dd>${stamp(v.createdAt)}</dd></dl><details class="hash-details"><summary>파일 식별 정보 · SHA-256</summary><p class="mono">${esc(v.file.hash)}</p><button class="btn text" data-action="copy-hash">전체 해시 복사</button></details><button class="btn full space-top" data-action="download-file">${icon('download')}등록한 PDF 받기</button>`;
+}
+function overview(work) {
+  const v = M.latest(work);
+  const action = v.status === 'CHALLENGE_PENDING' ? link(workRoute(work, 'challenge'), '이해 확인하기' + icon('arrow'), 'btn primary') : ['REVISION_REQUIRED', 'APPROVED'].includes(v.status) ? `<button class="btn ${v.status === 'REVISION_REQUIRED' ? 'primary' : ''}" data-action="new-version">${icon('plus')}새 버전 등록</button>` : '';
+  return `<div class="split"><div class="stack"><section class="panel"><div class="panel-head"><h2>검토 진행 상황</h2>${statusBadge(work)}</div>${journey(v)}<div class="panel-body" style="padding-top:0">${v.status === 'REVISION_REQUIRED' ? notice('수정 요청이 도착했어요', v.feedback, 'warning') : v.status === 'REVIEW_PENDING' ? notice('답변을 제출했어요', `${v.reviewer} 님이 이 버전의 파일과 답변을 확인할 예정이에요.`) : v.status === 'APPROVED' ? notice('v' + v.n + '에 대한 승인이 기록되어 있어요', '검토 통과와 승인 기록, 증명서 발급이 완료된 시연 자료입니다.') : notice('내 말로 설명하고, 검토를 요청하세요', '세 문항의 답변은 이 파일 버전에 연결되어 검토자에게 표시됩니다.')}</div><div class="panel-foot"><span class="muted small">작성자에게는 승인 권한이 없어요.</span>${action || badge('검토자 확인 대기', 'progress')}</div></section><section class="panel"><div class="panel-head"><h2>AI 사용 신고와 나의 기여</h2>${badge('작성자 신고')}</div><div class="panel-body details"><div><div class="detail-label">AI 도구 · 모델</div><div class="detail-value">${esc(v.tool)}</div></div><div><div class="detail-label">AI 사용 범위</div><div class="detail-value">${esc(v.scope)}</div></div><div><div class="detail-label">직접 수행한 일</div><div class="detail-value">${esc(v.contribution)}</div></div></div></section></div><aside class="stack" style="align-content:start"><section class="panel"><div class="panel-head"><h2>등록 파일</h2>${icon('file')}</div><div class="panel-body">${fileInfo(v)}</div></section>${notice('새 파일은 새 버전으로', '파일이나 AI 사용 신고를 수정하면 새 버전으로 제출해 주세요. 이전 승인은 새 버전에 적용되지 않아요.', 'neutral')}</aside></div>`;
+}
+function field(name, label, value, options = {}) {
+  const error = editorErrors[name], hint = options.hint || '';
+  const attributes = `id="${name}" name="${name}" ${options.required === false ? '' : 'required'} aria-describedby="${name}-hint${error ? ' ' + name + '-error' : ''}" ${error ? 'aria-invalid="true"' : ''} ${options.readonly ? 'readonly' : ''}`;
+  return `<label class="field" for="${name}"><span>${label}${options.required === false ? '' : '<small class="required">필수</small>'}</span>${options.multiline ? `<textarea ${attributes} maxlength="${options.max || 2000}" placeholder="${esc(options.placeholder || '')}">${esc(value || '')}</textarea>` : `<input type="text" ${attributes} value="${esc(value || '')}" maxlength="${options.max || 100}" placeholder="${esc(options.placeholder || '')}">`}<small id="${name}-hint" class="muted" style="display:block;margin-top:8px">${esc(hint)}</small>${error ? `<small id="${name}-error" style="color:var(--color-danger);display:block;margin-top:8px">${esc(error)}</small>` : ''}</label>`;
+}
+function editorScreen() {
+  if (!editor) editor = state.draft ? structuredClone(state.draft) : { title: '', file: null, tool: '', scope: '', contribution: '', reviewer: '', reason: '', isVersion: false };
+  const steps = ['파일 등록', 'AI 사용 신고', '나의 기여', '검토자 · 제출'];
+  const errors = Object.keys(editorErrors).length ? `<div class="notice error" role="alert" style="margin-bottom:24px">${icon('info')}<div><strong>입력 내용을 확인해 주세요</strong>${Object.entries(editorErrors).map(([key, error]) => `<div><a href="#${key}" data-error-field="${key}" style="color:inherit;text-decoration:underline">${esc(error)}</a></div>`).join('')}</div></div>` : '';
+  let body = '';
+  if (editorStep === 0) body = field('title', '작업명', editor.title, { readonly: editor.isVersion, placeholder: '예: HAVE 서비스 요구사항 정의서' }) + `<div class="field"><label for="pdf">검토할 파일 <small class="required">필수</small></label><label for="pdf" class="upload-drop" style="display:block;border:1px dashed var(--color-muted);border-radius:8px;padding:28px 20px;text-align:center;cursor:pointer"><span style="color:var(--color-primary)">${icon('upload')}</span><b style="display:block;font-size:14px;margin:8px 0">PDF를 끌어 놓거나 파일을 선택하세요</b><small class="muted">PDF · 최대 20 MB</small><input id="pdf" type="file" accept=".pdf,application/pdf" style="display:block;margin:16px auto 0;max-width:100%;font-size:12px" aria-describedby="file-hint${editorErrors.file ? ' file-error' : ''}" ${editorErrors.file ? 'aria-invalid="true"' : ''}></label><small id="file-hint" class="muted">선택한 파일은 현재 브라우저에 저장됩니다.</small>${editor.file ? `<div class="selected-file">${icon('check')}<div class="grow"><b>${esc(editor.file.name)}</b>${size(editor.file.size)} · 파일 확인 완료</div></div>` : ''}<div id="file-status" class="upload-feedback" role="status" aria-live="polite">${fileChecking ? '파일을 확인하는 중…' : ''}</div>${editorErrors.file ? `<small id="file-error" style="color:var(--color-danger)">${esc(editorErrors.file)}</small>` : ''}</div><button type="button" class="btn text" data-action="sample-pdf">${icon('file')}샘플 PDF로 체험하기</button>` + (editor.isVersion ? field('reason', '변경 사유', editor.reason, { multiline: true, hint: '이전 버전과 달라진 내용을 적어 주세요.' }) : '');
+  if (editorStep === 1) body = field('tool', 'AI 도구 · 모델', editor.tool, { placeholder: '예: ChatGPT · GPT-4o', hint: 'AI를 사용하지 않았다면 “사용 안 함”으로 적어 주세요.' }) + field('scope', 'AI 사용 범위', editor.scope, { multiline: true, max: 5000, placeholder: 'AI가 도운 작업과 적용한 범위를 구체적으로 적어 주세요.', hint: '예: 문서 구조와 초안 작성. 수치 확인과 결론은 직접 작성.' });
+  if (editorStep === 2) body = field('contribution', '직접 수행한 일', editor.contribution, { multiline: true, placeholder: '직접 판단하고, 확인하고, 수정한 내용을 적어 주세요.', hint: '예: 출처 세 곳을 확인하고 오류를 수정했습니다.' }) + notice('기여 기록은 현재 버전에 연결돼요', 'AI 사용 신고와 나의 기여를 구분하면 검토자가 확인할 부분을 쉽게 찾을 수 있어요.', 'neutral');
+  if (editorStep === 3) body = `<fieldset style="border:0;margin:0;padding:0"><legend style="font-size:14px;font-weight:550;margin-bottom:16px">검토자 선택 <small class="required">필수</small></legend>${M.REVIEWERS.map((name, i) => `<label class="reviewer-choice"><input type="radio" name="reviewer" value="${name}" ${editor.reviewer === name ? 'checked' : ''} ${i === 0 ? 'id="reviewer"' : ''} ${editorErrors.reviewer ? 'aria-invalid="true" aria-describedby="reviewer-error"' : ''}><span class="avatar">${name[0]}</span><span><b>${name}</b><small>프로젝트 팀원 · 시연 검토자</small></span></label>`).join('')}${editorErrors.reviewer ? `<small id="reviewer-error" style="color:var(--color-danger)">${esc(editorErrors.reviewer)}</small>` : ''}</fieldset><div class="registration-summary"><h3>제출 전 확인</h3><dl class="definition"><dt>작업명</dt><dd>${esc(editor.title)}</dd><dt>대상 파일</dt><dd>${esc(editor.file?.name || '')}</dd><dt>AI 도구</dt><dd>${esc(editor.tool)}</dd><dt>AI 사용 범위</dt><dd>${esc(editor.scope)}</dd><dt>나의 기여</dt><dd>${esc(editor.contribution)}</dd></dl></div><div class="space-top">${notice('제출 후 이해 확인을 진행해요', '현재 버전의 파일과 신고 내용이 고정됩니다. 제출 뒤 변경하려면 수정 요청 또는 승인 후 새 버전으로 등록해 주세요.')}</div>`;
+  return heading(editor.isVersion ? '새 버전 등록' : '작업 등록', '파일과 AI 사용 내역을 정리하고, 검토를 시작하세요.', '', 'REGISTER YOUR WORK') + `<div style="max-width:720px;margin:auto"><nav class="form-progress journey" aria-label="등록 단계">${steps.map((text, i) => `<div class="journey-item ${i < editorStep ? 'done' : i === editorStep ? 'current' : ''}" ${i === editorStep ? 'aria-current="step"' : ''}><span class="journey-number">${i < editorStep ? '✓' : i + 1}</span>${text}</div>`).join('')}</nav><form id="registration" novalidate><section class="panel"><div class="panel-head"><h2>${String(editorStep + 1).padStart(2, '0')} · ${steps[editorStep]}</h2><span class="small muted">${editorStep + 1} / 4</span></div><div class="panel-body">${errors}${body}</div></section><div class="space-top"><div class="saved-at" role="status">${esc(savedAt)}</div><div class="wizard-actions"><button type="button" class="btn" data-action="save-draft" ${saving || fileChecking ? 'disabled' : ''}>${saving ? '저장 중…' : '임시 저장'}</button><div><button type="button" class="btn" data-action="${editorStep ? 'previous-step' : 'cancel-editor'}">${editorStep ? '이전 단계' : '취소'}</button><button type="submit" class="btn primary" ${saving || fileChecking ? 'disabled' : ''}>${saving ? '제출 중…' : editorStep === 3 ? '검토 요청' : '다음 단계'}${icon('arrow')}</button></div></div></div></form></div>`;
+}
+function challenge(work) {
+  const v = M.latest(work), editable = v.status === 'CHALLENGE_PENDING';
+  if (!answerDraft || answerDraft.versionId !== v.id) answerDraft = { versionId: v.id, answers: [...v.answers], confidence: [...v.confidence] };
+  const q = questions[questionIndex], completed = answerDraft.answers.filter(a => a.trim()).length;
+  return `<div class="split"><section class="panel"><div class="panel-head"><h2>나의 이해 확인</h2><span class="small muted">${completed} / 3 작성</span></div><div class="panel-body"><div class="tabs" role="tablist" aria-label="이해 확인 문항">${questions.map((question, i) => `<button id="question-${i}" role="tab" aria-selected="${i === questionIndex}" aria-controls="question-panel" tabindex="${i === questionIndex ? '0' : '-1'}" class="tab ${i === questionIndex ? 'active' : ''}" data-question="${i}">${i + 1}. ${question.name}${answerDraft.answers[i].trim() ? ' ✓' : ''}</button>`).join('')}</div><div id="question-panel" role="tabpanel" aria-labelledby="question-${questionIndex}" class="question"><div class="eyebrow">QUESTION ${String(questionIndex + 1).padStart(2, '0')} · ${q.type.toUpperCase()}</div><h2>${q.title}</h2><div class="question-text">${q.prompt}${q.reference ? `<div class="question-ref">${q.reference}</div>` : ''}</div><form id="answers" novalidate><label class="field" for="answer"><span>나의 답변 <small class="required">필수</small></span><textarea id="answer" maxlength="10000" ${editable ? '' : 'readonly'} aria-describedby="answer-hint answer-error" placeholder="내가 이해한 내용을 근거와 함께 적어 주세요.">${esc(answerDraft.answers[questionIndex])}</textarea><small id="answer-hint" class="muted">${editable ? '다른 문항으로 이동해도 입력은 유지돼요. 임시 저장으로 기록을 보관하세요.' : '답변은 제출되어 읽기 전용이에요. 수정 요청을 받으면 새 버전으로 보완해 주세요.'}</small><small id="answer-error" role="alert" style="display:block;color:var(--color-danger);margin-top:8px"></small></label><label class="field" for="confidence"><span>답변에 대한 자기 확신</span><div class="confidence-row"><input id="confidence" type="range" min="0" max="100" step="5" value="${answerDraft.confidence[questionIndex]}" ${editable ? '' : 'disabled'}><output id="confidence-value" for="confidence">${answerDraft.confidence[questionIndex]}%</output></div><small class="muted">검토 참고 정보이며, 합격 점수와 별도로 기록돼요.</small></label><div class="row between wrap"><button class="btn" type="button" data-action="save-answers" ${!editable || saving ? 'disabled' : ''}>임시 저장</button>${questionIndex < 2 ? `<button class="btn primary" type="button" data-question="${questionIndex + 1}">다음 문항${icon('arrow')}</button>` : `<button class="btn primary" type="submit" ${!editable || saving ? 'disabled' : ''}>${v.status === 'REVIEW_PENDING' ? '답변 제출 완료' : '전체 답변 제출'}</button>`}</div><div class="saved-at space-top" role="status">${esc(savedAt)}</div></form></div></div></section><aside class="stack" style="align-content:start"><section class="panel"><div class="panel-head"><h2>이해 확인 안내</h2>${icon('book')}</div><div class="panel-body"><ol class="task-list">${questions.map((question, i) => `<li><span class="journey-number" style="flex:none">${answerDraft.answers[i].trim() ? '✓' : i + 1}</span><div><h3>${question.name}</h3><p class="small muted">${question.type}</p></div></li>`).join('')}</ol></div></section>${notice('고정 문항으로 체험해요', '이 문항은 시연용 템플릿이에요. 업로드한 PDF를 분석해 생성한 문항은 아니에요.', 'neutral')}${notice('최종 판단은 검토자가 해요', '답변 제출은 검토 대기로 연결됩니다. 자동 채점이나 승인은 실행하지 않아요.', 'neutral')}</aside></div>`;
+}
+function certificate(work) {
+  const approved = work.versions.filter(v => M.certificateFor(work, v.n));
+  if (!approved.length) return `<section class="panel empty">${icon('award')}<h2>아직 발급된 증명서가 없어요</h2><p>검토 통과와 최종 승인이 완료되면 이곳에서 확인할 수 있어요.</p>${link(workRoute(work, 'overview'), '진행 상황 보기', 'btn primary')}</section>`;
+  const v = approved.at(-1), p = M.publicRecord(work, v.n);
+  return `<article class="receipt panel" style="max-width:800px;margin:auto"><div class="panel-body"><div class="receipt-header row between"><div><div class="eyebrow" style="color:var(--color-primary)">HUMAN APPROVAL RECORD</div><h2>인간 승인 증명서</h2></div><span class="receipt-emblem" style="display:grid;place-items:center;color:var(--color-primary)">${icon('shield')}</span></div><div class="row between wrap space-top">${badge('발급 완료 · 시연', 'success')}<span class="small muted">${esc(p.serial)}</span></div><h3 class="receipt-title">${esc(work.title)}</h3><dl class="definition"><dt>승인 대상</dt><dd>v${v.n} · ${esc(p.fileName)}</dd><dt>승인자</dt><dd>${esc(p.actor)}</dd><dt>승인 시각</dt><dd>${stamp(p.at)}</dd><dt>검토 결과</dt><dd>검토 통과 · 시연 기록</dd><dt>승인 효력</dt><dd>현재 서버 효력 확인 불가</dd></dl>${v.id !== M.latest(work).id ? `<div class="space-top">${notice('이전 버전의 승인 기록이에요', `최신 버전은 v${M.latest(work).n}입니다. 이 승인은 v${v.n}에만 연결돼요.`, 'warning')}</div>` : ''}<div class="hash-details"><h3>승인 파일의 SHA-256</h3><p class="mono">${p.fileHash}</p></div>${notice('기록된 승인과 파일의 연결', '내용의 정확성이나 실제 이해 수준을 보증하지 않습니다. 전자서명과 서버 승인은 연결되지 않은 시연 증명서입니다.', 'neutral')}<div class="receipt-bottom row wrap space-top">${link(`#verify/${work.id}/${v.n}`, icon('shield') + '공개 검증 보기', 'btn primary')}<button class="btn" data-action="download-certificate" data-version="${v.n}">${icon('download')}증명서 받기</button><button class="btn" data-action="copy-link" data-version="${v.n}">${icon('link')}링크 복사</button></div><p class="small muted space-top">공유 링크는 이 브라우저의 기록을 참조합니다. 다른 기기에서의 조회에는 서버 연결이 필요해요.</p></div></article>`;
+}
+function historyScreen(work) {
+  return `<div class="split"><section class="panel"><div class="panel-head"><h2>버전별 기록</h2><span class="small muted">${work.versions.length}개 버전</span></div><div class="panel-body"><div class="stack">${[...work.versions].reverse().map(v => `<section style="border-bottom:1px solid var(--color-border);padding-bottom:24px"><div class="row between wrap"><h3>v${v.n} ${v.id === M.latest(work).id ? '<span class="small muted">· 현재 버전</span>' : ''}</h3>${statusBadge(work, v)}</div><p class="detail-value space-top">${esc(v.reason)}</p><p class="small muted">${esc(v.file.name)}<br>${stamp(v.createdAt)}</p>${v.approval && v.id !== M.latest(work).id ? '<p class="small" style="color:var(--color-warning);margin-top:8px">이전 버전 승인 · 새 버전에는 적용되지 않아요.</p>' : ''}<details class="hash-details"><summary>파일 해시 보기</summary><p class="mono">${v.file.hash}</p></details><button class="btn" data-action="download-file" data-version="${v.n}">${icon('download')}이 버전 PDF 받기</button></section>`).join('')}</div></div></section><section class="panel"><div class="panel-head"><h2>활동 이력</h2>${icon('clock')}</div><div class="panel-body"><ol class="timeline">${[...work.events].reverse().map(e => `<li><b>${esc(e.action)}</b><p>v${e.version} · ${esc(e.actor)}<br>${stamp(e.at)}</p></li>`).join('')}</ol></div></section></div>`;
+}
+function certificatesScreen() {
+  const rows = state.works.filter(w => w.versions.some(v => M.certificateFor(w, v.n)));
+  return heading('승인 증명서', '어떤 파일 버전이 승인됐는지 확인하고 검증 화면을 열어보세요.', '', 'APPROVAL RECORDS') + `<section class="panel">${rows.length ? rows.map(w => { const v = w.versions.filter(v => M.certificateFor(w, v.n)).at(-1); return `<div class="panel-body row between wrap" style="border-bottom:1px solid var(--color-border)"><div class="grow"><div class="row wrap"><h2 style="font-size:16px">${esc(w.title)}</h2>${badge('v' + v.n + ' · 발급 완료', 'success')}</div><p class="small muted" style="margin-top:8px">${esc(v.approval.serial)} · ${stamp(v.approval.at)}</p></div>${link(workRoute(w, 'certificate'), '증명서 보기' + icon('arrow'), 'btn')}</div>`; }).join('') : `<div class="empty">${icon('award')}<h2>아직 발급된 증명서가 없어요</h2><p>최종 승인 후 이곳에서 확인할 수 있어요.</p>${link('#works', '내 작업 보기', 'btn')}</div>`}</section>`;
+}
+function publicScreen(work, n) {
+  let p; try { p = M.publicRecord(work, n); } catch { return `<main id="main" class="public-main" style="max-width:800px;margin:auto">${heading('승인 기록을 찾을 수 없어요', '증명서를 발급한 브라우저에서 링크를 다시 열어 주세요.')}${link('#works', '내 작업으로', 'btn')}</main>`; }
+  const fileResult = comparison?.loading ? badge('비교 중', 'progress') : comparison?.error ? badge('확인 불가', 'neutral') : comparison ? badge(comparison.match ? '파일 일치' : '파일 불일치', comparison.match ? 'success' : 'danger') : badge('파일 미확인', 'warning');
+  return `<header class="public-header row between" style="background:white;border-bottom:1px solid var(--color-border)">${brand()}${link('#works', '내 작업으로', 'btn')}</header><main id="main" class="public-main" style="max-width:800px;margin:auto;padding-top:40px">${heading('승인 기록 확인', '승인 기록, 서명 상태, 파일 일치 여부를 각각 확인하세요.', '', 'PUBLIC VERIFICATION')}<section class="panel"><div class="panel-head"><h2>${esc(p.title)}</h2>${badge('v' + p.version)}</div><div class="panel-body"><div class="result-row row between" style="padding:16px 0;border-bottom:1px solid var(--color-border)"><div><h3>01 · 승인 효력</h3><p class="small muted">로컬 시연 기록 있음 · 현재 서버 효력은 확인할 수 없어요.</p></div>${badge('확인 불가', 'neutral')}</div><div class="result-row row between" style="padding:20px 0;border-bottom:1px solid var(--color-border)"><div><h3>02 · 서명 검증</h3><p class="small muted">전자서명이 연결되지 않았어요.</p></div>${badge('확인 불가', 'neutral')}</div><div class="result-row row between" style="padding:20px 0"><div><h3>03 · 파일 비교</h3><p class="small muted">${comparison ? esc(comparison.error || (comparison.loading ? '파일의 SHA-256을 계산하고 있어요.' : comparison.name)) : '비교할 PDF를 선택해 주세요.'}</p></div>${fileResult}</div><div class="space-top"><label class="field" for="compare-file"><span>전달받은 PDF 비교하기 <small class="muted">선택</small></span><input id="compare-file" type="file" accept=".pdf,application/pdf" ${comparison?.loading ? 'disabled' : ''} style="font-size:12px;width:100%;min-height:44px" aria-describedby="compare-hint"><small id="compare-hint" class="muted">파일은 서버로 전송되지 않아요. 현재 브라우저에서 해시를 비교합니다.</small></label></div><dl class="definition"><dt>승인 대상</dt><dd>v${p.version} · ${esc(p.fileName)}</dd><dt>승인자</dt><dd>${esc(p.actor)} (시연)</dd><dt>승인 기록</dt><dd>${stamp(p.at)}</dd><dt>확인 시각</dt><dd>${stamp(new Date())}</dd></dl><details class="hash-details"><summary>승인된 파일 해시 확인</summary><p class="mono">${p.fileHash}</p></details>${link(`#verify/${work.id}/${n}`, icon('refresh') + '다시 확인', 'btn', 'data-recheck="true"')}<div class="space-top">${notice('검증 결과의 범위', '이 결과는 기록된 승인과 해당 파일의 일치 여부를 보여줍니다. 내용의 정확성이나 실제 이해 수준을 보증하지 않습니다.', 'neutral')}</div><p class="small muted space-top">시연 자료 · 답변 원문·기여 기록·비공개 파일은 이 화면에 표시하지 않습니다.</p></div></section></main>`;
+}
+function currentWork() { return state.works.find(w => w.id === route.split('/')[1]); }
+function render(focus = false) {
+  if (!state) return;
+  if (route.startsWith('#verify/')) { const [, id, n] = route.split('/'); const work = state.works.find(w => w.id === id); $('#app').innerHTML = publicScreen(work, n); }
+  else if (route === '#new') $('#app').innerHTML = shell(editorScreen(), '작업 등록');
+  else if (route === '#certificates') $('#app').innerHTML = shell(certificatesScreen(), '승인 증명서');
+  else if (route.startsWith('#work/')) {
+    const work = currentWork(), tab = route.split('/')[2] || 'overview';
+    if (!work) $('#app').innerHTML = shell(heading('작업을 찾을 수 없어요', '내 작업 목록에서 다시 선택해 주세요.') + link('#works', '내 작업으로', 'btn'));
+    else {
+      const labels = { overview: '작업 상세', challenge: '이해 확인', certificate: '증명서', history: '버전 · 이력' };
+      const content = tab === 'challenge' ? challenge(work) : tab === 'certificate' ? certificate(work) : tab === 'history' ? historyScreen(work) : overview(work);
+      $('#app').innerHTML = shell(heading(labels[tab] || '작업 상세', work.title, link('#works', '목록으로', 'btn')) + context(work) + detailTabs(work, tab) + content, labels[tab]);
+    }
+  } else $('#app').innerHTML = shell(listScreen(), route === '#attention' ? '내 확인 필요' : '내 작업');
+  document.title = 'HAVE · ' + ($('#app h1')?.textContent || '내 작업');
+  if (focus) { $('#main h1')?.focus(); window.scrollTo(0, 0); }
+}
+async function confirmDialog(title, text, confirmLabel = '이동하기') {
+  const dialog = $('#dialog'), previous = document.activeElement;
+  dialog.className = ''; dialog.returnValue = '';
+  dialog.innerHTML = `<form method="dialog"><div class="dialog-head"><h2 id="dialog-title">${esc(title)}</h2><button class="btn icon-only" value="cancel" aria-label="닫기">${icon('close')}</button></div><div class="dialog-body"><p>${esc(text)}</p></div><div class="dialog-actions"><button class="btn" value="cancel" autofocus>계속 작성</button><button class="btn primary" value="confirm">${esc(confirmLabel)}</button></div></form>`;
+  dialog.showModal();
+  return new Promise(resolve => dialog.addEventListener('close', () => { previous?.isConnected && previous.focus(); resolve(dialog.returnValue === 'confirm'); }, { once: true }));
+}
+async function go(hash, skipGuard = false) {
+  if (saving || fileChecking) { toast('처리가 끝난 뒤 이동해 주세요.'); return; }
+  if (dirty && !skipGuard && !(await confirmDialog('저장하지 않은 내용이 있어요', '이동하면 마지막 임시 저장 이후의 입력은 사라져요. 계속 이동할까요?'))) return;
+  dirty = false; storageError = ''; savedAt = ''; compareRequest++; comparison = null;
+  conflictSnapshot = null;
+  if (hash !== '#new') { editor = null; editorStep = 0; editorErrors = {}; }
+  answerDraft = null; questionIndex = 0; route = hash;
+  if (hash === '#attention') filter = 'attention'; else if (hash === '#works') filter = 'all';
+  history.pushState(null, '', hash); render(true);
+}
+async function persist(next) {
+  if (saving) return false;
+  saving = true; announce('기록을 저장하는 중');
+  const controls = [...document.querySelectorAll('button[type="submit"], [data-action="save-draft"], [data-action="save-answers"]')];
+  const previous = controls.map(b => ({ disabled: b.disabled, html: b.innerHTML }));
+  controls.forEach(b => { b.disabled = true; b.setAttribute('aria-busy', 'true'); b.textContent = b.type === 'submit' ? '제출 중…' : '저장 중…'; });
+  try { revision = await repo.commit(next, revision); state = next; storageError = ''; announce('저장 완료'); return true; }
+  catch (error) {
+    storageError = error.name === 'ConflictError' ? '다른 창에서 변경한 기록이 있어요. 현재 입력은 보존됐어요. 최신 기록을 불러온 뒤 다시 저장해 주세요.' : '기록을 저장하지 못했어요. 입력은 유지됐어요. 저장 공간을 확인한 뒤 다시 시도해 주세요.';
+    if (error.name === 'ConflictError') { conflictSnapshot = await repo.load(); storageError += ' 미저장 입력을 백업한 뒤 최신 기록을 불러올 수 있어요.'; }
+    announce(storageError); toast(storageError); return false;
+  } finally { saving = false; controls.forEach((b, i) => { if (b.isConnected) { b.disabled = previous[i].disabled; b.innerHTML = previous[i].html; b.removeAttribute('aria-busy'); } }); }
+}
+function captureEditor() {
+  if (!editor) return;
+  for (const name of ['title', 'tool', 'scope', 'contribution', 'reason']) { const node = $('#' + name); if (node) editor[name] = node.value; }
+  const reviewer = $('input[name="reviewer"]:checked'); if (reviewer) editor.reviewer = reviewer.value;
+}
+function captureAnswers() {
+  if (!answerDraft) return;
+  if ($('#answer')) answerDraft.answers[questionIndex] = $('#answer').value;
+  if ($('#confidence')) answerDraft.confidence[questionIndex] = Number($('#confidence').value);
+}
+async function saveDraft() {
+  captureEditor(); const next = structuredClone(state); next.draft = structuredClone(editor);
+  if (await persist(next)) { dirty = false; savedAt = '임시 저장됨 · ' + stamp(new Date()); render(); toast('작성 중인 작업을 저장했어요.'); } else render();
+}
+async function saveAnswers(submit = false) {
+  captureAnswers(); const work = currentWork(); if (!work || !answerDraft) return;
+  if (M.latest(work).id !== answerDraft.versionId) { toast('대상 버전이 바뀌었어요. 입력을 백업한 뒤 최신 버전을 열어 주세요.'); return; }
+  let updated;
+  try {
+    if (submit) updated = M.submitAnswers(work, answerDraft.answers, answerDraft.confidence);
+    else { updated = structuredClone(work); const v = M.latest(updated); if (v.status !== 'CHALLENGE_PENDING') return; v.answers = [...answerDraft.answers]; v.confidence = [...answerDraft.confidence]; }
+  } catch (error) { const index = answerDraft.answers.findIndex(a => !a.trim()); if (index >= 0) questionIndex = index; render(); $('#answer-error').textContent = error.message; $('#answer').setAttribute('aria-invalid', 'true'); $('#answer').focus(); return; }
+  const next = structuredClone(state); next.works[next.works.findIndex(w => w.id === work.id)] = updated;
+  if (await persist(next)) { dirty = false; savedAt = '저장됨 · ' + stamp(new Date()); render(); toast(submit ? '답변을 제출했어요. 검토자의 확인을 기다려 주세요.' : '답변을 임시 저장했어요.'); } else render();
+}
+function showGuide(menu = false) {
+  const dialog = $('#dialog'), previous = document.activeElement;
+  dialog.className = menu ? 'menu-dialog' : '';
+  dialog.innerHTML = `<div class="dialog-head"><h2 id="dialog-title">${menu ? 'HAVE 메뉴' : 'HAVE 사용 가이드'}</h2><button class="btn icon-only" data-action="close-dialog" aria-label="닫기">${icon('close')}</button></div><div class="dialog-body">${menu ? navMarkup() : `<ol><li><b>작업 등록</b>PDF → AI 사용 신고 → 나의 기여 → 검토자를 입력해요.</li><li><b>이해 확인</b>세 문항을 작성하고 전체 답변을 제출해요.</li><li><b>검토 결과 확인</b>수정 요청이 오면 피드백을 반영해 새 버전으로 제출해요.</li><li><b>승인 기록과 파일 확인</b>증명서와 공개 검증에서 버전·승인 기록·파일 일치를 구분해 확인해요.</li></ol><p class="muted">이 화면은 작성자용 로컬 데모입니다. 실제 검토·승인과 서명은 서버 연결이 필요해요. 승인 완료된 예시 작업에서 증명서와 PDF 비교를 체험할 수 있어요.</p>`}</div><div class="dialog-actions"><button class="btn ${menu ? '' : 'accent'}" data-action="close-dialog">${menu ? '닫기' : '가이드 닫기'}</button></div>`;
+  dialog.showModal(); dialog.addEventListener('close', () => previous?.isConnected && previous.focus(), { once: true });
+}
+function download(data, name, type = 'application/pdf') {
+  const url = URL.createObjectURL(new Blob([data], { type })), a = document.createElement('a');
+  a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('복사했어요.'); }
+  catch {
+    const dialog = $('#dialog'); dialog.innerHTML = `<div class="dialog-head"><h2 id="dialog-title">복사할 내용을 선택해 주세요</h2><button class="btn icon-only" data-action="close-dialog" aria-label="닫기">${icon('close')}</button></div><div class="dialog-body"><label class="field"><span>복사할 내용</span><textarea readonly id="copy-value">${esc(text)}</textarea></label></div>`; dialog.showModal(); $('#copy-value').select();
+  }
+}
+async function chooseFile(file) {
+  if (!file || !editor || fileChecking) return;
+  captureEditor(); fileChecking = true; editorErrors = {}; render(); announce('파일을 확인하는 중');
+  try { editor.file = await readPdf(file); dirty = true; announce('파일 확인 완료'); }
+  catch (error) { editorErrors.file = error.message; announce(error.message); }
+  finally { fileChecking = false; render(); if (editorErrors.file) $('#pdf')?.focus(); }
+}
+async function readPdf(file) {
+  if (file.size > HumanProof.MAX_PDF_BYTES) throw new Error('20 MB 이하의 PDF를 선택해 주세요.');
+  return M.prepareFile(file.name, new Uint8Array(await file.arrayBuffer()));
+}
+async function compareFile(file) {
+  if (!file) return;
+  const request = ++compareRequest, [, id, n] = route.split('/'), work = state.works.find(w => w.id === id), p = M.publicRecord(work, n);
+  comparison = { loading: true }; render(); announce('파일을 비교하는 중');
+  try { const f = await readPdf(file); if (request !== compareRequest) return; comparison = { match: f.hash === p.fileHash, name: f.name }; }
+  catch (error) { if (request !== compareRequest) return; comparison = { error: error.message }; }
+  if (request === compareRequest) { render(); announce(comparison.error || (comparison.match ? '파일 일치' : '파일 불일치')); }
+}
+document.addEventListener('click', async event => {
+  if (event.target.closest('.skip-link')) { event.preventDefault(); $('#main')?.setAttribute('tabindex', '-1'); $('#main')?.focus(); return; }
+  const routeLink = event.target.closest('[data-route]'), button = event.target.closest('[data-action]');
+  if (routeLink) { event.preventDefault(); $('#dialog').open && $('#dialog').close(); if (routeLink.dataset.recheck) { comparison = null; render(); return; } await go(routeLink.dataset.route); return; }
+  const fieldLink = event.target.closest('[data-error-field]');
+  if (fieldLink) { event.preventDefault(); const key = fieldLink.dataset.errorField; (key === 'file' ? $('#pdf') : $('#' + key))?.focus(); return; }
+  const filterButton = event.target.closest('[data-filter]');
+  if (filterButton) { filter = filterButton.dataset.filter; render(); $(`#filter-${filter}`)?.focus(); return; }
+  const questionButton = event.target.closest('[data-question]');
+  if (questionButton) { captureAnswers(); questionIndex = Number(questionButton.dataset.question); render(); $('#question-' + questionIndex)?.focus(); return; }
+  if (!button || button.disabled) return;
+  const action = button.dataset.action, work = currentWork();
+  try {
+    if (action === 'guide' || action === 'menu') showGuide(action === 'menu');
+    if (action === 'close-dialog') $('#dialog').close();
+    if (action === 'clear-filter') { query = ''; filter = 'all'; render(); $('#search')?.focus(); }
+    if (action === 'save-draft') await saveDraft();
+    if (action === 'previous-step') { captureEditor(); editorStep = Math.max(0, editorStep - 1); editorErrors = {}; render(); $('#main h1')?.focus(); }
+    if (action === 'cancel-editor') await go('#works');
+    if (action === 'sample-pdf') {
+      captureEditor(); fileChecking = true; render();
+      try { editor.file = await M.prepareFile('HAVE_sample.pdf', M.samplePdf()); dirty = true; delete editorErrors.file; }
+      finally { fileChecking = false; render(); }
+    }
+    if (action === 'save-answers') await saveAnswers();
+    if (action === 'retry-save') {
+      if (conflictSnapshot) {
+        if (!(await confirmDialog('최신 기록을 불러올까요?', '미저장 입력을 백업 파일로 내려받고 최신 기록을 불러옵니다. 백업 내용을 확인한 뒤 다시 입력해 주세요.', '백업 후 불러오기'))) return;
+        captureEditor(); captureAnswers(); download(JSON.stringify({ editor, answers: answerDraft }, null, 2), 'HAVE_미저장입력.json', 'application/json');
+        state = conflictSnapshot.data; revision = conflictSnapshot.revision; conflictSnapshot = null; dirty = false; editor = null; answerDraft = null;
+        await go('#works', true); toast('최신 기록을 불러왔어요. 미저장 입력은 백업 파일에서 확인할 수 있어요.');
+      } else if (route === '#new') await saveDraft(); else if (route.endsWith('/challenge')) await saveAnswers();
+    }
+    if (action === 'new-version') {
+      const v = M.latest(work);
+      if (!['APPROVED', 'REVISION_REQUIRED'].includes(v.status)) return;
+      const form = { title: work.title, file: null, tool: v.tool, scope: v.scope, contribution: v.contribution, reviewer: v.reviewer, reason: '', isVersion: true, workId: work.id };
+      if (state.draft && !(await confirmDialog('임시 저장한 작업이 있어요', '새 버전을 작성하면 다음 임시 저장에서 기존 작성 중인 작업을 대체합니다.', '새 버전 작성'))) return;
+      await go('#new'); editor = form; editorStep = 0; render(true);
+    }
+    if (action === 'download-file') { const v = work.versions.find(v => v.n === Number(button.dataset.version)) || M.latest(work); download(M.decode(v.file.data), v.file.name); }
+    if (action === 'copy-hash') await copy(M.latest(work).file.hash);
+    if (action === 'download-certificate') download(JSON.stringify({ demo: true, serverApprovalVerified: false, signature: null, ...M.publicRecord(work, button.dataset.version) }, null, 2), 'HAVE_승인기록_v' + button.dataset.version + '.json', 'application/json');
+    if (action === 'copy-link') await copy(location.href.split('#')[0] + `#verify/${work.id}/${button.dataset.version}`);
+  } catch (error) { toast(error.message); }
+});
+document.addEventListener('input', event => {
+  if (event.target.id === 'search') { query = event.target.value; $('#work-results').innerHTML = workResults(); announce(M.filterWorks(state.works, query, filter).length + '개 작업'); return; }
+  if (route === '#new') { captureEditor(); dirty = true; savedAt = '저장하지 않은 변경이 있어요'; $('.saved-at') && ($('.saved-at').textContent = savedAt); }
+  if (route.endsWith('/challenge') && ['answer', 'confidence'].includes(event.target.id)) { captureAnswers(); dirty = true; savedAt = '저장하지 않은 변경이 있어요'; if ($('#confidence-value')) $('#confidence-value').textContent = answerDraft.confidence[questionIndex] + '%'; $('.saved-at') && ($('.saved-at').textContent = savedAt); }
+});
+document.addEventListener('change', async event => {
+  if (event.target.id === 'pdf') await chooseFile(event.target.files[0]);
+  if (event.target.id === 'compare-file') await compareFile(event.target.files[0]);
+  if (event.target.id === 'sort') { sort = event.target.value; $('#work-results').innerHTML = workResults(); }
+});
+document.addEventListener('dragover', event => { if (event.target.closest('.upload-drop')) event.preventDefault(); });
+document.addEventListener('drop', async event => { if (event.target.closest('.upload-drop')) { event.preventDefault(); await chooseFile(event.dataTransfer.files[0]); } });
+document.addEventListener('submit', async event => {
+  if (!['registration', 'answers'].includes(event.target.id)) return;
+  event.preventDefault(); if (saving || fileChecking) return;
+  if (event.target.id === 'answers') { await saveAnswers(true); return; }
+  captureEditor(); editorErrors = M.validateRegistration(editor, editorStep);
+  if (Object.keys(editorErrors).length) { render(); const key = Object.keys(editorErrors)[0]; (key === 'file' ? $('#pdf') : $('#' + key))?.focus(); return; }
+  if (editorStep < 3) { editorStep++; render(); $('#main h1')?.focus(); return; }
+  editorErrors = M.validateRegistration(editor);
+  if (Object.keys(editorErrors).length) { editorStep = ['title', 'file', 'reason'].some(k => editorErrors[k]) ? 0 : ['tool', 'scope'].some(k => editorErrors[k]) ? 1 : editorErrors.contribution ? 2 : 3; render(); return; }
+  const next = structuredClone(state);
+  try {
+    let work;
+    if (editor.isVersion) { const index = next.works.findIndex(w => w.id === editor.workId); if (index < 0) throw new Error('원래 작업을 찾을 수 없어요.'); work = M.appendVersion(next.works[index], editor); next.works[index] = work; }
+    else { work = M.createWork(editor); next.works.unshift(work); }
+    next.draft = null;
+    if (await persist(next)) { dirty = false; await go(workRoute(work), true); toast('작업을 제출했어요. 이해 확인을 진행해 주세요.'); } else render();
+  } catch (error) { editorErrors = { title: error.message }; editorStep = 0; render(); }
+});
+document.addEventListener('keydown', event => {
+  const tab = event.target.closest('[role="tab"]');
+  if (!tab || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+  const tabs = [...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')], index = tabs.indexOf(tab);
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  event.preventDefault(); tabs[next].click();
+});
+window.addEventListener('beforeunload', event => { if (dirty || saving || fileChecking) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('popstate', async () => { const next = location.hash || '#works'; if (next === route) return; history.replaceState(null, '', route); await go(next); });
+async function init() {
+  try {
+    if (!crypto.subtle) throw new Error('파일 해시 계산을 위해 Chrome·Edge 또는 로컬 서버로 열어 주세요.');
+    await repo.open(); const stored = await repo.load();
+    if (stored) { if (stored.data?.schema !== 1 || !Array.isArray(stored.data.works)) throw new Error('저장 기록의 형식을 확인할 수 없어요.'); state = stored.data; revision = stored.revision; }
+    else { state = await M.seed(); revision = await repo.commit(state, 0); }
+    if (route === '#attention') filter = 'attention';
+    render();
+  } catch (error) {
+    $('#app').innerHTML = `<main id="main" class="loading-screen"><h1>작업을 불러올 수 없어요</h1><p>${esc(error.message)}</p><p>기존 브라우저 기록은 삭제하지 않았어요.</p><button class="btn primary" id="retry-load">다시 불러오기</button></main>`;
+    $('#retry-load').onclick = () => location.reload();
+  }
+}
+init();
+</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <div id="app"><main class="loading-screen" aria-busy="true"><span class="loading-mark">H</span><h1>작업을 불러오는 중</h1><p>저장된 작업과 버전을 확인하고 있어요.</p><div class="skeleton"></div><div class="skeleton short"></div></main></div>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="announcer" class="sr-only" aria-live="polite"></div>
+  <noscript>이 GUI를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
+</body>
+</html>

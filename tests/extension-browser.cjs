@@ -1,7 +1,8 @@
 // Exercise the popup with Chrome API fakes; actual activeTab activation still needs toolbar testing.
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { chromium } = require('playwright');
+let chromium;
+try { ({ chromium } = require('playwright')); } catch (error) { if (error.code !== 'MODULE_NOT_FOUND') throw error; ({ chromium } = require('playwright-core')); }
 async function run() {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_EXECUTABLE || undefined });
   try {
@@ -43,3 +44,4 @@ async function run() {
   } finally { await browser.close(); }
 }
 run().catch(error => { console.error(error); process.exitCode = 1; });
+

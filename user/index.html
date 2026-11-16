@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0F766E">
+  <meta name="description" content="HAVE 사용자 GUI: AI 협업 작업 등록, 이해 확인, 버전과 승인 증명서 확인">
+  <title>HAVE · 내 작업</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F766E'/%3E%3Cpath d='m8 16 6 6 10-12' stroke='white' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="../prototype/dist/domain.js" defer></script>
+  <script src="../prototype/dist/repository.js" defer></script>
+  <script src="model.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <div id="app"><main class="loading-screen" aria-busy="true"><span class="loading-mark">H</span><h1>작업을 불러오는 중</h1><p>저장된 작업과 버전을 확인하고 있어요.</p><div class="skeleton"></div><div class="skeleton short"></div></main></div>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="announcer" class="sr-only" aria-live="polite"></div>
+  <noscript>이 GUI를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
+</body>
+</html>

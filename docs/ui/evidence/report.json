@@ -1,0 +1,65 @@
+{
+  "contract": "../HCI-GUI-사용자.md: 작성자 핵심 흐름, 청록 Primary·빨강 Accent, 버전·승인 분리, 반응형",
+  "targetViewports": [
+    "1440x1000",
+    "1024x900",
+    "768x1024",
+    "360x800"
+  ],
+  "accessibility": {
+    "status": "pass",
+    "evidence": "Chrome에서 방향키 탭 이동, 가이드 Escape·포커스 복귀, 라벨·필드 오류 연결과 보이는 포커스를 확인. 전체 WCAG 감사는 범위 밖."
+  },
+  "responsive": {
+    "status": "pass",
+    "evidence": "4개 화면 크기에서 목록·등록·상세·이해 확인·증명서·이력·공개 검증의 가로 넘침 없음. 데스크톱 표와 모바일 카드의 필드 유지 확인."
+  },
+  "contentStates": {
+    "loading": {
+      "status": "pass",
+      "evidence": "초기 app.js 요청을 지연해 실제 초기 로딩 안내와 skeleton 확인, loading.png."
+    },
+    "empty": {
+      "status": "pass",
+      "evidence": "최초 빈 목록과 검색 결과 없음을 각각 렌더링하고 등록·필터 초기화 행동 확인, empty.png."
+    },
+    "error": {
+      "status": "pass",
+      "evidence": "잘못된 PDF와 필수 오류, 저장 용량 실패 시 입력 보존과 재시도 확인, save-error.png."
+    },
+    "partial": {
+      "status": "pass",
+      "evidence": "공개 검증에서 서버 승인 효력·서명 확인 불가를 실제 파일 비교 결과와 분리, verification.png."
+    },
+    "success": {
+      "status": "pass",
+      "evidence": "등록·답변 제출은 IndexedDB commit 성공 후 상태 변경, 새 버전도 이해 확인 대기로 시작."
+    },
+    "permission": {
+      "status": "pass",
+      "evidence": "작성자 화면의 제출 후 답변은 읽기 전용이며 승인 버튼이 없음을 확인. 실제 서버 권한은 미연결로 명시."
+    }
+  },
+  "renderedEvidence": [
+    {
+      "viewport": "1440x1000",
+      "artifact": "desktop-1440.png",
+      "observation": "로컬 시연 자료의 사용자 목록. 표와 232px 사이드바를 실제 Chrome 캡처로 검토."
+    },
+    {
+      "viewport": "1024x900",
+      "artifact": "desktop-1024.png",
+      "observation": "로컬 시연 자료의 사용자 목록. 표와 232px 사이드바를 실제 Chrome 캡처로 검토."
+    },
+    {
+      "viewport": "768x1024",
+      "artifact": "desktop-768.png",
+      "observation": "로컬 시연 자료의 사용자 목록. 모달 메뉴와 태블릿 표를 실제 Chrome 캡처로 검토."
+    },
+    {
+      "viewport": "360x800",
+      "artifact": "desktop-360.png",
+      "observation": "로컬 시연 자료의 사용자 목록. 모달 메뉴와 카드 목록를 실제 Chrome 캡처로 검토."
+    }
+  ]
+}
