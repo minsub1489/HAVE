@@ -10,6 +10,8 @@ HAVE는 프로젝트명이고 HumanProof는 이 저장소의 프로토타입 명
 
 AI 에이전트 작업을 어떻게 이해하고 인수인계할지 설계할 때는 [지식 부채와 이해 확인 설계](docs/knowledge-debt.md)와 [연구 근거](docs/knowledge-debt-research.md)를 참고하세요.
 
+새 기능이나 운영 서비스의 아키텍처는 사용자 목표와 수용 시나리오에서 출발합니다. 현재 프로토타입은 동작과 검증 사례의 근거로 활용할 수 있습니다. [요구사항에서 시작하는 아키텍처 설계](docs/architecture.md#요구사항에서-시작하는-아키텍처-설계)
+
 ## 발표 자료
 
 - [최종 제출 발표 PPT](<docs/presentation/HAVE_프로젝트 계획서(시스템 개발 제안 요청서).pptx>)
