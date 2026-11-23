@@ -2,18 +2,380 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HumanProof · AI 작업 인간 승인</title>
-<meta name="description" content="AI 작업의 이해 과제, 인간 승인, 파일 버전 검증을 체험하는 팀 프로젝트 프로토타입">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235b50ed'/%3E%3Cpath d='M9 17l5 5 10-12' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<title>HAVE · 팀 작업 검토</title>
+<meta name="description" content="파일 버전, 작업 근거, 검토와 승인 기록을 연결하는 HAVE 팀 워크스페이스">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23872747'/%3E%3Cpath d='M10 8v16m12-16v16M10 16h12' fill='none' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
 <meta name="demo-site-url" content="https://human-approval-minsub-demo.minsub1489.chatgpt.site">
-<style>:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#242936;background:#f5f6fa;font-size:16px;--navy:#151b32;--purple:#5b50ed;--muted:#7b8294;--line:#e8eaf1;--green:#14846e;--red:#d34554}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button,a,input,textarea,select{outline-offset:4px}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}a{color:var(--purple)}button{border:0;background:none;color:inherit}h1,h2,h3,p{margin:0}h1{font-size:1.8rem;letter-spacing:-.045em;line-height:1.4}h2{font-size:1.18rem;letter-spacing:-.025em}h3{font-size:1rem}p{line-height:1.65}small,.small{font-size:.8125rem}.muted{color:var(--muted)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8125rem;overflow-wrap:anywhere}.icon{width:20px;height:20px;flex-shrink:0;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.shell{display:grid;grid-template-columns:226px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--navy);color:#bcc0d0;display:flex;flex-direction:column;padding:30px 18px;gap:30px}.brand{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:750;letter-spacing:-.03em;color:inherit}.mark{display:grid;place-items:center;width:32px;height:35px;border-radius:9px;background:var(--purple);color:white}.brand small{display:block;font-size:.65rem;font-weight:500;color:#979cb4;letter-spacing:.09em;margin-top:4px}.side-label{font-size:.7rem;letter-spacing:.13em;color:#727b9b;margin:0 14px 12px}.nav{display:flex;flex-direction:column;gap:6px}.nav button{display:flex;align-items:center;gap:12px;text-align:left;padding:13px 16px;border-radius:8px;font-size:.875rem;font-weight:550}.nav button:hover{background:#232941;color:white}.nav button.active{background:#5b50ed;color:#fff}.nav .count{margin-left:auto;min-width:22px;padding:2px 6px;font-size:.75rem;background:#fff2;border-radius:4px;text-align:center}.team-box{margin-top:auto;padding:18px 12px;border-top:1px solid #ffffff13;font-size:.8125rem;line-height:1.8}.team-box b{display:block;color:#e1e4f0;margin-bottom:5px}.topbar{height:78px;border-bottom:1px solid var(--line);background:white;padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:16px}.crumb{font-size:.8125rem;color:var(--muted)}.crumb b{color:#424a61;margin-left:10px;font-weight:500}.top-actions{display:flex;align-items:center;gap:14px}.demo-pill{font-size:.75rem;color:#4f46c1;background:#f0efff;padding:7px 10px;border-radius:6px;font-weight:600}.role-control{display:flex;align-items:center;gap:10px;border-left:1px solid var(--line);padding-left:18px}.avatar{background:#edf0fa;border:1px solid #e1e5f5;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;color:#485483;font-size:.8125rem;font-weight:700}.role-control select{border:0;background:white;font-size:.875rem;font-weight:600;padding:4px;max-width:155px}.main{max-width:1480px;padding:35px 40px 26px;margin:auto}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:25px}.page-heading p{font-size:.875rem;color:var(--muted);margin-top:7px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:10px 17px;border:1px solid var(--line);border-radius:7px;font-size:.875rem;font-weight:600;background:#fff;text-decoration:none;white-space:nowrap;transition:background .15s,transform .15s}.btn:hover{background:#f5f5fb}.btn.primary{background:var(--purple);border-color:var(--purple);color:white;box-shadow:0 3px 8px #5b50ed16}.btn.primary:hover{background:#4c40d6}.btn.dark{background:var(--navy);color:white;border-color:var(--navy)}.btn.danger{color:var(--red);border-color:#edd2d7}.btn.ghost{border:0;background:transparent;padding:8px;font-weight:500}.btn.small{min-height:35px;padding:7px 12px;font-size:.8125rem}.flex{display:flex;align-items:center;gap:12px}.between{justify-content:space-between}.wrap{flex-wrap:wrap}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:26px}.metric{background:white;border:1px solid var(--line);border-radius:10px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}.metric .label{font-size:.8125rem;color:#6e7588}.metric .number{font-size:1.85rem;line-height:1.5;font-weight:650;margin-top:3px;letter-spacing:-.04em}.metric .number small{font-size:.875rem;color:#979db0;font-weight:400;margin-left:7px}.metric-icon{width:43px;height:43px;border-radius:10px;background:#f1f0ff;display:grid;place-items:center;color:#6258da}.metric:nth-child(2) .metric-icon{background:#fff5e8;color:#c88939}.metric:nth-child(3) .metric-icon{background:#eaf7f3;color:#1e957d}.split{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:24px}.panel{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line)}.panel-body{padding:25px}.panel-body>p{margin-top:10px}.work-row{display:flex;align-items:center;gap:16px;padding:24px;border-bottom:1px solid var(--line)}.pdf-icon{display:grid;place-items:center;width:47px;height:55px;background:#f5eff0;color:#ba6674;border-radius:8px;font-size:.7rem;font-weight:700;border:1px solid #f0dde0}.work-title{font-size:1rem;font-weight:650;letter-spacing:-.02em;margin-bottom:8px}.badge{font-size:.75rem;display:inline-flex;align-items:center;gap:5px;padding:5px 9px;background:#f1f2f7;color:#6b7287;border-radius:5px;font-weight:550;white-space:nowrap}.badge.purple{color:#6355d5;background:#f1efff}.badge.green{color:#12836c;background:#eaf7f2}.badge.orange{color:#b97c23;background:#fff5e4}.badge.red{color:#c64557;background:#fff0f2}.steps{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);padding:23px 25px;gap:12px}.step{font-size:.8125rem;color:#9ba1b1;display:flex;align-items:center;gap:8px}.step span{width:25px;height:25px;border-radius:50%;border:1px solid #e1e4ee;display:grid;place-items:center;font-size:.7rem}.step.done{color:#577367}.step.done span{background:#eaf7f2;border-color:#eaf7f2;color:#16846e}.step.current{color:var(--purple);font-weight:650}.step.current span{background:var(--purple);color:#fff;border-color:var(--purple)}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.detail-item{font-size:.875rem}.detail-item .muted{display:block;font-size:.75rem;margin-bottom:7px}.subsection{border-top:1px solid var(--line);padding-top:23px;margin-top:24px}.hash{margin-top:10px;background:#f7f8fb;border-radius:6px;padding:13px 15px;display:flex;gap:14px;align-items:flex-start}.hash .icon{color:#9a9fb0;width:16px;height:16px}.hash .mono{font-size:.75rem;color:#777f93}.callout{padding:16px 18px;border-radius:7px;background:#f5f3ff;color:#61548c;font-size:.875rem;line-height:1.6;display:flex;gap:10px}.callout .icon{margin-top:2px;flex-shrink:0}.callout.warning{background:#fff7e8;color:#9a702d}.callout.success{background:#ecf8f4;color:#227b65}.callout.error{background:#fff0f2;color:#ad3d50}.callout b{display:block;margin-bottom:3px}.panel-foot{border-top:1px solid var(--line);padding:20px 25px;display:flex;align-items:center;justify-content:space-between;gap:12px}.guide{background:linear-gradient(160deg,#f1efff,#fff);border:1px solid #e5e0fb;border-radius:10px;padding:24px}.eyebrow{font-size:.68rem;letter-spacing:.16em;font-weight:700;color:var(--purple);margin-bottom:10px}.guide h2{font-size:1.125rem}.guide>p{font-size:.8125rem;color:#7d7594;margin-top:10px}.guide-list{margin:23px 0;display:flex;flex-direction:column;gap:22px}.guide-item{display:flex;gap:13px;align-items:flex-start}.guide-item>span{font-size:.7rem;width:22px;height:22px;border:1px solid #d9d2f5;display:grid;place-items:center;border-radius:50%;color:#7d71a9;flex-shrink:0}.guide-item b{font-size:.8125rem;font-weight:600;display:block}.guide-item p{font-size:.75rem;color:#8b83a0;margin-top:5px}.guide .btn{width:100%}.risk-panel{margin-top:20px}.risk-score{font-size:2rem;font-weight:700;letter-spacing:-.05em}.risk-score small{font-size:.875rem;color:#a1a4b1;letter-spacing:0;font-weight:400}.risk-track{height:6px;border-radius:4px;background:#f1eced;overflow:hidden;margin-top:15px}.risk-track div{height:100%;background:#ed9c61;border-radius:4px}.risk-grid{margin-top:18px;display:grid;grid-template-columns:1fr auto;gap:12px;font-size:.8125rem}.risk-grid b{font-size:.8125rem;font-weight:600;color:#757a89}.footer-note{font-size:.75rem;color:#9399aa;margin-top:23px;line-height:1.7}.footer-note strong{font-weight:500;color:#757d94}.section-title{margin-bottom:18px}.gate-tabs{display:flex;padding:0 22px;border-bottom:1px solid var(--line);gap:28px}.gate-tabs button{font-size:.875rem;padding:18px 2px;border-bottom:2px solid transparent;color:#8c93a5}.gate-tabs button.active{border-color:var(--purple);color:var(--purple);font-weight:600}.task-prompt{padding:20px;background:#f7f8fb;border:1px solid #edeff5;border-radius:8px;margin:19px 0}.task-prompt p{font-size:.875rem;margin-top:10px}.reference{margin-top:14px;padding:15px;border-left:3px solid #c5c6da;background:#fff;font-size:.875rem;line-height:1.75}.field{display:flex;flex-direction:column;gap:9px;margin:18px 0}.field>span,.field>label{font-size:.875rem;font-weight:550}input,select,textarea{border:1px solid #dfe3ed;border-radius:6px;background:white;padding:12px 13px;color:#303649;max-width:100%}textarea{width:100%;min-height:145px;resize:vertical;font-size:.875rem;line-height:1.8}textarea:focus,input:focus,select:focus{border-color:var(--purple);outline:2px solid #5b50ed13}.field input[type=range]{padding:0;accent-color:var(--purple);width:100%}.confidence{display:flex;gap:22px;align-items:center;font-size:.875rem}.confidence input{flex:1}.confidence b{color:var(--purple);min-width:46px}.mini-progress{display:flex;gap:8px;margin-top:17px}.mini-progress>div{flex:1;height:5px;background:#e7e5f4;border-radius:3px}.mini-progress>div.done{background:var(--purple)}.check-row{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;margin:16px 0;line-height:1.65}.check-row input{accent-color:var(--purple);width:17px;height:17px;flex-shrink:0;margin-top:4px}.eval-card{margin-bottom:18px;padding:20px;border:1px solid var(--line);border-radius:8px}.answer-quote{margin-top:12px;font-size:.875rem;line-height:1.8;background:#f7f8fb;padding:15px;border-radius:6px;white-space:pre-wrap}.eval-card textarea{min-height:80px}.eval-row{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:start;margin-top:15px}.eval-row .field{margin:0}.gate-result{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border:1px solid #e4e1f8;border-radius:8px;background:#f9f8ff}.gate-result .score{font-size:1.5rem;font-weight:700;color:var(--purple)}.block-reasons{font-size:.8125rem;line-height:1.8;color:#9a7178;margin:13px 0}.receipt{background:#fff;border:1px solid #dfe2eb;box-shadow:0 9px 30px #20244707;max-width:800px;margin:auto}.receipt-top{padding:34px 42px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between}.receipt-top .eyebrow{color:#a39bf7}.receipt-top h2{font-size:1.6rem;font-weight:600;margin-top:10px}.receipt-body{padding:35px 42px;border-left:4px solid var(--purple)}.receipt-title{font-size:1.35rem;font-weight:650;line-height:1.65;letter-spacing:-.035em;margin:10px 0 26px}.receipt-data{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-bottom:28px}.receipt-bottom{display:grid;grid-template-columns:1fr 200px;gap:25px;align-items:center;margin-top:25px;padding-top:25px;border-top:1px solid var(--line)}#qrcode{width:200px;height:200px;background:white;padding:11px;border:1px solid var(--line)}#qrcode canvas,#qrcode img{max-width:100%;height:auto}.receipt-actions{margin:24px auto;max-width:800px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.public-header{padding:23px 35px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}.public-wrap{max-width:880px;margin:42px auto;padding:0 25px}.verify-status{padding:29px;display:flex;gap:18px;align-items:center}.status-symbol{width:53px;height:53px;background:#eaf7f2;border-radius:50%;display:grid;place-items:center;color:#14846e;flex-shrink:0}.status-symbol .icon{width:29px;height:29px}.verify-status h2{font-size:1.3rem;margin-bottom:6px}.verify-status p{font-size:.875rem;color:#8c93a3}.verify-upload{margin-top:22px}.dropzone{display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;border:1.5px dashed #d7d9e8;border-radius:8px;padding:27px;gap:10px;font-size:.875rem;background:#fafaff;cursor:pointer}.dropzone:hover{border-color:var(--purple)}.dropzone .icon{color:var(--purple);width:28px;height:28px}.dropzone input{max-width:100%;font-size:.8125rem}.result-box{margin-top:18px;padding:18px;border-radius:8px;background:#f5f6fa;font-size:.875rem;line-height:1.7}.result-box.green{background:#ecf8f4;color:#207961}.result-box.red{background:#fff0f2;color:#b63f53}.timeline{padding:20px 25px}.event{display:grid;grid-template-columns:26px 1fr;gap:14px;padding:0 0 26px;position:relative}.event:not(:last-child):before{content:"";position:absolute;left:12px;top:25px;bottom:0;width:1px;background:#e5e6ee}.event-icon{width:26px;height:26px;border-radius:50%;background:#f1efff;color:var(--purple);display:grid;place-items:center;z-index:1}.event-icon .icon{width:14px;height:14px}.event h3{font-size:.875rem;margin-top:3px}.event p{font-size:.8125rem;color:#7f8698;margin-top:5px}.event .mono{font-size:.75rem;color:#b0b5c2;margin-top:8px}.version-row{display:flex;justify-content:space-between;gap:20px;padding:23px 25px;border-bottom:1px solid var(--line)}.version-row:last-child{border:0}.version-row p{font-size:.8125rem;color:#8b91a2;margin:7px 0}dialog{border:0;border-radius:12px;padding:0;max-width:620px;width:calc(100% - 32px);box-shadow:0 30px 100px #0f142440;color:#242936}dialog::backdrop{background:#171d395c;backdrop-filter:blur(3px)}.modal-head{padding:23px 27px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}.modal-body{padding:5px 27px 25px;max-height:75vh;overflow-y:auto}.modal-body p{font-size:.875rem;color:#8b91a2;margin-top:15px}.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:23px}.modal-body .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}.error-text{font-size:.8125rem;color:var(--red);margin-top:10px}#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(90px);opacity:0;transition:all .2s;padding:13px 20px;background:#242941;color:#fff;border-radius:8px;box-shadow:0 6px 25px #0002;font-size:.875rem;z-index:100;max-width:90vw}#toast.show{transform:translateX(-50%) translateY(0);opacity:1}.empty{padding:50px 25px;text-align:center}.empty .icon{width:40px;height:40px;color:#9992d8;margin-bottom:15px}.empty p{color:#8f96a7;margin:15px 0;font-size:.875rem}.mobile-brand{display:none}.inline-note{font-size:.8125rem;color:#959bae;margin-top:10px;line-height:1.7}.text-right{text-align:right}.mt{margin-top:20px}.gap{margin-bottom:20px}
-@media(min-width:1600px){.main{padding-top:45px}.split{grid-template-columns:minmax(0,1fr) 320px}.topbar{padding-left:50px}.main{padding-left:50px;padding-right:50px}}
-@media(max-width:1150px){.shell{grid-template-columns:195px 1fr}.sidebar{padding-left:12px;padding-right:12px}.main{padding:27px 25px}.topbar{padding:0 25px}.split{grid-template-columns:minmax(0,1fr) 245px;gap:18px}.guide{padding:20px}.panel-body{padding:20px}.work-row{padding:20px}.step{font-size:.75rem}.steps{gap:7px;padding:20px}.metric{padding:17px}.metric-icon{width:34px;height:34px}.work-title{font-size:.9375rem}}
-@media(max-width:950px){.split{grid-template-columns:1fr}.support-column{display:grid;grid-template-columns:1fr 1fr;gap:20px}.risk-panel{margin-top:0}.steps{padding:22px}.guide-list{gap:15px;margin:20px 0}.metrics{gap:10px}.metric{padding:15px}.metric .number{font-size:1.6rem}.metric-icon{display:none}.role-control{padding-left:10px}.demo-pill{display:none}}
-@media(max-width:700px){.shell{display:block}.sidebar{position:static;height:auto;padding:18px 20px;gap:20px}.sidebar .brand,.side-label,.team-box{display:none}.nav{flex-direction:row;gap:5px;overflow-x:auto}.nav button{padding:9px;flex-direction:column;gap:6px;font-size:.75rem;min-width:58px}.nav .count{display:none}.topbar{height:auto;min-height:70px;padding:14px 20px}.crumb{display:none}.mobile-brand{display:flex;font-size:1.12rem;gap:8px;align-items:center;font-weight:750}.mobile-brand .mark{width:27px;height:30px}.top-actions{margin-left:auto}.role-control{border:0;padding:0;gap:5px}.role-control .avatar{display:none}.role-control select{font-size:.8125rem;max-width:125px}.main{padding:25px 18px}h1{font-size:1.5rem}.page-heading{align-items:flex-start}.page-heading .btn{padding:10px 12px}.page-heading p{font-size:.8125rem;max-width:240px}.metrics{gap:7px}.metric{padding:13px}.metric .label{font-size:.75rem}.metric .number{font-size:1.5rem}.support-column{display:flex;flex-direction:column}.steps{padding:18px 12px;gap:6px}.step{flex-direction:column;gap:7px;font-size:.75rem}.work-row{gap:12px;align-items:flex-start}.work-row .badge{margin-left:0!important}.work-title{font-size:.9375rem;line-height:1.7}.detail-grid{gap:22px 14px}.panel-head{padding:19px}.panel-foot{flex-wrap:wrap;padding:18px}.gate-tabs{gap:12px;justify-content:space-around;padding:0 12px}.gate-tabs button{font-size:.8125rem}.eval-row{grid-template-columns:1fr}.receipt-top{padding:26px}.receipt-top h2{font-size:1.25rem}.receipt-body{padding:25px}.receipt-data{gap:20px}.receipt-title{font-size:1.2rem}.receipt-bottom{grid-template-columns:1fr;justify-items:start}.public-header{padding:18px}.public-header .brand{font-size:1.05rem}.public-wrap{margin:27px auto;padding:0 18px}.public-header .demo-pill{display:none}.public-header .btn{padding:9px;font-size:.75rem}.verify-status{padding:22px;gap:13px}.verify-status h2{font-size:1.12rem}.modal-body .form-row{grid-template-columns:1fr;gap:0}.page-heading .flex{gap:6px}.version-row{padding:20px;flex-wrap:wrap}.work-row>.badge{font-size:.6875rem}}
-#storageStatus:not(:empty){position:sticky;top:0;z-index:110;padding:12px 20px;background:#fff4e4;color:#794b12;display:flex;align-items:center;gap:14px;flex-wrap:wrap}#storageStatus p{flex:1;min-width:200px}.answer-quote,.eval-card p,.timeline p{overflow-wrap:anywhere}.split>*{min-width:0}.review-round{padding:12px 0;border-bottom:1px solid var(--line)}.review-round summary{cursor:pointer;overflow-wrap:anywhere;line-height:1.6}
-@media(max-width:700px){.page-heading{flex-wrap:wrap}.page-heading>.flex{width:100%}.page-heading>.flex .btn{white-space:normal}.version-row>div{min-width:0;max-width:100%}.version-row p{overflow-wrap:anywhere}.nav button{white-space:nowrap}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media print{body{background:white}.sidebar,.topbar,.page-heading,.receipt-actions,.footer-note,.public-header,.guide,#toast,#storageStatus{display:none!important}.shell{display:block}.main{padding:0;max-width:none}.receipt{border:0;box-shadow:none}.receipt-top{print-color-adjust:exact}.receipt-body{border-left:3px solid var(--purple)}}
+<style>:root {
+  color-scheme: light;
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color: #272127;
+  background: #f8f7f6;
+  --ink: #272127;
+  --muted: #655c65;
+  --surface: #fff;
+  --canvas: #f8f7f6;
+  --line: #e8e1e3;
+  --accent: #872747;
+  --accent-hover: #6d1d37;
+  --accent-soft: #f8eaf0;
+  --success: #24624c;
+  --success-soft: #eaf5ee;
+  --warning: #805511;
+  --warning-soft: #fff4df;
+  --danger: #a12c3d;
+  --danger-soft: #fff0f0;
+  --sidebar-width: 218px;
+  --content-padding: clamp(24px, 3.3vw, 60px);
+  --radius: 15px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; line-height: 1.5; }
+button, input, textarea, select { font: inherit; }
+button { color: inherit; cursor: pointer; border: 0; background: none; }
+button:disabled { color: #6c646c; cursor: not-allowed; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+h1, h2, h3, p, dl, dd, blockquote { margin: 0; }
+h1 { font-size: clamp(1.7rem, 3vw, 2.55rem); line-height: 1.24; letter-spacing: -.055em; word-break: keep-all; overflow-wrap: anywhere; text-wrap: balance; }
+h2 { font-size: 1.08rem; line-height: 1.45; letter-spacing: -.025em; }
+h3 { font-size: .94rem; line-height: 1.45; }
+p { line-height: 1.65; }
+summary { cursor: pointer; }
+small, .small { font-size: .79rem; }
+.muted { color: var(--muted); }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: .78rem; overflow-wrap: anywhere; }
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flex { display: flex; align-items: center; gap: 9px; }
+.between { justify-content: space-between; }
+.wrap { flex-wrap: wrap; }
+.full-width { width: 100%; }
+.mt { margin-top: 16px; }
+.gap { margin-bottom: 16px; }
+.text-right { text-align: right; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 115; padding: 10px 14px; background: white; clip-path: inset(50%); }
+.skip-link:focus { clip-path: none; }
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  grid-template-rows: 68px 1fr;
+  min-height: 100vh;
+}
+.topbar {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) auto;
+  align-items: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.brand-button {
+  height: 100%;
+  padding: 0 26px;
+  text-align: left;
+  border-right: 1px solid var(--line);
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 1.35rem; line-height: 1; font-weight: 850; letter-spacing: -.07em; }
+.mark { display: grid; place-items: center; width: 33px; height: 33px; border-radius: 10px; background: var(--accent); color: white; }
+.mark .icon { width: 21px; height: 21px; }
+.crumb { display: flex; align-items: center; gap: 12px; padding-inline: var(--content-padding); font-size: .83rem; color: var(--muted); }
+.crumb b { color: var(--ink); }
+.top-actions { display: flex; align-items: center; gap: 14px; padding-right: var(--content-padding); }
+.demo-pill { font-size: .74rem; color: var(--muted); background: var(--canvas); border: 1px solid var(--line); padding: 4px 9px; border-radius: 100px; white-space: nowrap; }
+.role-control { display: inline-flex; align-items: center; gap: 3px; font-size: .84rem; }
+.role-control select { font-weight: 700; border: 0; padding: 7px 4px; min-height: 44px; }
+.avatar { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 50%; color: var(--accent); background: var(--accent-soft); font-size: .75rem; font-weight: 800; }
+
+.sidebar { position: sticky; top: 0; min-height: calc(100vh - 68px); max-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; align-self: start; padding: 30px 16px 20px; background: #fcfafb; border-right: 1px solid var(--line); }
+.side-label { margin: 0 10px 10px; font-size: .74rem; color: var(--muted); font-weight: 700; }
+.nav { display: grid; gap: 4px; }
+.nav button { width: 100%; min-height: 46px; padding: 9px 11px; display: flex; align-items: center; gap: 11px; text-align: left; border-radius: 9px; font-size: .86rem; font-weight: 650; color: var(--muted); }
+.nav button:hover, .sidebar-reset:hover { background: #f4edf0; color: var(--ink); }
+.nav button[aria-current] { background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.sidebar-foot { padding-top: 13px; border-top: 1px solid var(--line); }
+.local-note, .sidebar-reset { display: flex; align-items: center; gap: 8px; padding: 7px 9px; color: var(--muted); font-size: .76rem; }
+.local-dot { width: 7px; height: 7px; flex: none; background: var(--success); border-radius: 50%; }
+.sidebar-reset { width: 100%; min-height: 44px; border-radius: 8px; text-align: left; }
+.sidebar-reset .icon { width: 14px; height: 14px; }
+
+.main { min-width: 0; width: 100%; max-width: 1450px; margin: 0 auto; padding: 36px var(--content-padding) 24px; }
+.page-heading, .work-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 26px; }
+.page-heading p, .work-heading p { margin-top: 9px; color: var(--muted); font-size: .88rem; }
+.work-meta { margin-bottom: 12px; }
+.work-actions { flex-shrink: 0; }
+.version-label { display: inline-flex; align-items: center; border: 1px solid #e3d8dc; background: var(--surface); color: var(--ink); border-radius: 6px; font: 700 .83rem/1.25 ui-monospace, Consolas, monospace; padding: 5px 8px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(266px, 29%); gap: 20px; align-items: start; }
+.split > * { min-width: 0; }
+.content-stack, .support-column { display: grid; align-content: start; gap: 16px; min-width: 0; }
+.content-stack > .gap { margin-bottom: 0; }
+.panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.panel-head, .panel-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 19px; }
+.panel-head { min-height: 59px; border-bottom: 1px solid var(--line); }
+.panel-head > .icon { color: var(--accent); }
+.panel-foot { border-top: 1px solid var(--line); }
+.panel-body { padding: 20px; }
+.footer-note { padding-top: 19px; margin-top: 24px; color: var(--muted); font-size: .77rem; border-top: 1px solid var(--line); }
+.footer-note span { margin-inline: 4px; }
+.btn.mobile-reset, .btn.narrow-next { display: none; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #dad0d6; border-radius: 8px; background: var(--surface); min-height: 44px; padding: 8px 14px; text-decoration: none; font-weight: 750; font-size: .83rem; line-height: 1.4; text-align: center; }
+.btn:not(:disabled):hover { border-color: #baa9b4; background: #faf4f7; }
+.btn.primary { color: white; border-color: var(--accent); background: var(--accent); }
+.btn.primary:not(:disabled):hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+.btn.outline { color: var(--accent); border-color: #ceafbb; }
+.btn.danger { color: var(--danger); border-color: #e5bdc2; }
+.btn.danger:not(:disabled):hover { background: var(--danger-soft); border-color: var(--danger); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--accent); }
+.btn.small { font-size: .78rem; padding: 5px 9px; }
+.btn:disabled, .btn.primary:disabled { background: #f5f2f4; border-color: #e3dce1; color: #6c646c; }
+.btn .icon { width: 16px; height: 16px; }
+.icon-button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; }
+.icon-button:hover { background: var(--canvas); }
+.badge { display: inline-flex; align-items: center; flex: none; gap: 4px; padding: 3px 8px; border-radius: 100px; color: var(--muted); background: #f2eef1; font-size: .73rem; font-weight: 750; white-space: nowrap; }
+.badge.purple { color: var(--accent); background: var(--accent-soft); }
+.badge.green { color: var(--success); background: var(--success-soft); }
+.badge.orange { color: var(--warning); background: var(--warning-soft); }
+.badge.red { color: var(--danger); background: var(--danger-soft); }
+
+.document-preview {
+  isolation: isolate;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(100% - 36px);
+  min-height: 235px;
+  margin: 17px 18px 0;
+  padding: 17px;
+  overflow: hidden;
+  border: 1px solid #e7d8de;
+  border-radius: 10px;
+  background: radial-gradient(circle, #d7bcc6 1px, transparent 1.2px) 0 0 / 13px 13px, #f4e9ee;
+}
+.document-preview:hover { background-color: #f2e1e9; }
+.doc-sheet { display: flex; align-items: flex-start; flex-direction: column; gap: 11px; width: min(208px, 82%); min-height: 202px; padding: 18px; text-align: left; border: 1px solid #e6dce0; border-radius: 4px; background: #fff; box-shadow: 6px 7px 0 #e9dce2, 0 9px 25px #562a3e29; transform: rotate(-4deg); transition: transform .18s ease; }
+.document-preview:hover .doc-sheet { transform: translateY(-3px) rotate(-2deg); }
+.sheet-brand { color: var(--accent); font-size: .73rem; font-weight: 900; letter-spacing: -.05em; }
+.sheet-label { color: var(--muted); font: 700 .62rem/1.3 ui-monospace, Consolas, monospace; width: 100%; border-top: 2px solid var(--accent); padding-top: 10px; }
+.sheet-label span { float: right; }
+.doc-sheet strong { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: .93rem; letter-spacing: -.04em; word-break: keep-all; overflow-wrap: anywhere; }
+.document-lines { display: grid; width: 100%; gap: 7px; }
+.document-lines i { display: block; height: 3px; border-radius: 5px; background: #eee7eb; }
+.document-lines i:nth-child(2) { width: 83%; }
+.document-lines i:nth-child(3) { width: 64%; }
+.preview-open { position: absolute; display: flex; align-items: center; gap: 7px; right: 10px; bottom: 10px; padding: 8px 11px; border: 1px solid #e3d6dd; border-radius: 7px; background: #fff; color: var(--accent); font-size: .75rem; font-weight: 800; box-shadow: 0 2px 7px #562a3e16; }
+.preview-open .icon { width: 14px; height: 14px; }
+.document-meta { display: grid; gap: 12px; padding: 14px 19px 17px; }
+.file-label { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.file-label > .icon { color: var(--accent); box-sizing: content-box; padding: 9px; border: 1px solid #f0e1e8; border-radius: 8px; background: #fbf2f6; }
+.file-label > span { min-width: 0; overflow-wrap: anywhere; }
+.file-label strong, .file-label .muted { display: block; }
+.file-label strong { font-size: .88rem; }
+.file-details { color: var(--muted); border-top: 1px solid var(--line); font-size: .81rem; }
+.file-details summary { padding: 9px 0 0; font-weight: 700; }
+.file-details > div { padding-top: 9px; }
+.risk-details summary { display: list-item; padding: 13px 16px; font-size: .84rem; }
+.risk-details summary .badge { float: right; }
+.risk-details .panel-body { padding-top: 4px; }
+.risk-grid { display: grid; grid-template-columns: 1fr auto; gap: 8px 14px; color: var(--muted); font-size: .83rem; }
+.risk-grid b { color: var(--ink); }
+.evidence-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--line); font-size: .87rem; }
+.work-progress, .recent-list, .plain-list, .timeline { padding: 0; margin: 0; list-style: none; }
+.work-progress { display: grid; gap: 9px; margin-bottom: 17px; }
+.work-progress li { display: grid; align-items: center; grid-template-columns: 25px minmax(0, 1fr) auto; gap: 7px; padding: 6px 0; font-size: .83rem; color: var(--muted); }
+.work-progress li.is-current { padding: 8px 7px; margin-inline: -7px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 750; }
+.progress-marker { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid #ddd4da; border-radius: 50%; font-size: .71rem; }
+.progress-marker .icon { width: 13px; height: 13px; }
+.is-done .progress-marker { border-color: var(--success-soft); background: var(--success-soft); color: var(--success); }
+.is-current .progress-marker { border-color: var(--accent); background: var(--accent); color: white; }
+.progress-status { font-size: .7rem; text-align: right; }
+.recent-list { padding: 8px 18px 13px; }
+.recent-list li { display: flex; gap: 9px; align-items: flex-start; padding: 10px 0; font-size: .81rem; }
+.recent-list li + li { border-top: 1px solid var(--line); }
+.activity-dot { flex: none; width: 7px; height: 7px; margin-top: 6px; border-radius: 50%; background: var(--accent); }
+.recent-list p { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+.previous-record { border-left: 3px solid #bc7d94; }
+
+.work-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+.pdf-icon { display: grid; place-items: center; width: 40px; height: 43px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-size: .71rem; font-weight: 850; }
+.work-title { margin-bottom: 5px; font-weight: 750; overflow-wrap: anywhere; }
+.work-file-context { flex: 1; min-width: 150px; overflow-wrap: anywhere; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-item { font-size: .88rem; min-width: 0; overflow-wrap: anywhere; }
+.detail-item > .muted:first-child { display: block; font-size: .77rem; margin-bottom: 3px; }
+.subsection { margin-top: 17px; padding-top: 17px; border-top: 1px solid var(--line); }
+.hash { margin-top: 9px; padding: 10px 12px; border-radius: 7px; color: var(--ink); background: var(--canvas); }
+.inline-note { color: var(--muted); font-size: .79rem; line-height: 1.55; margin-top: 7px; overflow-wrap: anywhere; }
+.callout { display: flex; gap: 10px; padding: 13px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-size: .84rem; overflow-wrap: anywhere; }
+.callout > .icon { margin-top: 2px; }
+.callout b { display: block; }
+.callout.warning { background: var(--warning-soft); color: var(--warning); }
+.callout.success { background: var(--success-soft); color: var(--success); }
+.callout.error { background: var(--danger-soft); color: var(--danger); }
+
+.gate-tabs { display: flex; justify-content: space-between; gap: 6px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.gate-tabs button { min-height: 47px; padding: 6px 8px; border-bottom: 2px solid transparent; color: var(--muted); font-size: .83rem; }
+.gate-tabs button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 800; }
+.task-prompt { margin: 13px 0 17px; padding: 15px; border: 1px solid #efe1e7; border-radius: 8px; background: #faf4f7; font-size: .88rem; }
+.reference { margin: 11px 0 7px; padding: 11px 13px; border-left: 3px solid #ba8298; background: #fff; }
+.field { display: flex; flex-direction: column; gap: 7px; margin: 14px 0; min-width: 0; }
+.field > span, .field > label { font-size: .84rem; font-weight: 750; }
+input, select, textarea { max-width: 100%; min-width: 0; color: var(--ink); background: var(--surface); border: 1px solid #a99ba7; border-radius: 7px; padding: 9px 10px; }
+textarea { width: 100%; min-height: 124px; resize: vertical; font-size: .88rem; line-height: 1.65; }
+textarea[readonly], input[readonly] { background: #faf8f9; }
+input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
+.confidence { display: flex; gap: 14px; align-items: center; font-size: .88rem; }
+.confidence input { flex: 1; }
+.confidence b { color: var(--accent); }
+.check-row { display: flex; align-items: flex-start; gap: 9px; margin: 0 0 10px; padding: 5px 0; font-size: .83rem; line-height: 1.55; }
+.check-row input { width: 17px; height: 17px; flex: none; margin: 2px 0 0; }
+.eval-card { margin-top: 13px; padding: 14px; border: 1px solid var(--line); border-radius: 9px; overflow-wrap: anywhere; }
+.eval-card textarea { min-height: 75px; }
+.eval-row { display: grid; grid-template-columns: minmax(100px, 150px) 1fr; gap: 10px; align-items: start; margin-top: 13px; }
+.eval-row .field { margin: 0 0 8px; }
+.answer-quote { margin-top: 11px; padding: 12px; border-radius: 7px; background: var(--canvas); font-size: .88rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.gate-result { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid #efe1e7; border-radius: 9px; background: #faf4f7; }
+.gate-result .score { color: var(--accent); font-size: 1.45rem; font-weight: 800; }
+.block-reasons { margin: 12px 0; color: var(--muted); font-size: .77rem; line-height: 1.6; }
+.plain-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .82rem; }
+.plain-list li + li { margin-top: 9px; }
+
+.receipt { overflow: hidden; }
+.receipt-top { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 25px; color: white; background: #472234; }
+.receipt-top .mark { color: #fff; background: #ffffff23; }
+.receipt-top h2 { margin-top: 16px; font-size: 1.38rem; }
+.receipt-symbol { display: grid; place-items: center; width: 50px; height: 50px; border: 1px solid #ffffff45; border-radius: 11px; }
+.receipt-symbol .icon { width: 29px; height: 29px; }
+.receipt-body { padding: 23px; }
+.receipt-title { margin: 12px 0 19px; font-size: 1.34rem; overflow-wrap: anywhere; }
+.review-note { margin-top: 8px; font-size: .88rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+.receipt-scope { margin-top: 20px; }
+.share-body { display: grid; justify-items: center; gap: 11px; text-align: center; }
+#qrcode { display: grid; place-items: center; width: min(200px, 100%); aspect-ratio: 1; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: white; font-size: .8rem; }
+#qrcode canvas, #qrcode img { max-width: 100%; height: auto; }
+
+.public-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px max(18px, calc((100vw - 788px) / 2)); border-bottom: 1px solid var(--line); background: white; }
+.public-wrap { width: min(100%, 824px); margin: 31px auto 0; padding: 0 18px 24px; }
+.verify-status { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.verify-status p { color: var(--muted); font-size: .85rem; margin-top: 4px; overflow-wrap: anywhere; }
+.status-symbol { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 11px; background: var(--success-soft); color: var(--success); }
+.is-snapshot .status-symbol { background: var(--warning-soft); color: var(--warning); }
+.is-revoked .status-symbol { background: var(--danger-soft); color: var(--danger); }
+.verify-facts { display: grid; gap: 8px; font-size: .86rem; }
+.verify-facts div { display: grid; grid-template-columns: 86px 1fr; align-items: baseline; gap: 8px; }
+.verify-facts dt { color: var(--muted); }
+.verify-facts dd { font-weight: 750; }
+.verify-upload { margin-top: 14px; }
+.dropzone { display: grid; justify-items: center; gap: 8px; padding: 15px; border: 1px dashed #ab8d9b; border-radius: 9px; text-align: center; background: #fcf8fa; cursor: pointer; font-size: .88rem; }
+.dropzone:hover { background: var(--accent-soft); }
+.dropzone .icon { color: var(--accent); }
+.dropzone input { width: min(100%, 320px); font-size: .76rem; }
+.result-box { margin-top: 11px; padding: 12px 14px; border-radius: 8px; background: var(--canvas); font-size: .85rem; overflow-wrap: anywhere; }
+.result-box.green { background: var(--success-soft); color: var(--success); }
+.result-box.red { background: var(--danger-soft); color: var(--danger); }
+.demo-tools h3 { font-size: .78rem; color: var(--muted); margin-bottom: 7px; }
+
+.version-row { display: flex; justify-content: space-between; align-items: center; gap: 11px; padding: 15px 19px; overflow-wrap: anywhere; }
+.version-row + .version-row { border-top: 1px solid var(--line); }
+.version-row > div { min-width: 0; }
+.version-row p { margin: 5px 0; font-size: .81rem; color: var(--muted); }
+.version-row p strong { color: var(--ink); }
+.timeline { padding: 18px 16px 0; }
+.event { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 9px; padding-bottom: 16px; overflow-wrap: anywhere; }
+.event:not(:last-child)::before { content: ""; position: absolute; top: 21px; bottom: -2px; left: 11px; border-left: 1px solid var(--line); }
+.event-icon { z-index: 1; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.event-icon .icon { width: 13px; height: 13px; }
+.event h3 { font-size: .82rem; }
+.event p { font-size: .76rem; color: var(--muted); margin-top: 3px; }
+.review-round { padding: 10px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+
+dialog { max-width: 600px; width: calc(100% - 32px); padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: white; color: var(--ink); box-shadow: 0 15px 50px #2820283b; }
+dialog::backdrop { background: #28162279; }
+.modal-head { padding: 9px 12px 9px 21px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.modal-body { max-height: 75vh; padding: 15px 21px 21px; overflow-y: auto; }
+.modal-body p { color: var(--muted); font-size: .85rem; }
+.modal-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.modal-body .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.error-text { color: var(--danger); font-size: .82rem; }
+.pdf-dialog { max-width: 970px; }
+.pdf-dialog .modal-body { padding: 9px 13px 13px; }
+.preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 7px; margin-bottom: 6px; font-size: .83rem; overflow-wrap: anywhere; }
+.preview-toolbar .btn { flex: none; }
+.pdf-viewer { display: block; width: 100%; height: min(62vh, 650px); border: 1px solid var(--line); border-radius: 6px; background: var(--canvas); }
+.pdf-viewer p { padding: 14px; }
+.empty { padding: 32px 22px; text-align: center; }
+.empty > .icon { width: 31px; height: 31px; color: var(--accent); margin-bottom: 10px; }
+.empty p { color: var(--muted); margin: 8px 0 14px; font-size: .87rem; }
+#toast { position: fixed; z-index: 100; bottom: 20px; left: 50%; width: max-content; max-width: 90vw; padding: 10px 16px; border-radius: 8px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; background: var(--ink); color: #fff; font-size: .83rem; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#storageStatus:not(:empty) { position: sticky; top: 0; z-index: 110; padding: 10px 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 9px; color: var(--warning); background: var(--warning-soft); }
+#storageStatus p { flex: 1; min-width: 200px; }
+
+@media (max-width: 1080px) {
+  :root { --sidebar-width: 177px; }
+  .brand-button { padding-inline: 19px; }
+  .version-row { flex-wrap: wrap; }
+}
+@media (max-width: 870px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .gate-layout .support-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .work-heading { flex-wrap: wrap; align-items: flex-start; }
+  .btn.narrow-next { display: inline-flex; margin-bottom: 16px; }
+  .btn.progress-action { display: none; }
+  .work-progress { margin-bottom: 0; }
+}
+@media (max-width: 640px) {
+  :root { --content-padding: 15px; }
+  .shell { display: block; }
+  .topbar { display: flex; justify-content: space-between; min-height: 61px; }
+  .brand-button { min-height: 61px; padding-inline: 15px; border: 0; }
+  .crumb, .sidebar-foot, .side-label { display: none; }
+  .sidebar { position: static; min-height: auto; padding: 4px 9px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+  .nav button { flex-direction: column; justify-content: center; gap: 4px; min-height: 52px; padding: 4px 2px; font-size: .66rem; text-align: center; }
+  .nav .icon { width: 16px; height: 16px; }
+  .main { padding-top: 22px; }
+  .page-heading, .work-heading { align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .split { gap: 14px; }
+  .review-layout .support-column, .gate-layout .support-column { grid-template-columns: 1fr; }
+  .work-row, .panel-head, .panel-foot, .panel-body { padding-inline: 13px; }
+  .panel-foot { flex-wrap: wrap; }
+  .document-preview { width: calc(100% - 24px); margin: 12px 12px 0; }
+  .document-meta { padding-inline: 13px; }
+  .gate-tabs { gap: 1px; padding-inline: 6px; }
+  .gate-tabs button { font-size: .74rem; padding-inline: 5px; }
+  .eval-row { grid-template-columns: 1fr; gap: 2px; }
+  .receipt-body, .receipt-top { padding: 17px; }
+  .detail-grid { gap: 12px; }
+  .btn.mobile-reset { display: flex; width: fit-content; margin-top: 4px; }
+  .public-wrap { margin-top: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+@media (max-width: 410px) {
+  .public-wrap .detail-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  body { background: white; }
+  .sidebar, .topbar, .skip-link, .page-heading, .support-column, .footer-note, #toast, #storageStatus { display: none !important; }
+  .shell, .split { display: block; }
+  .main { max-width: none; padding: 0; }
+  .receipt { border: 0; }
+  .receipt-top { print-color-adjust: exact; }
+}
 </style><script>var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this.parsedData=[];for(var b=[],d=0,e=this.data.length;e>d;d++){var f=this.data.charCodeAt(d);f>65536?(b[0]=240|(1835008&f)>>>18,b[1]=128|(258048&f)>>>12,b[2]=128|(4032&f)>>>6,b[3]=128|63&f):f>2048?(b[0]=224|(61440&f)>>>12,b[1]=128|(4032&f)>>>6,b[2]=128|63&f):f>128?(b[0]=192|(1984&f)>>>6,b[1]=128|63&f):b[0]=f,this.parsedData=this.parsedData.concat(b)}this.parsedData.length!=this.data.length&&(this.parsedData.unshift(191),this.parsedData.unshift(187),this.parsedData.unshift(239))}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function i(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function j(a,b){this.totalCount=a,this.dataCount=b}function k(){this.buffer=[],this.length=0}function m(){return"undefined"!=typeof CanvasRenderingContext2D}function n(){var a=!1,b=navigator.userAgent;return/android/i.test(b)&&(a=!0,aMat=b.toString().match(/android ([0-9]\.[0-9])/i),aMat&&aMat[1]&&(a=parseFloat(aMat[1]))),a}function r(a,b){for(var c=1,e=s(a),f=0,g=l.length;g>=f;f++){var h=0;switch(b){case d.L:h=l[f][0];break;case d.M:h=l[f][1];break;case d.Q:h=l[f][2];break;case d.H:h=l[f][3]}if(h>=e)break;c++}if(c>l.length)throw new Error("Too long data");return c}function s(a){var b=encodeURI(a).toString().replace(/\%[0-9a-fA-F]{2}/g,"a");return b.length+(b.length!=a?3:0)}a.prototype={getLength:function(){return this.parsedData.length},write:function(a){for(var b=0,c=this.parsedData.length;c>b;b++)a.put(this.parsedData[b],8)}},b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++){this.modules[d]=new Array(this.moduleCount);for(var e=0;e<this.moduleCount;e++)this.modules[d][e]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,c),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=f*e,h=0;h<this.modules[f].length;h++){var i=h*e,j=this.modules[f][h];j&&(d.beginFill(0,100),d.moveTo(i,g),d.lineTo(i+e,g),d.lineTo(i+e,g+e),d.lineTo(i,g+e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;b++)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][e+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(1&d>>e);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(1&d>>e);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,g=0,h=this.moduleCount-1;h>0;h-=2)for(6==h&&h--;;){for(var i=0;2>i;i++)if(null==this.modules[d][h-i]){var j=!1;g<a.length&&(j=1==(1&a[g]>>>e));var k=f.getMask(b,d,h-i);k&&(j=!j),this.modules[d][h-i]=j,e--,-1==e&&(g++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=236,b.PAD1=17,b.createData=function(a,c,d){for(var e=j.getRSBlocks(a,c),g=new k,h=0;h<d.length;h++){var i=d[h];g.put(i.mode,4),g.put(i.getLength(),f.getLengthInBits(i.mode,a)),i.write(g)}for(var l=0,h=0;h<e.length;h++)l+=e[h].dataCount;if(g.getLengthInBits()>8*l)throw new Error("code length overflow. ("+g.getLengthInBits()+">"+8*l+")");for(g.getLengthInBits()+4<=8*l&&g.put(0,4);0!=g.getLengthInBits()%8;)g.putBit(!1);for(;;){if(g.getLengthInBits()>=8*l)break;if(g.put(b.PAD0,8),g.getLengthInBits()>=8*l)break;g.put(b.PAD1,8)}return b.createBytes(g,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,g=new Array(b.length),h=new Array(b.length),j=0;j<b.length;j++){var k=b[j].dataCount,l=b[j].totalCount-k;d=Math.max(d,k),e=Math.max(e,l),g[j]=new Array(k);for(var m=0;m<g[j].length;m++)g[j][m]=255&a.buffer[m+c];c+=k;var n=f.getErrorCorrectPolynomial(l),o=new i(g[j],n.getLength()-1),p=o.mod(n);h[j]=new Array(n.getLength()-1);for(var m=0;m<h[j].length;m++){var q=m+p.getLength()-h[j].length;h[j][m]=q>=0?p.get(q):0}}for(var r=0,m=0;m<b.length;m++)r+=b[m].totalCount;for(var s=new Array(r),t=0,m=0;d>m;m++)for(var j=0;j<b.length;j++)m<g[j].length&&(s[t++]=g[j][m]);for(var m=0;e>m;m++)for(var j=0;j<b.length;j++)m<h[j].length&&(s[t++]=h[j][m]);return s};for(var c={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},d={L:1,M:0,Q:3,H:2},e={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7},f={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getPatternPosition:function(a){return f.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case e.PATTERN000:return 0==(b+c)%2;case e.PATTERN001:return 0==b%2;case e.PATTERN010:return 0==c%3;case e.PATTERN011:return 0==(b+c)%3;case e.PATTERN100:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case e.PATTERN101:return 0==b*c%2+b*c%3;case e.PATTERN110:return 0==(b*c%2+b*c%3)%2;case e.PATTERN111:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new i([1],0),c=0;a>c;c++)b=b.multiply(new i([1,g.gexp(c)],0));return b},getLengthInBits:function(a,b){if(b>=1&&10>b)switch(a){case c.MODE_NUMBER:return 10;case c.MODE_ALPHA_NUM:return 9;case c.MODE_8BIT_BYTE:return 8;case c.MODE_KANJI:return 8;default:throw new Error("mode:"+a)}else if(27>b)switch(a){case c.MODE_NUMBER:return 12;case c.MODE_ALPHA_NUM:return 11;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 10;default:throw new Error("mode:"+a)}else{if(!(41>b))throw new Error("type:"+b);switch(a){case c.MODE_NUMBER:return 14;case c.MODE_ALPHA_NUM:return 13;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 12;default:throw new Error("mode:"+a)}}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0!=h||0!=i)&&g==a.isDark(d+h,e+i)&&f++;f>5&&(c+=3+f-5)}for(var d=0;b-1>d;d++)for(var e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,(0==j||4==j)&&(c+=3)}for(var d=0;b>d;d++)for(var e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(var e=0;b>e;e++)for(var d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(var d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}},g={glog:function(a){if(1>a)throw new Error("glog("+a+")");return g.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return g.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)},h=0;8>h;h++)g.EXP_TABLE[h]=1<<h;for(var h=8;256>h;h++)g.EXP_TABLE[h]=g.EXP_TABLE[h-4]^g.EXP_TABLE[h-5]^g.EXP_TABLE[h-6]^g.EXP_TABLE[h-8];for(var h=0;255>h;h++)g.LOG_TABLE[g.EXP_TABLE[h]]=h;i.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=g.gexp(g.glog(this.get(c))+g.glog(a.get(d)));return new i(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=g.glog(this.get(0))-g.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.get(d);for(var d=0;d<a.getLength();d++)c[d]^=g.gexp(g.glog(a.get(d))+b);return new i(c,0).mod(a)}},j.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],j.getRSBlocks=function(a,b){var c=j.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;d>f;f++)for(var g=c[3*f+0],h=c[3*f+1],i=c[3*f+2],k=0;g>k;k++)e.push(new j(h,i));return e},j.getRsBlockTable=function(a,b){switch(b){case d.L:return j.RS_BLOCK_TABLE[4*(a-1)+0];case d.M:return j.RS_BLOCK_TABLE[4*(a-1)+1];case d.Q:return j.RS_BLOCK_TABLE[4*(a-1)+2];case d.H:return j.RS_BLOCK_TABLE[4*(a-1)+3];default:return void 0}},k.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&this.buffer[b]>>>7-a%8)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(1&a>>>b-c-1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}};var l=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]],o=function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){function g(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg",a);for(var d in b)b.hasOwnProperty(d)&&c.setAttribute(d,b[d]);return c}var b=this._htOption,c=this._el,d=a.getModuleCount();Math.floor(b.width/d),Math.floor(b.height/d),this.clear();var h=g("svg",{viewBox:"0 0 "+String(d)+" "+String(d),width:"100%",height:"100%",fill:b.colorLight});h.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"),c.appendChild(h),h.appendChild(g("rect",{fill:b.colorDark,width:"1",height:"1",id:"template"}));for(var i=0;d>i;i++)for(var j=0;d>j;j++)if(a.isDark(i,j)){var k=g("use",{x:String(i),y:String(j)});k.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"),h.appendChild(k)}},a.prototype.clear=function(){for(;this._el.hasChildNodes();)this._el.removeChild(this._el.lastChild)},a}(),p="svg"===document.documentElement.tagName.toLowerCase(),q=p?o:m()?function(){function a(){this._elImage.src=this._elCanvas.toDataURL("image/png"),this._elImage.style.display="block",this._elCanvas.style.display="none"}function d(a,b){var c=this;if(c._fFail=b,c._fSuccess=a,null===c._bSupportDataURI){var d=document.createElement("img"),e=function(){c._bSupportDataURI=!1,c._fFail&&_fFail.call(c)},f=function(){c._bSupportDataURI=!0,c._fSuccess&&c._fSuccess.call(c)};return d.onabort=e,d.onerror=e,d.onload=f,d.src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",void 0}c._bSupportDataURI===!0&&c._fSuccess?c._fSuccess.call(c):c._bSupportDataURI===!1&&c._fFail&&c._fFail.call(c)}if(this._android&&this._android<=2.1){var b=1/window.devicePixelRatio,c=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(a,d,e,f,g,h,i,j){if("nodeName"in a&&/img/i.test(a.nodeName))for(var l=arguments.length-1;l>=1;l--)arguments[l]=arguments[l]*b;else"undefined"==typeof j&&(arguments[1]*=b,arguments[2]*=b,arguments[3]*=b,arguments[4]*=b);c.apply(this,arguments)}}var e=function(a,b){this._bIsPainted=!1,this._android=n(),this._htOption=b,this._elCanvas=document.createElement("canvas"),this._elCanvas.width=b.width,this._elCanvas.height=b.height,a.appendChild(this._elCanvas),this._el=a,this._oContext=this._elCanvas.getContext("2d"),this._bIsPainted=!1,this._elImage=document.createElement("img"),this._elImage.style.display="none",this._el.appendChild(this._elImage),this._bSupportDataURI=null};return e.prototype.draw=function(a){var b=this._elImage,c=this._oContext,d=this._htOption,e=a.getModuleCount(),f=d.width/e,g=d.height/e,h=Math.round(f),i=Math.round(g);b.style.display="none",this.clear();for(var j=0;e>j;j++)for(var k=0;e>k;k++){var l=a.isDark(j,k),m=k*f,n=j*g;c.strokeStyle=l?d.colorDark:d.colorLight,c.lineWidth=1,c.fillStyle=l?d.colorDark:d.colorLight,c.fillRect(m,n,f,g),c.strokeRect(Math.floor(m)+.5,Math.floor(n)+.5,h,i),c.strokeRect(Math.ceil(m)-.5,Math.ceil(n)-.5,h,i)}this._bIsPainted=!0},e.prototype.makeImage=function(){this._bIsPainted&&d.call(this,a)},e.prototype.isPainted=function(){return this._bIsPainted},e.prototype.clear=function(){this._oContext.clearRect(0,0,this._elCanvas.width,this._elCanvas.height),this._bIsPainted=!1},e.prototype.round=function(a){return a?Math.floor(1e3*a)/1e3:a},e}():function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){for(var b=this._htOption,c=this._el,d=a.getModuleCount(),e=Math.floor(b.width/d),f=Math.floor(b.height/d),g=['<table style="border:0;border-collapse:collapse;">'],h=0;d>h;h++){g.push("<tr>");for(var i=0;d>i;i++)g.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:'+e+"px;height:"+f+"px;background-color:"+(a.isDark(h,i)?b.colorDark:b.colorLight)+';"></td>');g.push("</tr>")}g.push("</table>"),c.innerHTML=g.join("");var j=c.childNodes[0],k=(b.width-j.offsetWidth)/2,l=(b.height-j.offsetHeight)/2;k>0&&l>0&&(j.style.margin=l+"px "+k+"px")},a.prototype.clear=function(){this._el.innerHTML=""},a}();QRCode=function(a,b){if(this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:d.H},"string"==typeof b&&(b={text:b}),b)for(var c in b)this._htOption[c]=b[c];"string"==typeof a&&(a=document.getElementById(a)),this._android=n(),this._el=a,this._oQRCode=null,this._oDrawing=new q(this._el,this._htOption),this._htOption.text&&this.makeCode(this._htOption.text)},QRCode.prototype.makeCode=function(a){this._oQRCode=new b(r(a,this._htOption.correctLevel),this._htOption.correctLevel),this._oQRCode.addData(a),this._oQRCode.make(),this._el.title=a,this._oDrawing.draw(this._oQRCode),this.makeImage()},QRCode.prototype.makeImage=function(){"function"==typeof this._oDrawing.makeImage&&(!this._android||this._android>=3)&&this._oDrawing.makeImage()},QRCode.prototype.clear=function(){this._oDrawing.clear()},QRCode.CorrectLevel=d}();</script><script>(function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -298,28 +660,334 @@ function transaction(task){
 let toastTimer;
 function toast(t){if(inTransaction){effects.push(t);return}$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3700)}
 function download(data,name,type='application/pdf'){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
-function baseShell(content){const v=current();return `<div class="shell"><aside class="sidebar"><div class="brand"><span class="mark">${icon('shield')}</span><div>HumanProof<small>HUMAN APPROVAL</small></div></div><div><div class="side-label">WORKSPACE</div><nav class="nav" aria-label="작업 메뉴">${[['overview','grid','작업 관리'],['gate','brain','이해 과제'],['review','shield','검토 · 승인'],['certificate','file','승인 증명서'],['history','clock','버전 · 이력']].map(([s,i,t])=>`<button data-nav="${s}" class="${screen===s?'active':''}" ${screen===s?'aria-current="page"':''}>${icon(i)}${t}${s==='overview'?'<span class="count">1</span>':''}</button>`).join('')}</nav></div><div class="team-box"><b>소프트웨어공학 프로젝트</b>경희대학교 · 2026학년도<div class="small muted">발표용 워크스페이스</div></div></aside><div><header class="topbar"><div class="crumb">워크스페이스 <b>/ ${esc({overview:'작업 관리',gate:'이해 과제',review:'검토 · 승인',certificate:'승인 증명서',history:'버전 · 이력'}[screen])}</b></div><div class="mobile-brand"><span class="mark">${icon('shield')}</span>HumanProof</div><div class="top-actions"><span class="demo-pill">발표용 프로토타입</span><div class="role-control"><span class="avatar">${role==='author'?'A':'B'}</span><select id="role" aria-label="시연 역할"><option value="author" ${role==='author'?'selected':''}>작성자 A</option><option value="reviewer" ${role==='reviewer'?'selected':''}>검토자 B</option></select></div></div></header><main class="main">${content}<div class="footer-note"><strong>발표용 데모</strong> · 역할과 기록은 이 브라우저에서 체험합니다. 계정 인증·서버 보관·전자서명은 연결되지 않았습니다.<br>검토 절차의 기록이며 실제 이해, 문서의 정확성 또는 AI 신고의 진실성을 보증하지 않습니다.</div></main></div></div>`}
-function heading(t,d,actions=''){return `<div class="page-heading"><div><h1>${t}</h1><p>${d}</p></div>${actions}</div>`}
-function steps(){const v=current(),a=approvalFor(v);let at=a&&!a.revokedAt?3:gatesSubmitted(v)?2:1;return `<div class="steps">${['작업 등록','이해 과제','검토 · 승인','파일 검증'].map((t,i)=>`<div class="step ${i<at?'done':i===at?'current':''}"><span>${i<at?'✓':i+1}</span>${t}</div>`).join('')}</div>`}
-function fileHead(v=current()){return `<div class="work-row"><div class="pdf-icon">PDF</div><div style="flex:1;min-width:0"><div class="work-title">${esc(db.title)}</div><div class="flex wrap"><span class="badge">v${v.n}</span><span class="small muted">작성자 A · 검토자 B</span></div></div>${badge(v)}</div>`}
-function guide(){return `<section class="guide"><div class="eyebrow">PRESENTATION DEMO</div><h2>5분 시연 가이드</h2><p>한 작업의 검토·승인 흐름을 체험하세요.</p><div class="guide-list">${[['등록','PDF와 AI 사용 범위 확인'],['이해 확인','3종 과제에 답변 제출'],['인간 승인','검토자로 전환해 평가 · 승인'],['파일 검증','원본 일치와 변경 파일 비교']].map(([t,d],i)=>`<div class="guide-item"><span>${i+1}</span><div><b>${t}</b><p>${d}</p></div></div>`).join('')}</div><button class="btn" data-action="reset">${icon('refresh')}시연 처음부터</button><p class="small">샘플 답변 · 평가 버튼으로 빠르게 진행할 수 있습니다.</p></section>`}
-function riskPanel(){const r=current().risk,total=r.reduce((a,b)=>a+b,0),level=total>=7?'높음':total>=4?'보통':'낮음';return `<section class="panel risk-panel"><div class="panel-body"><div class="eyebrow">KNOWLEDGE DEBT RISK</div><div class="flex between"><h3>검토 위험도</h3><span class="badge ${total>=7?'orange':total>=4?'purple':'green'}">${level}</span></div><div class="risk-score mt">${total} <small>/ 10</small></div><div class="risk-track"><div style="width:${total*10}%"></div></div><div class="risk-grid">${riskLabels.map((t,i)=>`<span class="muted">${t}</span><b>${r[i]} / ${riskMax[i]}</b>`).join('')}</div><p class="inline-note">규칙 v1.0 · 작성자 입력 기준<br>시연에서는 세 종류의 과제를 모두 확인합니다.</p></div></section>`}
-function overview(){const v=current(),a=approvalFor(v);return heading('작업 관리','AI 작업과 인간의 검토 기록을 한 버전에 연결합니다.',`<button class="btn primary" data-action="newWork">${icon('plus')}새 작업 등록</button>`)+`<div class="metrics">${[['등록된 작업','1','file'],['검토 진행 중',a&&!a.revokedAt?'0':'1','clock'],['승인 완료',a&&!a.revokedAt?'1':'0','shield']].map(([t,n,i])=>`<div class="metric"><div><div class="label">${t}</div><div class="number">${n}<small>건</small></div></div><div class="metric-icon">${icon(i)}</div></div>`).join('')}</div><div class="split"><section class="panel"><div class="panel-head"><h2>현재 작업</h2><span class="muted small">${stamp(v.createdAt)}</span></div>${fileHead()}${steps()}<div class="panel-body"><div class="detail-grid"><div class="detail-item"><span class="muted">등록 파일</span>${esc(v.fileName)}<div class="inline-note">${fmtSize(v.size)} <button class="btn ghost small" data-action="downloadOriginal">${icon('download')}원본 받기</button></div></div><div class="detail-item"><span class="muted">승인 대상 버전</span>v${v.n} · ${a&&!a.revokedAt?'인간 승인 완료':'아직 승인되지 않음'}</div><div class="detail-item"><span class="muted">AI 활용 도구</span>${esc(v.tool)}</div><div class="detail-item"><span class="muted">AI 사용 범위 <small>(작성자 신고)</small></span>${esc(v.scope)}</div></div><div class="subsection"><h3>파일 식별 정보</h3><div class="inline-note mono">${esc(v.id)}</div><div class="hash">${icon('link')}<div><div class="muted small" style="margin-bottom:7px">SHA-256</div><div class="mono">${v.hash}</div></div></div></div><div class="callout mt ${a&&!a.revokedAt?'success':''}">${icon(a?'shield':'brain')}<div><b>${a&&!a.revokedAt?'이 버전에 대한 인간 승인이 기록되었습니다':'작성자의 이해를 먼저 확인합니다'}</b>${a&&!a.revokedAt?'수신자는 승인 기록과 파일 일치 여부를 각각 확인할 수 있습니다.':'Teach-back, Fault Injection, What-if 답변을 검토자가 평가합니다.'}</div></div></div><div class="panel-foot"><span class="small muted">${a?'승인 기록은 v'+v.n+'에 고정됩니다.':'자기 승인 금지 · 검토자 B가 승인합니다.'}</span><button class="btn primary" data-nav="${a?'certificate':gatesSubmitted(v)?'review':'gate'}">${a?'승인 증명서 보기':gatesSubmitted(v)?'검토 화면으로':'이해 과제 시작'}</button></div></section><aside class="support-column">${guide()}${riskPanel()}</aside></div>`}
-function gateScreen(){const v=current(),g=v.gates[gateIndex],completed=v.gates.filter(g=>g.submitted).length;return heading('이해 과제','답변의 근거를 남기고, 다른 사람이 평가합니다.',`<span class="badge purple">${completed} / 3 제출</span>`)+`<div class="split"><section class="panel">${fileHead()}<div class="gate-tabs" role="tablist" aria-label="이해 과제">${gateNames.map((n,i)=>`<button role="tab" aria-selected="${i===gateIndex}" data-gate="${i}" class="${i===gateIndex?'active':''}">${n}${v.gates[i].submitted?' ✓':''}</button>`).join('')}</div><div class="panel-body"><div class="flex between"><div class="eyebrow">GATE ${String(gateIndex+1).padStart(2,'0')}</div><span class="small muted">${g.submitted?'제출 완료 · 답변 고정':'작성자 A에게 배정'}</span></div><h2>${gateTitles[gateIndex]}</h2><div class="task-prompt"><span class="badge">질문</span><p>${gatePrompts[gateIndex]}</p>${gateIndex===1?'<div class="reference">“승인 여부는 파일 이름으로 확인한다. 파일 이름이 같으면 내용이 변경되어도 기존 승인이 유지된다.”</div><p class="small muted">오류는 검증용 복제 문단에만 넣었습니다. 원본 PDF는 바뀌지 않습니다.</p>':''}</div><form id="gateForm"><label class="field"><span>나의 답변</span><textarea id="answer" maxlength="10000" required placeholder="내가 이해한 내용을 근거와 함께 적어 주세요." ${g.submitted||role!=='author'?'readonly':''}>${esc(g.answer)}</textarea></label><div class="field"><label for="confidence">답변에 대한 자기 확신</label><div class="confidence"><input id="confidence" type="range" min="0" max="100" step="5" value="${g.confidence}" ${g.submitted||role!=='author'?'disabled':''}><b id="confidenceValue">${g.confidence}%</b></div><p class="inline-note">확신도는 검토 참고 자료이며 합격 점수와 별도로 기록합니다.</p></div>${g.evaluation?`<div class="callout ${g.evaluation.critical?'error':'success'}">${icon('info')}<div><b>검토자 평가 · ${g.evaluation.score} / 2점</b>${esc(g.evaluation.reason)}${g.evaluation.critical?'<br>치명 오류가 있어 수정이 필요합니다.':''}</div></div>`:''}<div class="error-text" id="gateError"></div><div class="flex between wrap mt"><button type="button" class="btn small" data-action="sampleAnswer" ${g.submitted||role!=='author'?'disabled':''}>샘플 답변 넣기</button><button class="btn primary" type="submit" ${g.submitted||role!=='author'?'disabled':''}>${g.submitted?'답변 제출 완료':'답변 제출'}</button></div>${role!=='author'?'<p class="inline-note">답변을 작성하려면 상단에서 작성자 A로 전환하세요.</p>':''}</form></div><div class="panel-foot"><span class="small muted">임시 답변은 이 브라우저에 저장됩니다.</span><button class="btn ${completed===3?'primary':''}" data-nav="review" ${completed!==3?'disabled':''}>검토 · 승인으로</button></div></section><aside class="support-column"><section class="guide"><div class="eyebrow">UNDERSTANDING GATE</div><h2>근거를 남기는 이해 확인</h2><p>체크만으로 끝내지 않고, 설명과 오류 식별을 기록합니다.</p><div class="guide-list">${gateNames.map((n,i)=>`<div class="guide-item"><span>${v.gates[i].submitted?'✓':i+1}</span><div><b>${n}</b><p>${v.gates[i].submitted?'답변 제출 완료':'아직 제출하지 않음'}</p></div></div>`).join('')}</div><div class="mini-progress">${v.gates.map(g=>`<div class="${g.submitted?'done':''}"></div>`).join('')}</div><button class="btn mt" data-action="sampleAll" ${role!=='author'||completed===3?'disabled':''}>3개 샘플 답변 채우기</button><p class="small">샘플을 채운 뒤 각 과제의 답변 제출 버튼을 누르세요.</p></section>${riskPanel()}</aside></div>`}
+const workspacePages=[
+ ['overview','grid','작업 상세'],['gate','brain','이해 과제'],['review','shield','검토·승인'],
+ ['history','clock','버전·이력'],['certificate','qr','승인 증명서']
+];
+function brand(){return `<span class="brand"><span class="mark">${icon('link')}</span><span>HAVE</span></span>`}
+function baseShell(content){
+ const pageName=workspacePages.find(([name])=>name===screen)?.[2];
+ return `<a class="skip-link" href="#mainContent">본문으로 이동</a>
+ <div class="shell">
+  <header class="topbar">
+   <button class="brand-button" data-nav="overview" aria-label="HAVE 작업 상세">${brand()}</button>
+   <div class="crumb"><span>팀 워크스페이스</span><span aria-hidden="true">/</span><b>${pageName}</b></div>
+   <div class="top-actions"><span class="demo-pill">로컬 시연</span><label class="role-control"><span class="avatar" aria-hidden="true">${role==='author'?'A':'B'}</span><select id="role" aria-label="시연 역할"><option value="author" ${role==='author'?'selected':''}>작성자 A</option><option value="reviewer" ${role==='reviewer'?'selected':''}>검토자 B</option></select></label></div>
+  </header>
+  <aside class="sidebar">
+   <div class="sidebar-main"><div class="side-label">워크스페이스</div>
+    <nav class="nav" aria-label="작업 메뉴">${workspacePages.map(([name,symbol,label])=>`<button data-nav="${name}" ${screen===name?'aria-current="page"':''}>${icon(symbol)}<span>${label}</span></button>`).join('')}</nav>
+   </div>
+   <div class="sidebar-foot">
+    <div class="local-note"><span class="local-dot" aria-hidden="true"></span><span>이 브라우저에 기록 저장</span></div>
+    <button class="sidebar-reset" data-action="reset">${icon('refresh')} 시연 초기화</button>
+   </div>
+  </aside>
+  <main id="mainContent" class="main" tabindex="-1">
+   ${content}
+   <footer class="footer-note">HAVE 로컬 프로토타입 <span>·</span> 작성자와 검토자는 시연 역할입니다.<button class="btn ghost small mobile-reset" data-action="reset">${icon('refresh')} 시연 초기화</button></footer>
+  </main>
+ </div>`;
+}
+function heading(title,description,actions=''){
+ return `<div class="page-heading"><div><h1 tabindex="-1">${title}</h1><p>${description}</p></div>${actions}</div>`;
+}
+function fileHead(v=current()){
+ return `<div class="work-row"><div class="pdf-icon">PDF</div><div class="work-file-context"><div class="work-title">${esc(db.title)}</div><div class="flex wrap"><span class="badge">v${v.n}</span><span class="small muted">${esc(v.fileName)}</span></div></div><button class="btn small" data-action="previewPdf">PDF 원문 보기 <span aria-hidden="true">↗</span></button></div>`;
+}
+function nextWorkAction(v,approval){
+ if(approval)return ['certificate',approval.revokedAt?'승인 기록 확인':'승인 증명서 보기'];
+ if(gatesSubmitted(v))return ['review',role==='reviewer'?'검토 시작':'검토 상태 보기'];
+ const label=role==='reviewer'?'과제 제출 상태 보기':v.returned?'답변 보완하기':v.gates.some(gate=>gate.submitted)?'답변 이어서 작성':'이해 과제 시작';
+ return ['gate',label];
+}
+function nextWorkButton([target,label],classes){
+ return `<button class="btn primary ${classes}" data-nav="${target}">${label} <span aria-hidden="true">→</span></button>`;
+}
+function workProgress(v,approval){
+ const submitted=v.gates.filter(gate=>gate.submitted).length;
+ const reviewStatus=approval?(approval.revokedAt?'철회':'승인 완료'):gatesPassed(v)?'평가 기준 충족':submitted===3?(v.gates.some(gate=>gate.evaluation)?'검토 중':'검토 대기'):'대기';
+ const stages=[
+  ['PDF 등록','완료',true],
+  ['이해 과제',v.returned?'보완 요청':submitted+' / 3 제출',submitted===3],
+  ['검토·승인',reviewStatus,!!approval],
+  ['승인 증명서',approval?'발급 기록 있음':'미발급',!!approval]
+ ];
+ const currentStage=stages.findIndex(stage=>!stage[2]);
+ return `<section class="panel">
+  <div class="panel-head"><h2>작업 진행</h2><span class="badge">v${v.n}</span></div>
+  <div class="panel-body progress-body">
+   <ol class="work-progress">${stages.map(([label,status,done],index)=>`<li class="${done?'is-done':index===currentStage?'is-current':''}" ${index===currentStage?'aria-current="step"':''}>
+    <span class="progress-marker" aria-hidden="true">${done?icon('check'):index+1}</span><span>${label}</span><span class="progress-status">${status}</span>
+   </li>`).join('')}</ol>
+   ${nextWorkButton(nextWorkAction(v,approval),'full-width progress-action')}
+  </div>
+ </section>`;
+}
+function riskPanel(v){
+ const total=v.risk.reduce((sum,score)=>sum+score,0),level=total>=7?'높음':total>=4?'보통':'낮음';
+ return `<details class="panel risk-details"><summary><b>검토 위험도</b><span class="badge ${total>=7?'orange':'purple'}">${level} · ${total}/10</span></summary>
+  <div class="panel-body"><div class="risk-grid">${riskLabels.map((label,i)=>`<span>${label}</span><b>${v.risk[i]} / ${riskMax[i]}</b>`).join('')}</div>
+  <p class="inline-note">작성자가 입력한 참고 정보입니다.</p></div></details>`;
+}
+function overview(){
+ const v=current(),approval=approvalFor(v),recent=db.events.filter(event=>event.target===v.id).slice(-2).reverse();
+ const previousApproval=!approval&&latestApproval();
+ const lastRequest=v.returned&&v.reviewRounds?.at(-1);
+ const contributionCount=v.contributions?.length??0;
+ return `<div class="work-heading">
+  <div><div class="flex wrap work-meta"><span class="version-label">v${v.n}</span>${badge(v)}</div>
+   <h1 tabindex="-1">${esc(db.title)}</h1><p>작성자 A <span aria-hidden="true">·</span> 검토자 B <span aria-hidden="true">·</span> ${stamp(v.createdAt)} 등록</p></div>
+  ${role==='author'?'<div class="flex wrap work-actions"><button class="btn" data-action="newWork">새 작업</button><button class="btn outline" data-action="newVersion">'+icon('plus')+'새 버전 등록</button></div>':''}
+ </div>
+ ${lastRequest?`<div class="callout warning gap">${icon('info')}<div><b>검토자가 답변 보완을 요청했습니다</b>${esc(lastRequest.reason)}</div></div>`:''}
+ ${nextWorkButton(nextWorkAction(v,approval),'narrow-next')}
+ <div class="split overview-grid">
+  <div class="content-stack">
+   <section class="panel document-panel">
+    <div class="panel-head"><h2>결과물</h2><button class="btn ghost small" data-action="downloadOriginal">${icon('download')} PDF 받기</button></div>
+    <button class="document-preview" data-action="previewPdf" aria-label="PDF 원문 보기: ${esc(v.fileName)}">
+     <span class="doc-sheet" aria-hidden="true"><span class="sheet-brand">HAVE</span><span class="sheet-label">PDF <span>v${v.n}</span></span><strong>${esc(db.title)}</strong><span class="document-lines"><i></i><i></i><i></i></span></span>
+     <span class="preview-open">${icon('file')} PDF 원문 보기 <span aria-hidden="true">↗</span></span>
+    </button>
+    <div class="document-meta"><div class="file-label">${icon('file')}<span><strong>${esc(v.fileName)}</strong><span class="muted small">PDF · ${fmtSize(v.size)}</span></span></div>
+     <details class="file-details"><summary>파일 식별 정보</summary><div><p class="muted small">버전 ID</p><p class="mono">${esc(v.id)}</p><p class="muted small mt">SHA-256</p><p class="mono">${v.hash}</p></div></details>
+    </div>
+   </section>
+   <section class="panel">
+    <div class="panel-head"><h2>작업 근거</h2><button class="btn ghost small" data-nav="history">이력에서 보기 <span aria-hidden="true">→</span></button></div>
+    <div class="panel-body">
+     <div class="detail-grid"><div class="detail-item"><span class="muted">AI 활용 도구</span>${esc(v.tool)}</div><div class="detail-item"><span class="muted">AI 사용 범위 · 작성자 신고</span>${esc(v.scope)}</div></div>
+     <div class="evidence-row"><div><b>연결한 기여 기록</b><p class="small muted">${contributionCount?contributionCount+'개 기록이 이 버전의 검토 범위에 포함됩니다.':'Chrome 확장에서 내보낸 기록을 연결할 수 있어요.'}</p></div>
+      ${role==='author'&&!approval?`<button class="btn small" data-action="importContributions">${icon('upload')} 기록 가져오기</button>`:''}</div>
+    </div>
+   </section>
+  </div>
+  <aside class="support-column">
+   ${workProgress(v,approval)}
+   ${previousApproval?`<section class="panel previous-record"><div class="panel-body"><h3>이전 버전 승인</h3><p class="inline-note">v${previousApproval.n} 승인 기록${previousApproval.revokedAt?' · 철회':''}</p><button class="btn small mt" data-nav="certificate">승인 기록 보기</button></div></section>`:''}
+   ${recent.length?`<section class="panel"><div class="panel-head"><h2>최근 활동</h2><button class="btn ghost small" data-nav="history">전체 이력 <span aria-hidden="true">→</span></button></div>
+    <ul class="recent-list">${recent.map(event=>`<li><span class="activity-dot" aria-hidden="true"></span><div><b>${esc(event.action)}</b><p>${esc(event.actor)} · ${stamp(event.time)}</p></div></li>`).join('')}</ul></section>`:''}
+   ${riskPanel(v)}
+  </aside>
+ </div>`;
+}
+function gateScreen(){
+ const v=current(),gate=v.gates[gateIndex],completed=v.gates.filter(item=>item.submitted).length;
+ const editable=role==='author'&&!gate.submitted;
+ const lastRequest=v.returned&&v.reviewRounds?.at(-1);
+ return heading('이해 과제','v'+v.n+'의 핵심 판단을 설명하고 근거를 남기세요.',`<span class="badge purple">${completed} / 3 제출</span>`)+`
+ <div class="split gate-layout">
+  <section class="panel">
+   ${fileHead()}
+   <div class="gate-tabs" role="tablist" aria-label="이해 과제">${gateNames.map((name,i)=>`<button id="gate-tab-${i}" role="tab" aria-selected="${i===gateIndex}" aria-controls="gate-panel" tabindex="${i===gateIndex?'0':'-1'}" data-gate="${i}">${name}${v.gates[i].submitted?' <span aria-label="제출 완료">✓</span>':''}</button>`).join('')}</div>
+   <div class="panel-body" id="gate-panel" role="tabpanel" aria-labelledby="gate-tab-${gateIndex}">
+    ${lastRequest?`<div class="callout warning gap">${icon('info')}<div><b>검토자의 보완 요청</b>${esc(lastRequest.reason)}</div></div>`:''}
+    <div class="flex between wrap"><h2>${gateTitles[gateIndex]}</h2><span class="badge ${gate.submitted?'green':''}">${gate.submitted?'제출 완료':'미제출'}</span></div>
+    <div class="task-prompt"><p>${gatePrompts[gateIndex]}</p>${gateIndex===1?`<blockquote class="reference">“승인 여부는 파일 이름으로 확인한다. 파일 이름이 같으면 내용이 변경되어도 기존 승인이 유지된다.”</blockquote><p class="small muted">오류를 넣은 검증용 복제 문단입니다. 원본 PDF는 그대로 유지됩니다.</p>`:''}</div>
+    <form id="gateForm">
+     <label class="field"><span>답변</span><textarea id="answer" maxlength="10000" required placeholder="판단한 이유와 확인한 근거를 적어 주세요." ${editable?'':'readonly'}>${esc(gate.answer)}</textarea></label>
+     <div class="field"><label for="confidence">답변에 대한 자기 확신</label><div class="confidence"><input id="confidence" type="range" min="0" max="100" step="5" value="${gate.confidence}" ${editable?'':'disabled'}><b id="confidenceValue">${gate.confidence}%</b></div><p class="inline-note">확신도는 검토에 참고합니다. 과제 점수는 검토자가 입력합니다.</p></div>
+     ${gate.evaluation?`<div class="callout ${gate.evaluation.critical?'error':'success'}">${icon('info')}<div><b>검토자 평가 · ${gate.evaluation.score} / 2점</b>${esc(gate.evaluation.reason)}${gate.evaluation.critical?'<br>치명 오류가 있어 수정이 필요합니다.':''}</div></div>`:''}
+     <div class="error-text" id="gateError" role="alert"></div>
+     <div class="flex between wrap mt"><button type="button" class="btn small" data-action="sampleAnswer" ${editable?'':'disabled'}>샘플 답변 넣기</button><button class="btn primary" type="submit" ${editable?'':'disabled'}>${gate.submitted?'제출 완료':'답변 제출'}</button></div>
+     ${role!=='author'?'<p class="inline-note">검토자 역할에서는 답변을 열람할 수 있습니다.</p>':''}
+    </form>
+   </div>
+   <div class="panel-foot"><span class="small muted">임시 답변은 이 브라우저에 저장됩니다.</span><button class="btn ${completed===3?'primary':''}" data-nav="review" ${completed!==3?'disabled':''}>검토·승인으로 <span aria-hidden="true">→</span></button></div>
+  </section>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>제출 현황</h2><span class="badge">${completed}/3</span></div><div class="panel-body">
+    <ul class="plain-list">${gateNames.map((name,i)=>`<li><span>${name}</span><span class="badge ${v.gates[i].submitted?'green':''}">${v.gates[i].submitted?'제출':'미제출'}</span></li>`).join('')}</ul>
+    <button class="btn small full-width mt" data-action="sampleAll" ${role!=='author'||completed===3?'disabled':''}>샘플 답변 3개 채우기</button>
+   </div></section>
+   ${riskPanel(v)}
+  </aside>
+ </div>`;
+}
+
 function approvalReasons(v){const reasons=[];if(storageProblem)reasons.push('저장 오류를 해결한 뒤 승인하세요.');if(role!=='reviewer')reasons.push('검토자 B 역할로 전환해야 합니다. 자기 승인은 금지됩니다.');if(!gatesSubmitted(v))reasons.push('세 과제의 답변을 모두 제출해야 합니다.');if(!v.gates.every(g=>g.evaluation?.reason.trim()))reasons.push('모든 과제에 점수와 평가 근거가 필요합니다.');if(totalScore(v)<5)reasons.push('총점 5 / 6점 이상이 필요합니다.');if(v.gates.some(g=>g.evaluation?.critical))reasons.push('치명 오류가 있는 과제의 재검토가 필요합니다.');if(!v.checks.every(Boolean))reasons.push('필수 체크리스트 4개를 모두 확인해야 합니다.');if(!v.memo.trim())reasons.push('최종 검토 근거를 입력해야 합니다.');if(approvalFor(v))reasons.push('이미 승인 기록이 있는 버전입니다. 새 버전을 등록해 주세요.');if(v.returned)reasons.push('수정 요청 후 답변을 다시 제출해야 합니다.');return reasons}
-function reviewScreen(){const v=current(),reasons=approvalReasons(v),passed=gatesPassed(v);return heading('검토 · 승인','검토자 B가 답변과 최종 파일을 확인합니다.',`<button class="btn small" data-action="sampleEvaluation" ${role!=='reviewer'||!gatesSubmitted(v)||!!approvalFor(v)?'disabled':''}>샘플 평가 채우기</button>`)+`<div class="split"><section class="panel">${fileHead()}<div class="panel-body">${role!=='reviewer'?`<div class="callout warning gap">${icon('info')}<div><b>자기 승인은 할 수 없습니다</b>상단에서 검토자 B로 전환해 평가와 승인을 진행하세요.</div></div>`:''}${!gatesSubmitted(v)?`<div class="callout warning gap">${icon('brain')}<div><b>아직 답변이 모두 제출되지 않았습니다</b>이해 과제 화면에서 세 답변을 제출해 주세요.</div></div>`:''}<div class="gate-result"><div><b>이해 과제 판정</b><p class="small muted">총점 5/6 이상 (70% 기준 올림) · 치명 오류 없음 · 검토 근거 필수</p></div><div class="text-right"><div class="score">${totalScore(v)} <span class="small muted">/ 6</span></div><span class="badge ${passed?'green':'orange'}">${passed?'평가 규칙 통과':'평가 진행 중'}</span></div></div>${gateNames.map((n,i)=>{const g=v.gates[i],e=g.evaluation;return `<div class="eval-card"><div class="flex between"><h3>${n}</h3><span class="small muted">자기 확신 ${g.confidence}%</span></div><div class="answer-quote">${g.submitted?esc(g.answer):'답변이 제출되지 않았습니다.'}</div><p class="inline-note">평가 기준: ${rubric[i]}</p><div class="eval-row"><label class="field"><span>점수</span><select data-eval-score="${i}" ${role!=='reviewer'||!g.submitted||approvalFor(v)?'disabled':''}><option value="" ${!e?'selected':''}>평가 전</option>${[0,1,2].map(s=>`<option value="${s}" ${e&&e.score===s?'selected':''}>${s}점 · ${['미충족','부분 충족','충족'][s]}</option>`).join('')}</select></label><label class="field"><span>평가 근거</span><textarea maxlength="5000" data-eval-reason="${i}" placeholder="어떤 답변에서 기준 충족 여부를 확인했나요?" ${role!=='reviewer'||!g.submitted||approvalFor(v)?'readonly':''}>${esc(e?.reason||'')}</textarea></label></div><label class="check-row"><input type="checkbox" data-critical="${i}" ${e?.critical?'checked':''} ${role!=='reviewer'||!g.submitted||approvalFor(v)?'disabled':''}>${i===1?'주입 오류 미발견 또는 치명 오류 있음':'치명적 오개념 있음'}</label></div>`}).join('')}</div></section><aside class="support-column"><section class="panel"><div class="panel-head"><h2>최종 검토 체크리스트</h2>${icon('shield')}</div><div class="panel-body">${checks.map((t,i)=>`<label class="check-row"><input type="checkbox" data-check="${i}" ${v.checks[i]?'checked':''} ${role!=='reviewer'||approvalFor(v)?'disabled':''}>${t}</label>`).join('')}<label class="field"><span>최종 검토 근거</span><textarea maxlength="5000" id="reviewMemo" placeholder="승인 판단의 근거를 남겨 주세요." ${role!=='reviewer'||approvalFor(v)?'readonly':''}>${esc(v.memo)}</textarea></label><div id="approvalControls">${approvalControls()}</div></div></section><section class="guide"><div class="eyebrow">VERSION-BOUND APPROVAL</div><h2>승인은 v${v.n}에 고정됩니다</h2><p>파일이 변경되면 새 버전으로 등록하고 재검토해야 합니다.</p><button class="btn mt" data-action="downloadOriginal">${icon('download')}최종 PDF 확인</button></section></aside></div>`}
+function reviewScreen(){
+ const v=current(),submitted=gatesSubmitted(v),approval=approvalFor(v),canReview=role==='reviewer'&&!approval;
+ return heading('검토·승인','v'+v.n+'의 답변과 근거를 검토하고 승인 여부를 결정하세요.',
+  `<button class="btn" data-action="sampleEvaluation" ${canReview&&submitted?'':'disabled'}>샘플 평가 채우기</button>`)+`
+ <div class="split review-layout">
+  <section class="panel">
+   ${fileHead()}
+   <div class="panel-body">
+    ${role!=='reviewer'?`<div class="callout gap">${icon('info')}<div><b>작성자 열람 모드</b>평가와 승인은 상단의 검토자 B 역할에서 진행합니다.</div></div>`:''}
+    ${!submitted?`<div class="callout warning gap">${icon('brain')}<div><b>답변 제출 대기</b>작성자가 세 과제의 답변을 제출하면 최종 검토를 진행할 수 있습니다.</div></div>`:''}
+    <div class="gate-result"><div><h2>이해 과제 평가</h2><p class="small muted">5/6점 이상 · 치명 오류 없음 · 평가 근거 필요</p></div><div class="text-right"><div class="score">${totalScore(v)} <span class="small muted">/ 6</span></div><span class="badge ${gatesPassed(v)?'green':'orange'}">${gatesPassed(v)?'평가 기준 충족':'평가 기준 미충족'}</span></div></div>
+    ${gateNames.map((name,i)=>{
+     const gate=v.gates[i],evaluation=gate.evaluation,editable=canReview&&gate.submitted;
+     return `<section class="eval-card"><div class="flex between wrap"><h3>${name}</h3><span class="small muted">자기 확신 ${gate.confidence}%</span></div>
+      <div class="answer-quote">${gate.submitted?esc(gate.answer):'답변이 제출되지 않았습니다.'}</div>
+      <p class="inline-note">평가 기준 · ${rubric[i]}</p>
+      <div class="eval-row">
+       <label class="field"><span>점수</span><select data-eval-score="${i}" ${editable?'':'disabled'}><option value="">평가 전</option>${[0,1,2].map(score=>`<option value="${score}" ${evaluation?.score===score?'selected':''}>${score}점 · ${['미충족','부분 충족','충족'][score]}</option>`).join('')}</select></label>
+       <label class="field"><span>평가 근거</span><textarea maxlength="5000" data-eval-reason="${i}" placeholder="답변에서 확인한 근거를 적어 주세요." ${editable?'':'readonly'}>${esc(evaluation?.reason||'')}</textarea></label>
+      </div>
+      <label class="check-row"><input type="checkbox" data-critical="${i}" ${evaluation?.critical?'checked':''} ${editable?'':'disabled'}>${i===1?'주입 오류 미발견 또는 치명 오류 있음':'치명적 오개념 있음'}</label>
+     </section>`;
+    }).join('')}
+   </div>
+  </section>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>최종 검토</h2><span class="badge">${v.checks.filter(Boolean).length}/4</span></div><div class="panel-body">
+    ${checks.map((label,i)=>`<label class="check-row"><input type="checkbox" data-check="${i}" ${v.checks[i]?'checked':''} ${canReview?'':'disabled'}>${label}</label>`).join('')}
+    <label class="field"><span>최종 검토 근거</span><textarea maxlength="5000" id="reviewMemo" placeholder="승인 판단의 근거를 남겨 주세요." ${canReview?'':'readonly'}>${esc(v.memo)}</textarea></label>
+    <p class="inline-note">승인은 PDF v${v.n}과 해당 버전의 검토 근거에 고정됩니다.</p><div id="approvalControls">${approvalControls()}</div>
+   </div></section>
+  </aside>
+ </div>`;
+}
 function approvalControls(){const v=current(),reasons=approvalReasons(v),a=approvalFor(v);if(a)return `<div class="callout ${a.revokedAt?'error':'success'}">${icon('shield')}<div><b>${a.revokedAt?'이 승인은 철회되었습니다':'승인 증명서가 발급되었습니다'}</b>이 버전은 다시 승인할 수 없습니다.</div></div><button class="btn primary mt" data-nav="certificate" style="width:100%">증명서 보기</button>`;return `<div class="block-reasons" id="blockReasons">${reasons.length?reasons.map(s=>`<div>· ${s}</div>`).join(''):'승인 조건을 모두 충족했습니다.'}</div><button class="btn primary" data-action="approve" style="width:100%" ${reasons.length?'disabled':''}>${icon('shield')}v${v.n} 승인 · 증명서 발급</button><button class="btn danger mt" data-action="return" style="width:100%" ${role!=='reviewer'||!gatesSubmitted(v)?'disabled':''}>수정 요청</button>`}
 function latestApproval(){return db.approvals.at(-1)}
-function certScreen(){const a=latestApproval();if(!a)return heading('승인 증명서','검토를 통과하고 승인하면 이곳에서 증명서를 확인할 수 있습니다.')+`<section class="panel empty">${icon('shield')}<h2>아직 발급된 증명서가 없습니다</h2><p>이해 과제를 제출하고 검토자 B의 승인을 받아 주세요.</p><button class="btn primary" data-nav="review">검토 화면으로</button></section>`;const v=db.versions.find(v=>v.id===a.versionId);return heading('승인 증명서','검토 근거와 승인 대상 파일을 연결한 기록입니다.',`<span class="badge ${a.revokedAt?'red':'green'}">${a.revokedAt?'철회된 승인':'승인 기록 발급'}</span>`)+`<article class="receipt"><div class="receipt-top"><div><div class="eyebrow">HUMAN APPROVAL RECEIPT</div><h2>인간 승인 증명서</h2></div>${icon('shield')}</div><div class="receipt-body"><div class="flex between"><span class="badge purple">${esc(a.serial)}</span><span class="muted small">발표용 데모</span></div><div class="receipt-title">${esc(a.title)}</div><div class="receipt-data"><div class="detail-item"><span class="muted">승인 대상</span>PDF v${v.n}<div class="inline-note">${esc(v.fileName)}</div></div><div class="detail-item"><span class="muted">검토 · 승인자</span>검토자 B<div class="inline-note">작성자와 다른 시연 역할</div></div><div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(a.approvedAt)}</div><div class="detail-item"><span class="muted">이해 과제 결과</span>${a.score} / 6점 · 평가 규칙 통과</div></div><h3>승인된 파일의 SHA-256</h3><div class="hash mono">${a.fileHash}</div><p class="inline-note mono">version_id: ${esc(v.id)}</p><div class="subsection"><h3>인간 검토 근거</h3><p style="font-size:.875rem;margin-top:12px">${esc(a.memo)}</p></div>${v.id!==current().id?`<div class="callout warning mt">${icon('info')}<div><b>현재 최신 버전은 v${current().n}입니다</b>이 증명서는 v${v.n}에만 적용됩니다. 최신 버전은 별도 승인이 필요합니다.</div></div>`:''}${a.revokedAt?`<div class="callout error mt">${icon('close')}<div><b>승인 철회 · ${stamp(a.revokedAt)}</b>${esc(a.revocationReason)}</div></div>`:''}<div class="receipt-bottom"><div><h3>QR로 승인 기록 확인</h3><p class="inline-note">승인 상태와 파일 일치 여부를 분리해 확인합니다.<br>다른 기기에서는 발급 당시 요약만 확인할 수 있습니다.</p><button class="btn small mt" data-action="verify" data-id="${a.id}">${icon('qr')}검증 화면 열기</button></div><div id="qrcode" aria-label="시연 승인 검증 링크 QR"></div></div><div class="inline-note">전자서명 미연결 · 증명서 내용 해시 ${a.payloadHash.slice(0,18)}…</div></div></article><div class="receipt-actions"><button class="btn" data-action="downloadReceipt">${icon('download')}증명서 JSON 받기</button><button class="btn" data-action="print">${icon('file')}인쇄 · PDF 저장</button><button class="btn" data-action="newVersion">${icon('plus')}새 버전 등록</button><button class="btn danger" data-action="revoke" ${role!=='reviewer'||a.revokedAt?'disabled':''}>승인 철회</button></div>`}
+function certScreen(){
+ const approval=latestApproval();
+ if(!approval)return heading('승인 증명서','승인된 파일과 검토 내역을 확인할 수 있습니다.')+`
+ <section class="panel empty">${icon('shield')}<h2>아직 발급된 증명서가 없습니다</h2><p>검토자 B가 승인을 완료하면 증명서가 발급됩니다.</p><button class="btn primary" data-nav="review">검토 화면으로</button></section>`;
+ const v=db.versions.find(version=>version.id===approval.versionId);
+ return heading('승인 증명서','승인 당시의 PDF와 검토 기록입니다.',
+  `<div class="flex wrap"><button class="btn" data-action="print">${icon('file')} 인쇄 · PDF 저장</button><button class="btn" data-action="downloadReceipt">${icon('download')} JSON 받기</button></div>`)+`
+ <div class="split certificate-layout">
+  <article class="receipt panel">
+   <div class="receipt-top"><div>${brand()}<h2>인간 승인 증명서</h2></div><span class="receipt-symbol">${icon('shield')}</span></div>
+   <div class="receipt-body">
+    <div class="flex between wrap"><span class="small mono">${esc(approval.serial)}</span><span class="badge ${approval.revokedAt?'red':'green'}">${approval.revokedAt?'승인 철회':'승인 기록 발급'}</span></div>
+    <h3 class="receipt-title">${esc(approval.title)}</h3>
+    ${v.id!==current().id?`<div class="callout warning gap">${icon('info')}<div><b>최신 버전 v${current().n} 있음</b>이 증명서의 승인 대상은 v${v.n}입니다.</div></div>`:''}
+    ${approval.revokedAt?`<div class="callout error gap">${icon('close')}<div><b>승인 철회 · ${stamp(approval.revokedAt)}</b>${esc(approval.revocationReason)}</div></div>`:''}
+    <div class="receipt-data detail-grid">
+     <div class="detail-item"><span class="muted">승인 대상</span>v${v.n} · ${esc(v.fileName)}</div>
+     <div class="detail-item"><span class="muted">검토·승인자</span>검토자 B</div>
+     <div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(approval.approvedAt)}</div>
+     <div class="detail-item"><span class="muted">이해 과제 결과</span>${approval.score} / 6점</div>
+    </div>
+    <div class="subsection"><h3>최종 검토 근거</h3><p class="review-note">${esc(approval.memo)}</p></div>
+    <div class="subsection"><h3>파일 식별 정보</h3><div class="hash"><div><p class="small muted">SHA-256</p><p class="mono">${approval.fileHash}</p></div></div><p class="inline-note mono">${esc(v.id)}</p></div>
+    <p class="inline-note receipt-scope">로컬 시연 기록 · 전자서명 미적용</p>
+   </div>
+  </article>
+  <aside class="support-column">
+   <section class="panel">
+    <div class="panel-head"><h2>공개 검증</h2>${icon('qr')}</div>
+    <div class="panel-body share-body"><div id="qrcode" aria-label="승인 검증 링크 QR"></div>
+     <p class="small muted">다른 기기에서는 발급 당시 요약을 보고 가지고 있는 PDF를 비교할 수 있습니다.</p>
+     <button class="btn primary full-width" data-action="verify" data-id="${esc(approval.id)}">검증 화면 열기 <span aria-hidden="true">↗</span></button>
+     <button class="btn full-width" data-action="copyVerify">${icon('link')} 검증 링크 복사</button>
+    </div>
+   </section>
+   ${role==='reviewer'&&!approval.revokedAt?'<section class="panel"><div class="panel-body"><button class="btn danger full-width" data-action="revoke">승인 철회</button></div></section>':''}
+   ${role==='author'?'<button class="btn outline full-width" data-action="newVersion">'+icon('plus')+'새 버전 등록</button>':''}
+  </aside>
+ </div>`;
+}
 function publicRecord(a){return HumanProof.publicRecord(a)}
 function verifyUrl(a){const base=location.protocol==='file:'?document.querySelector('meta[name=demo-site-url]').content:location.href.split('#')[0];return base+'#verify='+encodeURIComponent(to64(new TextEncoder().encode(JSON.stringify(publicRecord(a)))))}
 function parseRecord(){try{const h=location.hash;if(!h.startsWith('#verify=')||h.length>12000)return null;return HumanProof.publicRecord(JSON.parse(new TextDecoder().decode(from64(decodeURIComponent(h.slice(8))))))}catch{return null}}
-function verifyScreen(){const snapshot=parseRecord(),local=db.approvals.find(a=>a.id===(verifyId||snapshot?.id)),a=local?publicRecord(local):snapshot;if(!a)return `<header class="public-header"><div class="brand"><span class="mark">${icon('shield')}</span>HumanProof</div><button class="btn" data-action="workspace">작업 화면으로</button></header><main class="public-wrap"><section class="panel empty">${icon('info')}<h2>승인 기록을 찾을 수 없습니다</h2><p>승인 증명서를 발급한 뒤 검증 화면을 열어 주세요.</p></section></main>`;const revoked=!!a.revokedAt,old=local&&a.n!==current().n;return `<header class="public-header"><div class="brand"><span class="mark">${icon('shield')}</span>HumanProof <span class="small muted">승인 검증</span></div><div class="flex"><span class="demo-pill">수신자 화면 · 데모</span><button class="btn small" data-action="workspace">작업 화면으로</button></div></header><main class="public-wrap">${heading('승인 기록 확인','누가 승인했는지, 전달된 파일이 일치하는지 각각 확인합니다.')}<section class="panel"><div class="verify-status"><div class="status-symbol" style="${revoked?'background:#ffeff2;color:#c64557':!local?'background:#fff4e4;color:#b97c23':''}">${icon(revoked?'close':local?'shield':'info')}</div><div><div class="eyebrow">01 · APPROVAL STATUS</div><h2>${revoked?'승인이 철회되었습니다':!local?'발급 당시 승인 요약입니다':old?'v'+a.n+'의 승인 기록입니다':'승인 기록이 유효합니다'}</h2><p>${!local?'현재 효력은 조회할 수 없습니다. 이 링크의 요약은 전자서명되지 않았습니다.':old?'최신 버전 v'+current().n+'의 승인을 의미하지 않습니다.':'이 브라우저에 저장된 시연 기록 기준입니다.'}</p></div></div><div class="panel-body" style="border-top:1px solid var(--line)"><div class="detail-grid"><div class="detail-item"><span class="muted">승인된 작업</span>${esc(a.title)}</div><div class="detail-item"><span class="muted">승인 대상</span>v${a.n} · ${esc(a.fileName)}</div><div class="detail-item"><span class="muted">승인자</span>검토자 B</div><div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(a.approvedAt)}</div></div><div class="hash mt"><div><div class="small muted" style="margin-bottom:6px">승인 당시 SHA-256</div><div class="mono">${a.fileHash}</div></div></div>${revoked?`<div class="callout error mt"><div><b>철회 사유 · ${stamp(a.revokedAt)}</b>${esc(a.revocationReason)}</div></div>`:''}</div></section><section class="panel verify-upload"><div class="panel-head"><div><div class="eyebrow">02 · FILE INTEGRITY</div><h2>전달된 파일이 일치하나요?</h2></div><span class="badge">SHA-256 비교</span></div><div class="panel-body"><label class="dropzone" for="verifyFile">${icon('upload')}<b>확인할 PDF를 선택하세요</b><span class="small muted">20 MB 이하 · 파일 바이트의 해시를 비교합니다.</span><input id="verifyFile" type="file" accept="application/pdf,.pdf"></label><div class="flex wrap mt"><button class="btn small" data-action="compareOriginal" ${!local?'disabled':''}>원본 파일 비교</button><button class="btn small" data-action="compareTampered" ${!local?'disabled':''}>1바이트 변경 파일 비교</button>${local?'<button class="btn ghost small" data-action="downloadVerifyOriginal">원본 PDF 받기</button>':''}</div><div id="verifyResult">${verifyResultHtml()}</div><p class="inline-note">파일 비교는 이 기기에서 수행되며 파일을 서버로 전송하지 않습니다. 승인 기록의 상태와 파일 내용의 일치는 별개의 결과입니다.</p></div></section><p class="footer-note">발표용 프로토타입 · 다른 기기에서 열면 발급 당시 요약만 표시됩니다. 공개 검증 서버와 전자서명은 후속 구현 대상입니다. 비공개 과제 답변과 검토 메모는 이 화면에 포함하지 않습니다.</p></main>`}
+function verifyScreen(){
+ const snapshot=parseRecord(),local=db.approvals.find(approval=>approval.id===(verifyId||snapshot?.id)),record=local?publicRecord(local):snapshot;
+ const header=`<header class="public-header">${brand()}<button class="btn small" data-action="workspace">작업 화면으로</button></header>`;
+ if(!record)return header+`<main class="public-wrap"><section class="panel empty">${icon('info')}<h1>승인 기록을 찾을 수 없습니다</h1><p>증명서에서 발급한 검증 링크를 다시 열어 주세요.</p></section></main>`;
+ const revoked=!!record.revokedAt,old=local&&record.n!==current().n;
+ const title=!local?'발급 당시 승인 요약입니다':revoked?'승인이 철회되었습니다':old?'v'+record.n+'의 승인 기록입니다':'승인 기록이 유효합니다';
+ const effectiveness=!local?'현재 효력 조회 불가':revoked?'철회됨':'이 브라우저 기록 기준 유효';
+ return header+`<main class="public-wrap">
+  ${heading('승인 기록 확인','대상 버전과 승인 상태를 확인하고, 가지고 있는 PDF를 비교하세요.')}
+  <section class="panel">
+   <div class="verify-status ${revoked?'is-revoked':!local?'is-snapshot':''}">
+    <div class="status-symbol">${icon(revoked?'close':local?'shield':'info')}</div><div><h2>${title}</h2><p>v${record.n} · ${esc(record.title)}</p></div>
+   </div>
+   <div class="panel-body">
+    <dl class="verify-facts"><div><dt>승인 효력</dt><dd>${effectiveness}</dd></div><div><dt>전자서명</dt><dd>미적용</dd></div>${old?`<div><dt>최신 버전</dt><dd>v${current().n} · 이 기록의 승인 대상은 v${record.n}</dd></div>`:''}</dl>
+    <div class="subsection detail-grid">
+     <div class="detail-item"><span class="muted">승인 대상 파일</span>${esc(record.fileName)}</div>
+     <div class="detail-item"><span class="muted">승인자 · 시각 (한국)</span>검토자 B · ${stamp(record.approvedAt)}</div>
+    </div>
+    <details class="file-details public-hash mt"><summary>승인 당시 SHA-256</summary><div class="mono">${record.fileHash}</div></details>
+    ${revoked?`<div class="callout error mt"><div><b>철회 사유 · ${stamp(record.revokedAt)}</b>${esc(record.revocationReason)}</div></div>`:''}
+   </div>
+  </section>
+  <section class="panel verify-upload">
+   <div class="panel-head"><h2>파일 비교</h2><span class="badge">SHA-256</span></div>
+   <div class="panel-body">
+    <label class="dropzone" for="verifyFile">${icon('upload')}<b>비교할 PDF 선택</b><span class="small muted">최대 20 MB · 이 기기에서 비교합니다.</span><input id="verifyFile" type="file" accept="application/pdf,.pdf"></label>
+    <div id="verifyResult" role="status">${verifyResultHtml()}</div>
+    ${local?`<div class="demo-tools mt"><h3>샘플 파일로 비교</h3><div class="flex wrap"><button class="btn small" data-action="compareOriginal">원본 파일 비교</button><button class="btn small" data-action="compareTampered">1바이트 변경 파일 비교</button><button class="btn small" data-action="downloadVerifyOriginal">${icon('download')} 원본 PDF 받기</button></div></div>`:''}
+   </div>
+  </section>
+  <footer class="footer-note">HAVE 로컬 프로토타입 <span>·</span> 승인은 검토 절차와 대상 파일을 기록합니다.</footer>
+ </main>`;
+}
 function verifyResultHtml(){if(!verifyResult)return `<div class="result-box"><b>파일 미확인</b><p>파일을 선택해야 일치 여부를 알 수 있습니다.</p></div>`;if(verifyResult.error)return `<div class="result-box red">${esc(verifyResult.error)}</div>`;return `<div class="result-box ${verifyResult.match?'green':'red'}"><div class="flex"><b>${icon(verifyResult.match?'check':'close')} ${verifyResult.match?'파일이 일치합니다':'파일이 일치하지 않습니다'}</b></div><p>${verifyResult.match?'승인된 파일과 바이트가 동일합니다.':'전달된 파일은 승인된 파일과 다릅니다. 기존 승인이 이 파일에 적용되지 않습니다.'}</p><div class="small" style="margin-top:10px">${esc(verifyResult.fileName)}</div><div class="mono" style="margin-top:5px">${verifyResult.hash}</div></div>`}
-function historyScreen(){return heading('버전 · 이력','파일 변경은 새 버전으로, 승인은 해당 버전의 기록으로 남습니다.',`<div class="flex wrap"><button class="btn" data-action="importContributions" ${role!=='author'||approvalFor(current())?'disabled':''}>확장 기여 기록 가져오기</button><button class="btn primary" data-action="newVersion">${icon('plus')}새 버전 등록</button></div>`)+`<div class="split"><div>${contributionPanel()}${reviewHistoryPanel()}<section class="panel gap"><div class="panel-head"><h2>파일 버전</h2><span class="small muted">${db.versions.length}개 버전</span></div>${[...db.versions].reverse().map(v=>`<div class="version-row"><div><div class="flex"><h3>v${v.n}</h3>${v.id===current().id?'<span class="badge purple">최신 버전</span>':''}${badge(v)}</div><p>${esc(v.fileName)} · ${stamp(v.createdAt)}</p><p>${esc(v.reason)}</p><div class="mono muted">${v.hash.slice(0,36)}…</div></div><button class="btn small" data-download-version="${v.id}">${icon('download')}파일</button></div>`).join('')}</section><section class="panel"><div class="panel-head"><h2>감사 타임라인</h2><button class="btn small" data-action="checkChain">${icon('link')}체인 확인</button></div><div id="chainResult"></div><div class="timeline">${[...db.events].reverse().map(e=>`<div class="event"><div class="event-icon">${icon(e.action.includes('승인')?'shield':e.action.includes('과제')?'brain':'file')}</div><div><h3>${esc(e.action)}</h3><p>${esc(e.actor)} · ${stamp(e.time)}</p><p>${esc(e.note)}</p><div class="mono">event_hash: ${e.eventHash.slice(0,26)}…</div></div></div>`).join('')}</div></section></div><aside class="support-column"><section class="guide"><div class="eyebrow">VERSION CONTROL</div><h2>변경되면 재승인이 필요합니다</h2><p>v1의 승인 뒤 v2를 등록해도 v1의 증명서는 남습니다. v2는 새 과제와 검토를 거쳐야 합니다.</p><button class="btn mt" data-nav="certificate">이전 승인 증명서 보기</button><p class="small">브라우저의 해시 체인은 시연 기록의 연결 여부를 확인합니다. 독립 감사 증명은 아닙니다.</p></section>${guide()}</aside></div>`}
-function render(){if(inTransaction){needsRender=true;return}if(!db)return;$('#app').innerHTML=screen==='verify'?verifyScreen():baseShell(({overview,gate:gateScreen,review:reviewScreen,certificate:certScreen,history:historyScreen}[screen]||overview)());if(screen==='certificate'&&latestApproval()&&typeof QRCode!=='undefined'){try{new QRCode($('#qrcode'),{text:verifyUrl(latestApproval()),width:176,height:176,colorDark:'#151b32',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L})}catch{$('#qrcode').textContent='검증 화면 버튼을 이용하세요';}}}
-function navigate(s){comparisonRequest++;screen=s;verifyResult=null;render();window.scrollTo({top:0,behavior:'instant'})}
-function modal(title,body){$('#modal').innerHTML=`<div class="modal-head"><h2>${title}</h2><button data-action="closeModal" aria-label="닫기">${icon('close')}</button></div><div class="modal-body">${body}</div>`;$('#modal').showModal()}
+function historyScreen(){
+ const active=current(),versionNumbers=new Map(db.versions.map(version=>[version.id,version.n]));
+ const actions=role==='author'?`<div class="flex wrap"><button class="btn" data-action="importContributions" ${approvalFor(active)?'disabled':''}>기여 기록 가져오기</button><button class="btn primary" data-action="newVersion">${icon('plus')}새 버전 등록</button></div>`:'';
+ return heading('버전·이력','등록한 파일과 검토 기록을 버전별로 확인하세요.',actions)+`
+ <div class="split history-layout">
+  <div class="content-stack">
+   <section class="panel">
+    <div class="panel-head"><h2>파일 버전</h2><span class="badge">${db.versions.length}개</span></div>
+    ${[...db.versions].reverse().map(v=>{
+     const approval=approvalFor(v),isLatest=v.id===active.id;
+     const versionBadge=isLatest?'<span class="badge purple">최신 버전</span>':'<span class="badge">후속 버전 있음</span>';
+     const reviewBadge=approval?`<span class="badge ${approval.revokedAt?'red':'green'}">${approval.revokedAt?'승인 철회':'승인 완료'}</span>`:badge(v);
+     return `<div class="version-row">
+     <div><div class="flex wrap"><h3 class="version-label">v${v.n}</h3>${versionBadge}${reviewBadge}</div>
+      <p><strong>${esc(v.fileName)}</strong> · ${stamp(v.createdAt)}</p><p>${esc(v.reason)}</p><div class="mono muted">${v.hash.slice(0,36)}…</div></div>
+     <div class="flex wrap"><button class="btn small" data-action="previewPdf" data-version-id="${esc(v.id)}">원문 보기</button><button class="btn small" data-download-version="${esc(v.id)}">${icon('download')} PDF</button></div>
+    </div>`;
+    }).join('')}
+   </section>
+   ${contributionPanel()}
+   ${reviewHistoryPanel()}
+  </div>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>활동 이력</h2></div>
+    <ol class="timeline">${[...db.events].reverse().map(event=>`<li class="event"><div class="event-icon">${icon(event.action.includes('승인')?'shield':event.action.includes('과제')?'brain':'file')}</div><div><h3>${esc(event.action)}</h3><p>v${versionNumbers.get(event.target)} · ${esc(event.actor)} · ${stamp(event.time)}</p><p>${esc(event.note)}</p></div></li>`).join('')}</ol>
+    <div class="panel-foot"><button class="btn small" data-action="checkChain">${icon('link')} 기록 연결 확인</button></div><div id="chainResult" role="status"></div>
+   </section>
+  </aside>
+ </div>`;
+}
+let focusAfterRender;
+function render(){
+ if(inTransaction){needsRender=true;return}
+ if(!db)return;
+ const active=document.activeElement;
+ const control=['data-gate','data-eval-score','data-critical','data-check'].find(name=>active?.hasAttribute(name));
+ const focusTarget=focusAfterRender||(control?`[${control}="${active.getAttribute(control)}"]`:active?.id==='role'?'#role':null);
+ focusAfterRender=null;
+ $('#app').innerHTML=screen==='verify'?verifyScreen():baseShell(({overview,gate:gateScreen,review:reviewScreen,certificate:certScreen,history:historyScreen}[screen]||overview)());
+ if(screen==='certificate'&&latestApproval()&&typeof QRCode!=='undefined'){
+  try{new QRCode($('#qrcode'),{text:verifyUrl(latestApproval()),width:176,height:176,colorDark:'#28222b',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L})}
+  catch{$('#qrcode').textContent='검증 화면 버튼을 이용하세요';}
+ }
+ if(focusTarget)$(focusTarget)?.focus({preventScroll:true});
+}
+function navigate(target){
+ comparisonRequest++;
+ screen=target;
+ verifyResult=null;
+ focusAfterRender='.main h1';
+ render();
+ window.scrollTo({top:0,behavior:'instant'});
+}
+function modal(title,body){
+ const dialog=$('#modal');
+ dialog.innerHTML=`<div class="modal-head"><h2 id="modalTitle">${title}</h2><button class="icon-button" data-action="closeModal" aria-label="닫기">${icon('close')}</button></div><div class="modal-body">${body}</div>`;
+ dialog.setAttribute('aria-labelledby','modalTitle');
+ dialog.showModal();
+ return dialog;
+}
+function previewPdf(version){
+ if(!version)throw Error('이 버전의 PDF를 찾을 수 없습니다.');
+ const url=URL.createObjectURL(new Blob([from64(version.fileData)],{type:'application/pdf'}));
+ const dialog=modal('PDF 원문 · v'+version.n,`<div class="preview-toolbar"><span>${esc(version.fileName)}</span><a class="btn small" href="${url}" download="${esc(version.fileName)}">${icon('download')} PDF 받기</a></div><object class="pdf-viewer" type="application/pdf" data="${url}"><p>PDF 뷰어를 사용할 수 없습니다. 위의 PDF 받기로 원본을 확인해 주세요.</p></object>`);
+ dialog.classList.add('pdf-dialog');
+ dialog.addEventListener('close',()=>{URL.revokeObjectURL(url);dialog.classList.remove('pdf-dialog');},{once:true});
+}
 function closeModal(){$('#modal').close()}
 function riskFields(){return `<div class="form-row">${riskLabels.map((t,i)=>`<label class="field"><span>${t}</span><select name="risk${i}">${Array.from({length:riskMax[i]+1},(_,n)=>`<option value="${n}" ${n===[3,3,1,1][i]?'selected':''}>${n} / ${riskMax[i]}</option>`).join('')}</select></label>`).join('')}</div>`}
 function registrationModal(isVersion=false){if(role!=='author'){toast('파일을 등록하려면 작성자 A로 전환하세요.');return}modal(isVersion?'새 버전 등록':'새 작업 등록',`<p>${isVersion?'이전 파일과 승인은 보존됩니다. 새 버전은 승인 전 상태로 시작합니다.':'현재 샘플 작업을 새 작업으로 바꿉니다. 시연용 작업은 한 번에 한 개를 체험합니다.'}</p><form id="registrationForm" data-version="${isVersion}">${!isVersion?'<label class="field"><span>작업 제목</span><input name="title" required maxlength="100" placeholder="예: AI 활용 프로젝트 보고서"></label>':''}<label class="field"><span>PDF 파일 · 최대 20 MB</span><input name="pdf" type="file" accept=".pdf,application/pdf"></label><label class="check-row"><input type="checkbox" name="useSample" checked>파일 없이 샘플 PDF로 시연하기</label>${isVersion?'<label class="field"><span>변경 사유</span><input name="reason" maxlength="2000" required value="검토 의견을 반영해 내용을 수정했습니다."></label>':''}<label class="field"><span>AI 활용 도구</span><input name="tool" required value="ChatGPT" maxlength="100"></label><label class="field"><span>AI 사용 범위 · 작성자 신고</span><textarea name="scope" maxlength="5000" required style="min-height:80px">설계 초안 생성 및 요구사항 정리</textarea></label><h3>위험 점수 입력</h3>${riskFields()}<p class="inline-note">검토자 B 배정 · 등록 후 세 종류의 이해 과제를 수행합니다.</p><div class="error-text" id="registrationError"></div><div class="modal-actions"><button type="button" class="btn" data-action="closeModal">취소</button><button type="submit" class="btn primary">${isVersion?'새 버전 등록':'등록 · 이해 과제 배정'}</button></div></form>`)}
@@ -341,8 +1009,17 @@ async function doAction(action,b){const v=current();switch(action){
  case 'compareOriginal':{const a=activeVerifyApproval();if(!a)throw Error('원본은 증명서를 발급한 브라우저에서만 비교할 수 있습니다.');const t=db.versions.find(v=>v.id===a.versionId);await compare(from64(t.fileData),t.fileName);break}
  case 'compareTampered':{const a=activeVerifyApproval();if(!a)throw Error('샘플 비교는 발급한 브라우저에서 진행하세요.');const t=db.versions.find(v=>v.id===a.versionId);await compare(altered(from64(t.fileData)),t.fileName.replace(/\.pdf$/i,'_1byte_changed.pdf'));break}
  case 'downloadOriginal':download(from64(v.fileData),v.fileName);break;
+ case 'previewPdf':previewPdf(b.dataset.versionId?db.versions.find(version=>version.id===b.dataset.versionId):v);break;
  case 'downloadVerifyOriginal':{const a=activeVerifyApproval(),t=db.versions.find(v=>v.id===a?.versionId);if(t)download(from64(t.fileData),t.fileName);break}
  case 'downloadReceipt':{const a=latestApproval();if(a)download(JSON.stringify({...a,signature:null,signatureStatus:'NOT_IMPLEMENTED_DEMO',demo:true},null,2),a.serial+'.json','application/json');break}
+ case 'copyVerify':{
+  const approval=latestApproval();
+  if(!approval)return;
+  const url=verifyUrl(approval);
+  try{await navigator.clipboard.writeText(url);toast('검증 링크를 복사했습니다.')}
+  catch{modal('검증 링크 복사',`<label class="field"><span>검증 링크</span><input id="shareUrl" readonly value="${esc(url)}"></label>`);$('#shareUrl').select()}
+  break;
+ }
  case 'print':window.print();break;
  case 'newWork':registrationModal(false);break;
  case 'newVersion':registrationModal(true);break;
@@ -380,10 +1057,19 @@ document.addEventListener('click',async event=>{
  const actionVersionId=current().id;
  try{await transaction(async()=>{
   if(nav){navigate(nav.dataset.nav);return}
-  if(tab){gateIndex=Number(tab.dataset.gate);render();return}
+  if(tab){gateIndex=Number(tab.dataset.gate);focusAfterRender='#gate-tab-'+gateIndex;render();return}
   if(downloadButton){const version=db.versions.find(item=>item.id===downloadButton.dataset.downloadVersion);if(version)download(from64(version.fileData),version.fileName);return}
   if(['approve','sampleEvaluation','sampleAnswer','sampleAll','confirmContributions'].includes(button.dataset.action)&&current().id!==actionVersionId)throw Error('대상 버전이 변경되었습니다. 다시 확인하세요.');await doAction(button.dataset.action,button);
  })}catch(error){toast(error.message||'다시 시도해 주세요.')}
+});
+document.addEventListener('keydown',event=>{
+ const tab=event.target.closest('[data-gate]');
+ if(!tab||screen!=='gate')return;
+ const count=gateNames.length,index=Number(tab.dataset.gate);
+ const targets={ArrowLeft:(index-1+count)%count,ArrowRight:(index+1)%count,Home:0,End:count-1};
+ if(!Object.hasOwn(targets,event.key))return;
+ event.preventDefault();
+ $('#gate-tab-'+targets[event.key])?.click();
 });
 document.addEventListener('input',async event=>{
  if(!db)return;const node=event.target,versionId=current().id,index=gateIndex,value=node.value,actor=role;
@@ -422,7 +1108,7 @@ document.addEventListener('submit',async event=>{
    const version=current(),gate=version.gates[index];if(role!=='author'||gate.submitted)return;
    if(!answer)throw Error('답변을 입력해 주세요.');gate.answer=answer;gate.submitted=true;gate.evaluation=null;
    if(gatesSubmitted(version))version.returned=false;
-   await audit(gateNames[index]+' 답변 제출','작성자 A','자기 확신 '+gate.confidence+'%. answer_sha256: '+await hashText(answer));save();if(index<2)gateIndex=index+1;render();toast(gatesSubmitted(version)?'세 과제가 제출되었습니다. 검토자 B로 전환하세요.':'답변을 제출했습니다. 다음 과제를 확인하세요.');
+   await audit(gateNames[index]+' 답변 제출','작성자 A','자기 확신 '+gate.confidence+'%. answer_sha256: '+await hashText(answer));save();if(index<2)gateIndex=index+1;focusAfterRender='#gate-tab-'+gateIndex;render();toast(gatesSubmitted(version)?'세 과제가 제출되었습니다. 검토자 B로 전환하세요.':'답변을 제출했습니다. 다음 과제를 확인하세요.');
   }
   if(form.id==='registrationForm'){
    const isVersion=form.dataset.version==='true';if(role!=='author')throw Error('작성자 역할에서만 등록할 수 있습니다.');let bytes,name;const file=values.get('pdf');
