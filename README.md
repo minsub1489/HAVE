@@ -31,7 +31,8 @@ node scripts/serve.cjs
 
 ## 발표 자료
 
-- [저장소에 보관된 발표 PPT](<docs/presentation/HAVE_프로젝트 계획서(시스템 개발 제안 요청서).pptx>) · 본 발표 1~11쪽, 질의응답 부록 12쪽부터
+- [기존 발표 PPT](<docs/presentation/HAVE_프로젝트 계획서(시스템 개발 제안 요청서).pptx>) · 본 발표 1~11쪽, 질의응답 부록 12쪽부터
+- [발표 수정본에서 다룬 지식 부채 해결 설계](docs/knowledge-debt.md#지식-부채-항목의-해결-기준) · 질문 등록, 근거 보완, 팀원 재현, 해결과 재확인
 - [발표 대본과 학습 해설](docs/presentation/support/)
 
 ## 수정과 검증
