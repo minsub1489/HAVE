@@ -1,262 +1,154 @@
-(function (root, factory) {
-  const registration = factory();
-  if (typeof module === 'object' && module.exports) module.exports = registration;
-  else root.HaveRegistration = registration;
-})(globalThis, function () {
+/* HAVE 등록 마법사 화면 (1123) — UC01 AI 사용 신고, UC02 결과물·근거자료, UC03 위험 분석·검토 요청.
+   단계: 1 결과물 파일 → 2 AI 사용 신고 → 3 기여 기록·근거자료 → 4 위험 분석 → 5 검토 요청 (1118 프로토타입과 같은 순서) */
+(function (root) {
   'use strict';
-
+  const M = root.HaveModel;
+  const core = root.HaveCore;
   const TOOLS = ['ChatGPT', 'Claude', 'Gemini', 'Copilot'];
-  const USE_TYPES = ['초안 작성', '자료 조사·요약', '코드 작성', '교정·번역'];
-  const STAGES = ['기획', '초안', '수정', '검증'];
-  const RESPONSE_STATUS = ['반영함', '일부 반영', '보류'];
-  const RISK = [
-    { label: 'AI 사용 비중', options: ['없음', '일부', '절반 정도', '대부분'] },
-    { label: '오류 시 영향', options: ['낮음', '보통', '높음', '매우 높음'] },
-    { label: '검증 근거 부족', options: ['충분함', '일부 부족함', '부족함'] },
-    { label: '유사 작업의 오류·수정 요청', options: ['없음', '1회', '2회 이상'] }
-  ];
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const STEPS = ['결과물 파일', 'AI 사용 신고', '기여 기록 · 근거자료', '위험 분석', '검토 요청'];
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const showFieldError = (id, e) => e[id] ? `<small class="reg-error" id="${id}-error" role="alert">${escapeHtml(e[id])}</small>` : '';
+  const getInvalidAttr = (id, e) => e[id] ? `aria-invalid="true" aria-describedby="${id}-error"` : '';
+  const showOptions = (entries, selected) => entries.map(([v, t]) => `<option value="${escapeHtml(v)}" ${String(selected ?? '') === String(v) ? 'selected' : ''}>${escapeHtml(t)}</option>`).join('');
 
-  function usedAI(item) {
-    if (typeof item.aiUsed === 'boolean') return item.aiUsed;
-    return !['사용 안 함', '미사용'].includes(item.tool?.trim());
-  }
-
-  function describeRisk(scores) {
-    if (!Array.isArray(scores) || scores.length !== RISK.length) return null;
-    if (RISK.some((item, index) => !Number.isInteger(scores[index]) || scores[index] < 0 || scores[index] >= item.options.length)) return null;
-    const total = scores.reduce((sum, score) => sum + score, 0);
-    if (total >= 7) return { total, level: 'high', label: '높음' };
-    if (total >= 4) return { total, level: 'medium', label: '보통' };
-    return { total, level: 'low', label: '낮음' };
-  }
-
-  function riskScores(editor) {
-    if (!Array.isArray(editor.riskScores)) return [];
-    return RISK.map((item, index) => {
-      const score = editor.riskScores[index];
-      if (index === 0 && !usedAI(editor)) return 0;
-      return Number.isInteger(score) && score >= 0 && score < item.options.length ? score : null;
-    });
-  }
-
-  function feedbackItems(editor, work) {
-    if (!editor.isVersion || !work?.versions?.length) return [];
-    const version = work.versions.at(-1);
-    const items = version.feedbackItems ?? version.review?.feedbacks ?? version.review?.feedback ?? version.feedback;
-    return (Array.isArray(items) ? items : [items]).flatMap((item, index) => {
-      const feedback = typeof item === 'string' ? item : item?.content ?? item?.text ?? item?.feedback;
-      if (typeof feedback !== 'string' || !feedback.trim()) return [];
-      return [{ id: index + 1, version: version.n, section: typeof item?.section === 'string' ? item.section : `피드백 ${index + 1}`, feedback }];
-    });
-  }
-
-  function metadata(editor) {
-    const scores = riskScores(editor);
-    const risk = describeRisk(scores);
-    const responseNotes = Array.isArray(editor.responseNotes) ? editor.responseNotes.filter(item => RESPONSE_STATUS.includes(item?.status) && typeof item.note === 'string' && item.note.trim()).map(item => ({
-      id: item.id,
-      version: item.version,
-      section: item.section,
-      feedback: item.feedback,
-      status: item.status,
-      note: item.note.trim()
-    })) : [];
+  function getEmptyForm(work = null) {
+    const last = work ? M.getLatestVersion(work) : null;
     return {
-      aiUsed: usedAI(editor),
-      aiUseTypes: usedAI(editor) && Array.isArray(editor.aiUseTypes) ? USE_TYPES.filter(type => editor.aiUseTypes.includes(type)) : [],
-      contributionStage: STAGES.includes(editor.contributionStage) ? editor.contributionStage : '',
-      evidenceSource: typeof editor.evidenceSource === 'string' ? editor.evidenceSource.trim() : '',
-      verificationNote: typeof editor.verificationNote === 'string' ? editor.verificationNote.trim() : '',
-      riskScores: scores,
-      riskLevel: risk?.level ?? '',
-      responseNotes
+      isVersion: !!work, workId: work?.id || null, title: work?.title || '', file: null, changeReason: '',
+      aiUsed: last ? last.disclosure.aiUsed : true, tool: last?.disclosure.tool || '', useTypes: [...(last?.disclosure.useTypes || [])], scope: last?.disclosure.scope || '',
+      contributions: last ? last.contributions.map(c => ({ stage: c.stage, actorType: c.actorType, note: c.note })) : [{ stage: 'DRAFT', actorType: 'HUMAN', note: '' }],
+      evidence: last ? last.evidence.map(e => ({ ...e })) : [], riskScores: [null, null, null, null], rationale: '',
+      reviewer: last?.request?.reviewer || '', approver: last?.request?.approver || '', message: '', dueDate: core.getDateAfter(3)
     };
   }
 
-  function validate(editor, step = -1) {
-    const errors = {};
-    if (step === -1 || step === 0) {
-      for (const item of Array.isArray(editor.responseNotes) ? editor.responseNotes : []) {
-        if (!item) continue;
-        if ((item.note?.trim() || item.status) && (!RESPONSE_STATUS.includes(item.status) || !item.note?.trim())) {
-          errors[`reg-response-${item.id}`] = `${item.section}의 반영 여부와 답변을 함께 입력해 주세요.`;
-        } else if (item.note?.length > 1000) {
-          errors[`reg-response-${item.id}`] = '피드백 답변은 1,000자 이내로 입력해 주세요.';
-        }
-      }
-    }
-    if (step === -1 || step === 2) {
-      const source = editor.evidenceSource?.trim();
-      const scheme = source?.match(/^([a-z][a-z\d+.-]*):(?=\S)/i)?.[1].toLowerCase();
-      if (source?.length > 500) errors['reg-evidence-source'] = '근거 위치는 500자 이내로 입력해 주세요.';
-      else if (scheme && !['http', 'https'].includes(scheme)) errors['reg-evidence-source'] = '웹 주소는 http 또는 https로 입력해 주세요. 파일 위치나 문헌명도 적을 수 있어요.';
-      if (editor.verificationNote?.length > 1000) errors['reg-verification-note'] = '검증 메모는 1,000자 이내로 입력해 주세요.';
-    }
-    return errors;
+  function showFileStep(form, e, ctx) {
+    const { showIcon, getSizeText, showField } = ctx;
+    return showField('title', '작업명', form.title, { readonly: form.isVersion, placeholder: '예: HAVE 서비스 요구사항 정의서', errors: e }) +
+      `<div class="field"><label for="pdf">검토할 파일 <small class="required">필수</small></label>
+      <label for="pdf" class="upload-drop" style="display:block;border:1px dashed var(--color-muted);border-radius:8px;padding:28px 20px;text-align:center;cursor:pointer">
+        <span style="color:var(--color-primary)">${showIcon('upload')}</span><b style="display:block;font-size:14px;margin:8px 0">PDF를 끌어 놓거나 파일을 선택하세요</b><small class="muted">PDF · 최대 20 MB · SHA-256으로 버전을 식별해요</small>
+        <input id="pdf" type="file" accept=".pdf,application/pdf" style="display:block;margin:16px auto 0;max-width:100%;font-size:12px" ${getInvalidAttr('file', e)}></label>
+      ${form.file ? `<div class="selected-file">${showIcon('check')}<div class="grow"><b>${escapeHtml(form.file.name)}</b>${getSizeText(form.file.size)} · SHA-256 ${escapeHtml(form.file.hash.slice(0, 16))}…</div></div>` : ''}
+      <div id="file-status" class="upload-feedback" role="status" aria-live="polite">${ctx.fileChecking ? '파일을 확인하는 중…' : ''}</div>${showFieldError('file', e)}
+      <button type="button" class="btn text" data-action="sample-pdf">시연용 PDF 사용</button></div>` +
+      (form.isVersion ? showField('changeReason', '변경 사유', form.changeReason, { multiline: true, placeholder: '이전 승인 버전에서 무엇을 바꿨는지 적어 주세요.', errors: e }) : '');
   }
 
-  function attrError(id, errors) {
-    return errors[id] ? `aria-invalid="true" aria-describedby="${id}-error"` : '';
-  }
-
-  function fieldError(id, errors) {
-    return errors[id] ? `<small class="reg-error" id="${id}-error">${esc(errors[id])}</small>` : '';
-  }
-
-  function options(entries, selected) {
-    return entries.map(([value, label]) => `<option value="${esc(value)}"${String(selected ?? '') === String(value) ? ' selected' : ''}>${esc(label)}</option>`).join('');
-  }
-
-  function feedbackFields(editor, work, errors) {
-    const items = feedbackItems(editor, work);
-    if (!items.length) return '';
-    const active = items.some(item => editor.responseNotes?.some(note => note.id === item.id && (note.status || note.note)) || errors[`reg-response-${item.id}`]);
-    return `<details class="reg-disclosure reg-feedback"${active ? ' open' : ''}>
-      <summary>v${esc(items[0].version)} 피드백 ${items.length}건에 답변 <span class="reg-optional">선택</span></summary>
-      <div class="reg-disclosure-body">
-        <p class="reg-hint">피드백에 어떻게 답했는지 새 버전에 남길 수 있어요.</p>
-        ${items.map(item => {
-          const saved = editor.responseNotes?.find(note => note.id === item.id && note.version === item.version);
-          const id = `reg-response-${item.id}`;
-          return `<fieldset class="reg-feedback-item" data-reg-feedback data-feedback-id="${item.id}" data-feedback-version="${esc(item.version)}">
-            <legend>${esc(item.section)}</legend>
-            <p class="reg-feedback-text">${esc(item.feedback)}</p>
-            <div class="reg-two-columns">
-              <label class="reg-control" for="${id}-status"><span>반영 여부</span><select id="${id}-status" data-reg-response-status>${options([['', '선택 안 함'], ...RESPONSE_STATUS.map(value => [value, value])], saved?.status)}</select></label>
-              <label class="reg-control" for="${id}"><span>반영 내용 또는 보류 이유</span><textarea id="${id}" data-reg-response-note rows="2" maxlength="1000" ${attrError(id, errors)}>${esc(saved?.note)}</textarea>${fieldError(id, errors)}</label>
-            </div>
-          </fieldset>`;
-        }).join('')}
-      </div>
-    </details>`;
-  }
-
-  function aiFields(editor) {
-    const aiUsed = usedAI(editor);
-    return `<section class="reg-ai" aria-label="AI 사용 여부 및 용도">
-      <fieldset class="reg-fieldset">
-        <legend>AI를 사용했나요?</legend>
-        <div class="reg-choices">
-          <label><input type="radio" name="reg-ai-used" value="yes" ${aiUsed ? 'checked' : ''}><span>사용했어요</span></label>
-          <label><input type="radio" name="reg-ai-used" value="no" ${!aiUsed ? 'checked' : ''}><span>사용하지 않았어요</span></label>
-        </div>
-      </fieldset>
-      <div data-reg-ai-options ${!aiUsed ? 'hidden' : ''}>
-        <div class="reg-control"><span>자주 쓰는 AI 도구 <small class="reg-optional">선택</small></span><div class="reg-choices reg-presets">${TOOLS.map(tool => `<button class="reg-preset" type="button" data-reg-tool="${tool}">${tool}</button>`).join('')}</div></div>
-        <fieldset class="reg-fieldset">
-          <legend>사용 방식 <span class="reg-optional">선택</span></legend>
-          <div class="reg-choices">${USE_TYPES.map(type => `<label><input type="checkbox" name="reg-ai-type" value="${type}"${editor.aiUseTypes?.includes(type) ? ' checked' : ''}><span>${type}</span></label>`).join('')}</div>
-        </fieldset>
-      </div>
-      <p data-reg-no-ai class="reg-hint" ${aiUsed ? 'hidden' : ''}>AI 미사용으로 기록합니다. 직접 수행한 일과 검증 근거를 다음 단계에서 정리해 주세요.</p>
+  function showAiStep(form, e, ctx) {
+    const { showField } = ctx;
+    return `<section class="reg-ai" aria-label="AI 사용 여부">
+      <fieldset class="reg-fieldset"><legend>AI를 사용했나요?</legend><div class="reg-choices">
+        <label><input type="radio" name="reg-ai-used" value="yes" ${form.aiUsed !== false ? 'checked' : ''}><span>사용했어요</span></label>
+        <label><input type="radio" name="reg-ai-used" value="no" ${form.aiUsed === false ? 'checked' : ''}><span>사용하지 않았어요</span></label></div></fieldset>
+      ${form.aiUsed === false ? '<p class="reg-hint">AI 미사용으로 신고합니다. 기여 기록의 수행 주체는 모두 ‘사람’이어야 해요.</p>' : `
+      <div class="reg-control"><span>자주 쓰는 AI 도구 <small class="reg-optional">선택</small></span><div class="reg-choices reg-presets">${TOOLS.map(t => `<button class="reg-preset" type="button" data-action="pick-tool" data-tool="${t}">${t}</button>`).join('')}</div></div>
+      ${showField('tool', 'AI 도구 · 모델', form.tool, { placeholder: '예: ChatGPT · GPT-4o', errors: e })}
+      <fieldset class="reg-fieldset"><legend>사용 방식 <span class="reg-optional">선택</span></legend><div class="reg-choices">${M.USE_TYPES.map(t => `<label><input type="checkbox" name="reg-use-type" value="${t}" ${form.useTypes.includes(t) ? 'checked' : ''}><span>${t}</span></label>`).join('')}</div></fieldset>
+      ${showField('scope', 'AI 사용 범위', form.scope, { multiline: true, max: 5000, placeholder: 'AI가 도운 작업과 적용한 범위를 구체적으로 적어 주세요.', errors: e })}`}
     </section>`;
   }
 
-  function riskText(scores) {
-    const risk = describeRisk(scores);
-    if (risk) return `${risk.total}/10점 · 검토 우선순위 ${risk.label}`;
-    const completed = scores.filter(Number.isInteger).length;
-    return completed ? `${completed}/4개 입력 · 네 항목을 입력하면 우선순위를 볼 수 있어요.` : '입력하면 검토 우선순위를 확인할 수 있어요.';
+  function showContributionStep(form, e, ctx) {
+    const { showIcon } = ctx;
+    const actorChoices = Object.entries(M.ACTOR_TYPES).filter(([k]) => form.aiUsed !== false || k === 'HUMAN');
+    return `<section class="reg-extra" aria-label="기여 기록"><h3>기여 기록 <small class="required">한 건 이상</small></h3>
+      <p class="reg-hint">단계마다 누가 무엇을 했는지 남겨요. AI가 한 일과 사람이 한 일을 나눠 적으면 검토자가 확인할 부분을 쉽게 찾아요.</p>
+      ${showFieldError('contributions', e)}
+      <div class="list-editor">${form.contributions.map((row, i) => `<div class="list-row" data-contribution-row="${i}">
+        <label class="reg-control"><span>단계</span><select data-field="stage">${showOptions(Object.entries(M.STAGES), row.stage)}</select></label>
+        <label class="reg-control"><span>수행 주체</span><select data-field="actorType">${showOptions(actorChoices, row.actorType)}</select></label>
+        <label class="reg-control grow"><span>한 일</span><textarea data-field="note" rows="2" maxlength="2000" placeholder="예: 출처 세 곳을 확인하고 표 2의 수치를 고쳤어요." ${getInvalidAttr('contribution-' + i, e)}>${escapeHtml(row.note)}</textarea></label>
+        <button type="button" class="btn text" data-action="remove-contribution" data-index="${i}" ${form.contributions.length < 2 ? 'disabled' : ''} aria-label="기여 기록 ${i + 1} 삭제">삭제</button>
+        ${showFieldError('contribution-' + i, e)}</div>`).join('')}</div>
+      <button type="button" class="btn" data-action="add-contribution">${showIcon('plus')}기여 기록 추가</button></section>
+      ${showEvidenceEditor(form, e, ctx)}`;
   }
 
-  function contributionFields(editor, errors) {
-    const scores = riskScores(editor);
-    return `<section class="reg-extra" aria-label="기여와 검증 근거">
-      <label class="reg-control" for="reg-stage"><span>기여한 단계 <small class="reg-optional">선택</small></span><select id="reg-stage">${options([['', '단계 선택'], ...STAGES.map(stage => [stage, stage])], editor.contributionStage)}</select></label>
-      <label class="reg-control" for="reg-evidence-source"><span>근거 위치 <small class="reg-optional">선택</small></span><input id="reg-evidence-source" type="text" maxlength="500" value="${esc(editor.evidenceSource)}" placeholder="예: 원본 PDF 3쪽, 실험 결과, 출처 주소" ${attrError('reg-evidence-source', errors)}>${fieldError('reg-evidence-source', errors)}</label>
-      <label class="reg-control" for="reg-verification-note"><span>직접 확인한 방법과 결과 <small class="reg-optional">선택</small></span><textarea id="reg-verification-note" rows="2" maxlength="1000" placeholder="예: 표 2의 합계를 원자료에서 다시 계산했어요." ${attrError('reg-verification-note', errors)}>${esc(editor.verificationNote)}</textarea>${fieldError('reg-verification-note', errors)}</label>
-      <details class="reg-disclosure"${scores.some(Number.isInteger) ? ' open' : ''}>
-        <summary>검토 우선순위 입력 <span class="reg-optional">선택</span></summary>
-        <div class="reg-disclosure-body">
-          <p class="reg-hint">영향이 커서 먼저 확인해야 할 부분을 검토자에게 알려 주세요. 질문 수와 승인 결과는 그대로예요.</p>
-          <div class="reg-two-columns">
-            ${RISK.map((item, index) => `<label class="reg-control" for="reg-risk-${index}"><span>${item.label}</span><select id="reg-risk-${index}" data-reg-risk="${index}" ${index === 0 && !usedAI(editor) ? 'disabled' : ''}>${options([['', '선택 안 함'], ...item.options.map((label, number) => [number, `${number}점 · ${label}`])], index === 0 && !usedAI(editor) ? 0 : scores[index])}</select></label>`).join('')}
-          </div>
-          <p class="reg-risk-result" data-reg-risk-result role="status">${esc(riskText(scores))}</p>
-        </div>
-      </details>
-    </section>`;
+  /** 근거자료 목록 편집기 — 등록 마법사 3단계와 수정본 재제출 화면(11-23)이 함께 쓴다. */
+  function showEvidenceEditor(form, e, ctx) {
+    const { showIcon } = ctx;
+    return `<section class="reg-extra" aria-label="근거자료"><h3>근거자료 <small class="reg-optional">선택</small></h3>
+      <p class="reg-hint">검토자가 확인할 수 있는 출처·기록을 붙여요. 파일은 이 브라우저에 해시만 저장해요.</p>
+      <div class="list-editor">${form.evidence.map((row, i) => `<div class="list-row" data-evidence-row="${i}">
+        <label class="reg-control"><span>유형</span><select data-field="type">${showOptions(Object.entries(M.EVIDENCE_TYPES), row.type)}</select></label>
+        <label class="reg-control grow"><span>제목</span><input type="text" data-field="title" maxlength="200" value="${escapeHtml(row.title)}" ${getInvalidAttr('evidence-' + i, e)}></label>
+        ${row.type === 'SUPPORT_FILE'
+          ? `<label class="reg-control"><span>파일</span><input type="file" data-evidence-file="${i}">${row.fileHash ? `<small class="reg-hint">${escapeHtml(row.fileName)} · ${escapeHtml(row.fileHash.slice(0, 12))}…</small>` : ''}</label>`
+          : `<label class="reg-control grow"><span>${row.type === 'WEB_SOURCE' ? '주소 (http/https)' : '위치 · 설명'}</span><input type="text" data-field="uri" maxlength="2000" value="${escapeHtml(row.uri)}"></label>`}
+        <button type="button" class="btn text" data-action="remove-evidence" data-index="${i}" aria-label="근거자료 ${i + 1} 삭제">삭제</button>
+        ${showFieldError('evidence-' + i, e)}</div>`).join('')}</div>
+      <button type="button" class="btn" data-action="add-evidence">${showIcon('plus')}근거자료 추가</button></section>`;
   }
 
-  function renderDetails(item) {
-    const data = metadata(item);
-    const risk = describeRisk(data.riskScores);
-    const details = [
-      data.aiUseTypes.length ? ['AI 사용 방식', data.aiUseTypes.join(' · ')] : null,
-      data.contributionStage ? ['기여 단계', data.contributionStage] : null,
-      data.evidenceSource ? ['근거 위치', data.evidenceSource] : null,
-      data.verificationNote ? ['검증 메모', data.verificationNote] : null,
-      risk ? ['검토 우선순위', `${risk.label} · ${risk.total}/10점`] : null
-    ].filter(Boolean);
-    if (!details.length && !data.responseNotes.length) return '';
-    return `<section class="reg-extra" aria-label="기여·검증 상세">
-      ${details.length ? `<dl class="definition reg-definition">${details.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join('')}</dl>` : ''}
-      ${data.responseNotes.length ? `<ul class="reg-response-list">${data.responseNotes.map(note => `<li><strong>v${esc(note.version)} · ${esc(note.section)}</strong><span>${esc(note.status)} · ${esc(note.note)}</span></li>`).join('')}</ul>` : ''}
-    </section>`;
+  function showRiskResult(form) {
+    const scores = form.riskScores.map((s, i) => (i === 0 && form.aiUsed === false) ? 0 : s);
+    const level = M.getRiskLevel(scores);
+    if (!level) return `<p class="reg-risk-result" data-risk-result role="status">${scores.filter(Number.isInteger).length}/4개 선택 · 네 지표를 모두 고르면 등급과 이해 과제가 정해져요.</p>`;
+    const rule = M.getGateRule(level);
+    return `<div class="reg-risk-result" data-risk-result role="status"><b>${M.getRiskTotal(scores)}/10점 · 위험 ${M.LEVEL[level]}</b> (${rule.name})
+      <br>이해 과제 ${rule.kinds.length}개: ${rule.kinds.map(k => M.CHALLENGE_KINDS[k].label).join(' · ')} · 통과 기준 ${rule.minScore}/${rule.maxScore}점, 치명 오류 없음</div>`;
   }
 
-  function render(step, editor, work = null, errors = {}) {
-    if (step === 0) return feedbackFields(editor, work, errors);
-    if (step === 1) return aiFields(editor);
-    if (step === 2) return contributionFields(editor, errors);
-    if (step === 3) return renderDetails(editor);
+  function showRiskStep(form, e, ctx) {
+    return `<section class="reg-extra" aria-label="위험 분석"><p class="reg-hint">4개 지표의 합(0~10)으로 위험 등급을 정하고, 등급에 따라 이해 과제 수와 통과 기준이 달라져요. 낮음 0~3 · 보통 4~6 · 높음 7~10 (정책 ${M.GATE_POLICY.version}).</p>
+      <div class="reg-two-columns">${M.RISK_FACTORS.map((f, i) => {
+        const locked = i === 0 && form.aiUsed === false;
+        return `<label class="reg-control" for="risk-${i}"><span>${f.label} (0~${f.options.length - 1})</span><select id="risk-${i}" data-risk="${i}" ${locked ? 'disabled' : ''} ${getInvalidAttr('risk', e)}>
+          ${showOptions([['', '선택'], ...f.options.map((t, n) => [n, `${n}점 · ${t}`])], locked ? 0 : form.riskScores[i])}</select></label>`;
+      }).join('')}</div>${showFieldError('risk', e)}
+      ${showRiskResult(form)}
+      ${ctx.showField('rationale', '점수를 매긴 근거', form.rationale, { multiline: true, placeholder: '예: 3장 초안을 AI가 썼고, 팀 제출 문서라 중요도가 높아요.', errors: e })}</section>`;
+  }
+
+  function showRequestStep(form, e, ctx) {
+    const person = (name, role, list, key) => list.map((n, i) => `<label class="reviewer-choice"><input type="radio" name="${key}" value="${n}" ${form[key] === n ? 'checked' : ''} ${i === 0 ? `id="${key}"` : ''} ${getInvalidAttr(key, e)}><span class="avatar">${n[0]}</span><span><b>${n}</b><small>${role}</small></span></label>`).join('');
+    return `<fieldset style="border:0;margin:0;padding:0"><legend style="font-size:14px;font-weight:550;margin-bottom:12px">검토자 <small class="required">필수</small></legend>${person('', '프로젝트 팀원 · 시연 검토자', M.USERS.reviewers, 'reviewer')}${showFieldError('reviewer', e)}</fieldset>
+      <fieldset style="border:0;margin:16px 0 0;padding:0"><legend style="font-size:14px;font-weight:550;margin-bottom:12px">최종 승인자 <small class="required">필수</small></legend>${person('', '시연 최종 승인자', M.USERS.approvers, 'approver')}${showFieldError('approver', e)}</fieldset>
+      ${ctx.showField('message', '검토자에게 보낼 메시지', form.message, { multiline: true, max: 1000, required: false, placeholder: '먼저 봐 줬으면 하는 부분을 적어 주세요.', errors: e })}
+      <label class="field" for="dueDate"><span>검토 기한 <small class="required">필수</small></span><input id="dueDate" type="date" value="${escapeHtml(form.dueDate)}" ${getInvalidAttr('dueDate', e)}>${showFieldError('dueDate', e)}</label>`;
+  }
+
+  function showSummary(form) {
+    const level = M.getRiskLevel(form.riskScores.map((s, i) => (i === 0 && form.aiUsed === false) ? 0 : s));
+    return `<div class="registration-summary"><h3>제출 전 확인</h3><dl class="definition">
+      ${form.title ? `<dt>작업명</dt><dd>${escapeHtml(form.title)}</dd>` : ''}${form.file ? `<dt>대상 파일</dt><dd>${escapeHtml(form.file.name)}</dd>` : ''}
+      <dt>AI 사용</dt><dd>${form.aiUsed === false ? '사용 안 함' : escapeHtml(form.tool)}</dd>
+      <dt>기여 기록</dt><dd>${form.contributions.length}건</dd><dt>근거자료</dt><dd>${form.evidence.length}건</dd>
+      <dt>위험 등급</dt><dd>${level ? `${M.LEVEL[level]} · 과제 ${M.getGateRule(level).kinds.length}개` : '미입력'}</dd></dl></div>`;
+  }
+
+  function showStep(step, form, errors, ctx) {
+    if (step === 0) return showFileStep(form, errors, ctx);
+    if (step === 1) return showAiStep(form, errors, ctx);
+    if (step === 2) return showContributionStep(form, errors, ctx);
+    if (step === 3) return showRiskStep(form, errors, ctx);
+    if (step === 4) return showRequestStep(form, errors, ctx) + showSummary(form) +
+      ctx.showNotice('제출하면 이해 확인이 시작돼요', '현재 버전의 파일과 신고 내용이 고정되고, 검토자에게 알림이 가요. 검토가 시작되기 전에는 요청을 취소할 수 있어요.');
     return '';
   }
 
-  function capture(root, editor) {
-    const mode = root.querySelector('[name="reg-ai-used"]:checked');
-    if (mode) {
-      editor.aiUsed = mode.value === 'yes';
-      editor.aiUseTypes = [...root.querySelectorAll('[name="reg-ai-type"]:checked')].map(input => input.value);
+  /** 화면의 입력값을 form에 옮긴다. */
+  function setFormFromPage(page, form) {
+    for (const name of ['title', 'tool', 'scope', 'changeReason', 'rationale', 'message', 'dueDate']) {
+      const node = page.querySelector('#' + name);
+      if (node && !node.readOnly) form[name] = node.value;
     }
-    const fields = { contributionStage: '#reg-stage', evidenceSource: '#reg-evidence-source', verificationNote: '#reg-verification-note' };
-    for (const [key, selector] of Object.entries(fields)) {
-      const input = root.querySelector(selector);
-      if (input) editor[key] = input.value;
-    }
-    const risk = [...root.querySelectorAll('[data-reg-risk]')];
-    if (risk.length) editor.riskScores = risk.map(select => select.value === '' ? null : Number(select.value));
-    const responses = [...root.querySelectorAll('[data-reg-feedback]')];
-    if (responses.length) editor.responseNotes = responses.map(group => ({
-      id: Number(group.dataset.feedbackId),
-      version: Number(group.dataset.feedbackVersion),
-      section: group.querySelector('legend').textContent,
-      feedback: group.querySelector('.reg-feedback-text').textContent,
-      status: group.querySelector('[data-reg-response-status]').value,
-      note: group.querySelector('[data-reg-response-note]').value
-    }));
+    const mode = page.querySelector('[name="reg-ai-used"]:checked');
+    if (mode) form.aiUsed = mode.value === 'yes';
+    if (page.querySelector('[name="reg-use-type"]')) form.useTypes = [...page.querySelectorAll('[name="reg-use-type"]:checked')].map(i => i.value);
+    page.querySelectorAll('[data-contribution-row]').forEach(row => {
+      const i = Number(row.dataset.contributionRow);
+      for (const f of ['stage', 'actorType', 'note']) { const n = row.querySelector(`[data-field="${f}"]`); if (n) form.contributions[i][f] = n.value; }
+    });
+    page.querySelectorAll('[data-evidence-row]').forEach(row => {
+      const i = Number(row.dataset.evidenceRow);
+      for (const f of ['type', 'title', 'uri']) { const n = row.querySelector(`[data-field="${f}"]`); if (n) form.evidence[i][f] = n.value; }
+    });
+    page.querySelectorAll('[data-risk]').forEach(select => { form.riskScores[Number(select.dataset.risk)] = select.value === '' ? null : Number(select.value); });
+    for (const key of ['reviewer', 'approver']) { const n = page.querySelector(`[name="${key}"]:checked`); if (n) form[key] = n.value; }
+    if (form.aiUsed === false) form.contributions.forEach(c => { c.actorType = 'HUMAN'; });
   }
 
-  function syncRisk(root) {
-    const output = root.querySelector('[data-reg-risk-result]');
-    if (output) {
-      const selected = [...root.querySelectorAll('[data-reg-risk]')];
-      output.textContent = riskText(selected.map(select => select.value === '' ? null : Number(select.value)));
-    }
-
-    const mode = root.querySelector('[name="reg-ai-used"]:checked');
-    if (!mode) return;
-    const aiUsed = mode.value === 'yes';
-    root.querySelector('[data-reg-ai-options]').hidden = !aiUsed;
-    root.querySelector('[data-reg-no-ai]').hidden = aiUsed;
-    for (const id of ['tool', 'scope']) {
-      const field = root.querySelector(`#${id}`);
-      if (field) field.closest('.field').hidden = !aiUsed;
-    }
-  }
-
-  function handleClick(event) {
-    const button = event.target.closest('[data-reg-tool]');
-    if (!button) return false;
-    const input = button.closest('form').querySelector('#tool');
-    if (input && TOOLS.includes(button.dataset.regTool)) {
-      input.value = button.dataset.regTool;
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.focus();
-    }
-    return true;
-  }
-
-  return { capture, describeRisk, handleClick, metadata, render, renderDetails, syncRisk, usedAI, validate };
-});
+  root.HaveRegistration = { STEPS, getEmptyForm, showStep, showAiStep, showEvidenceEditor, showRiskStep, showRequestStep, showRiskResult, setFormFromPage };
+})(globalThis);

@@ -1,18 +1,21 @@
+/* HAVE 브라우저 저장소 (1123) — IndexedDB 한 칸에 작업 공간 전체를 저장한다.
+   revision으로 동시 수정을 감지한다(다른 창에서 먼저 저장하면 ConflictError). */
 (function (root) {
   'use strict';
+  const DATABASE_NAME = 'have-extension-1123';
+
   class ConflictError extends Error {
     constructor() { super('다른 창에서 작업이 변경되었습니다. 최신 기록을 불러왔습니다. 내용을 확인한 뒤 다시 진행하세요.'); this.name = 'ConflictError'; }
   }
-  class Repository {
-    constructor(indexedDB = root.indexedDB, databaseName = 'humanproof-demo') { this.indexedDB = indexedDB; this.databaseName = databaseName; }
+
+  class WorkspaceStore {
+    constructor(indexedDB = root.indexedDB, databaseName = DATABASE_NAME) { this.indexedDB = indexedDB; this.databaseName = databaseName; }
     async open() {
       if (!this.indexedDB) throw new Error('브라우저에서 IndexedDB 저장소를 사용할 수 없습니다. Chrome의 일반 창에서 다시 열어 주세요.');
       this.connection = await new Promise((resolve, reject) => {
         const request = this.indexedDB.open(this.databaseName, 1);
         request.onupgradeneeded = () => {
-          if (!request.result.objectStoreNames.contains('workspace')) {
-            request.result.createObjectStore('workspace');
-          }
+          if (!request.result.objectStoreNames.contains('workspace')) request.result.createObjectStore('workspace');
         };
         request.onerror = () => reject(request.error);
         request.onblocked = () => reject(new Error('다른 창이 저장소 업그레이드를 막고 있습니다. 기존 HAVE 창을 닫아 주세요.'));
@@ -21,7 +24,7 @@
       this.connection.onversionchange = () => this.connection.close();
       return this;
     }
-    load() {
+    getStored() {
       return new Promise((resolve, reject) => {
         const transaction = this.connection.transaction('workspace', 'readonly');
         const request = transaction.objectStore('workspace').get('current');
@@ -29,7 +32,7 @@
         transaction.onabort = () => reject(transaction.error || new Error('저장된 작업을 읽을 수 없습니다.'));
       });
     }
-    commit(data, expectedRevision) {
+    save(data, expectedRevision) {
       const snapshot = structuredClone(data);
       return new Promise((resolve, reject) => {
         const transaction = this.connection.transaction('workspace', 'readwrite');
@@ -45,7 +48,8 @@
       });
     }
   }
-  const api = { Repository, ConflictError };
+
+  const api = { WorkspaceStore, ConflictError, DATABASE_NAME };
   if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.HumanProofStorage = api;
+  else root.HaveStorage = api;
 })(globalThis);
