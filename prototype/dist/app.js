@@ -24,14 +24,11 @@ const fmtSize=n=>n<1024*1024?(n/1024).toFixed(1)+' KB':(n/1024/1024).toFixed(1)+
 const uid=p=>p+'-'+crypto.randomUUID();
 const to64=bytes=>{let t='';for(let i=0;i<bytes.length;i+=8192)t+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(t)};
 const from64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
-const hash=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b)),x=>x.toString(16).padStart(2,'0')).join('');
-const hashText=t=>hash(new TextEncoder().encode(t));
-const canonical=HumanProof.canonical;
+const {canonical,digest:hash,digestText:hashText,gatesPassed,publicRecord,verifyChain,MAX_PDF_BYTES}=HumanProof;
 const current=()=>db.versions[db.versions.length-1];
 const approvalFor=v=>db.approvals.find(a=>a.versionId===v.id);
 const totalScore=v=>v.gates.reduce((s,g)=>s+(g.evaluation?.score??0),0);
 const gatesSubmitted=v=>v.gates.every(g=>g.submitted);
-const gatesPassed=HumanProof.gatesPassed;
 const statusOf=v=>HumanProof.status(v,approvalFor(v),current().id);
 const badge=v=>{const [text,color]=statusOf(v);return `<span class="badge ${color}">${text}</span>`};
 function makePdf(){
@@ -69,37 +66,353 @@ function transaction(task){
 let toastTimer;
 function toast(t){if(inTransaction){effects.push(t);return}$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3700)}
 function download(data,name,type='application/pdf'){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
-function baseShell(content){const v=current();return `<div class="shell"><aside class="sidebar"><div class="brand"><span class="mark">${icon('shield')}</span><div>HumanProof<small>HUMAN APPROVAL</small></div></div><div><div class="side-label">WORKSPACE</div><nav class="nav" aria-label="작업 메뉴">${[['overview','grid','작업 관리'],['gate','brain','이해 과제'],['review','shield','검토 · 승인'],['certificate','file','승인 증명서'],['history','clock','버전 · 이력']].map(([s,i,t])=>`<button data-nav="${s}" class="${screen===s?'active':''}" ${screen===s?'aria-current="page"':''}>${icon(i)}${t}${s==='overview'?'<span class="count">1</span>':''}</button>`).join('')}</nav></div><div class="team-box"><b>소프트웨어공학 프로젝트</b>경희대학교 · 2026학년도<div class="small muted">발표용 워크스페이스</div></div></aside><div><header class="topbar"><div class="crumb">워크스페이스 <b>/ ${esc({overview:'작업 관리',gate:'이해 과제',review:'검토 · 승인',certificate:'승인 증명서',history:'버전 · 이력'}[screen])}</b></div><div class="mobile-brand"><span class="mark">${icon('shield')}</span>HumanProof</div><div class="top-actions"><span class="demo-pill">발표용 프로토타입</span><div class="role-control"><span class="avatar">${role==='author'?'A':'B'}</span><select id="role" aria-label="시연 역할"><option value="author" ${role==='author'?'selected':''}>작성자 A</option><option value="reviewer" ${role==='reviewer'?'selected':''}>검토자 B</option></select></div></div></header><main class="main">${content}<div class="footer-note"><strong>발표용 데모</strong> · 역할과 기록은 이 브라우저에서 체험합니다. 계정 인증·서버 보관·전자서명은 연결되지 않았습니다.<br>검토 절차의 기록이며 실제 이해, 문서의 정확성 또는 AI 신고의 진실성을 보증하지 않습니다.</div></main></div></div>`}
-function heading(t,d,actions=''){return `<div class="page-heading"><div><h1>${t}</h1><p>${d}</p></div>${actions}</div>`}
-function steps(){const v=current(),a=approvalFor(v);let at=a&&!a.revokedAt?3:gatesSubmitted(v)?2:1;return `<div class="steps">${['작업 등록','이해 과제','검토 · 승인','파일 검증'].map((t,i)=>`<div class="step ${i<at?'done':i===at?'current':''}"><span>${i<at?'✓':i+1}</span>${t}</div>`).join('')}</div>`}
-function fileHead(v=current()){return `<div class="work-row"><div class="pdf-icon">PDF</div><div style="flex:1;min-width:0"><div class="work-title">${esc(db.title)}</div><div class="flex wrap"><span class="badge">v${v.n}</span><span class="small muted">작성자 A · 검토자 B</span></div></div>${badge(v)}</div>`}
-function guide(){return `<section class="guide"><div class="eyebrow">PRESENTATION DEMO</div><h2>5분 시연 가이드</h2><p>한 작업의 검토·승인 흐름을 체험하세요.</p><div class="guide-list">${[['등록','PDF와 AI 사용 범위 확인'],['이해 확인','3종 과제에 답변 제출'],['인간 승인','검토자로 전환해 평가 · 승인'],['파일 검증','원본 일치와 변경 파일 비교']].map(([t,d],i)=>`<div class="guide-item"><span>${i+1}</span><div><b>${t}</b><p>${d}</p></div></div>`).join('')}</div><button class="btn" data-action="reset">${icon('refresh')}시연 처음부터</button><p class="small">샘플 답변 · 평가 버튼으로 빠르게 진행할 수 있습니다.</p></section>`}
-function riskPanel(){const r=current().risk,total=r.reduce((a,b)=>a+b,0),level=total>=7?'높음':total>=4?'보통':'낮음';return `<section class="panel risk-panel"><div class="panel-body"><div class="eyebrow">KNOWLEDGE DEBT RISK</div><div class="flex between"><h3>검토 위험도</h3><span class="badge ${total>=7?'orange':total>=4?'purple':'green'}">${level}</span></div><div class="risk-score mt">${total} <small>/ 10</small></div><div class="risk-track"><div style="width:${total*10}%"></div></div><div class="risk-grid">${riskLabels.map((t,i)=>`<span class="muted">${t}</span><b>${r[i]} / ${riskMax[i]}</b>`).join('')}</div><p class="inline-note">규칙 v1.0 · 작성자 입력 기준<br>시연에서는 세 종류의 과제를 모두 확인합니다.</p></div></section>`}
-function overview(){const v=current(),a=approvalFor(v);return heading('작업 관리','AI 작업과 인간의 검토 기록을 한 버전에 연결합니다.',`<button class="btn primary" data-action="newWork">${icon('plus')}새 작업 등록</button>`)+`<div class="metrics">${[['등록된 작업','1','file'],['검토 진행 중',a&&!a.revokedAt?'0':'1','clock'],['승인 완료',a&&!a.revokedAt?'1':'0','shield']].map(([t,n,i])=>`<div class="metric"><div><div class="label">${t}</div><div class="number">${n}<small>건</small></div></div><div class="metric-icon">${icon(i)}</div></div>`).join('')}</div><div class="split"><section class="panel"><div class="panel-head"><h2>현재 작업</h2><span class="muted small">${stamp(v.createdAt)}</span></div>${fileHead()}${steps()}<div class="panel-body"><div class="detail-grid"><div class="detail-item"><span class="muted">등록 파일</span>${esc(v.fileName)}<div class="inline-note">${fmtSize(v.size)} <button class="btn ghost small" data-action="downloadOriginal">${icon('download')}원본 받기</button></div></div><div class="detail-item"><span class="muted">승인 대상 버전</span>v${v.n} · ${a&&!a.revokedAt?'인간 승인 완료':'아직 승인되지 않음'}</div><div class="detail-item"><span class="muted">AI 활용 도구</span>${esc(v.tool)}</div><div class="detail-item"><span class="muted">AI 사용 범위 <small>(작성자 신고)</small></span>${esc(v.scope)}</div></div><div class="subsection"><h3>파일 식별 정보</h3><div class="inline-note mono">${esc(v.id)}</div><div class="hash">${icon('link')}<div><div class="muted small" style="margin-bottom:7px">SHA-256</div><div class="mono">${v.hash}</div></div></div></div><div class="callout mt ${a&&!a.revokedAt?'success':''}">${icon(a?'shield':'brain')}<div><b>${a&&!a.revokedAt?'이 버전에 대한 인간 승인이 기록되었습니다':'작성자의 이해를 먼저 확인합니다'}</b>${a&&!a.revokedAt?'수신자는 승인 기록과 파일 일치 여부를 각각 확인할 수 있습니다.':'Teach-back, Fault Injection, What-if 답변을 검토자가 평가합니다.'}</div></div></div><div class="panel-foot"><span class="small muted">${a?'승인 기록은 v'+v.n+'에 고정됩니다.':'자기 승인 금지 · 검토자 B가 승인합니다.'}</span><button class="btn primary" data-nav="${a?'certificate':gatesSubmitted(v)?'review':'gate'}">${a?'승인 증명서 보기':gatesSubmitted(v)?'검토 화면으로':'이해 과제 시작'}</button></div></section><aside class="support-column">${guide()}${riskPanel()}</aside></div>`}
-function gateScreen(){const v=current(),g=v.gates[gateIndex],completed=v.gates.filter(g=>g.submitted).length;return heading('이해 과제','답변의 근거를 남기고, 다른 사람이 평가합니다.',`<span class="badge purple">${completed} / 3 제출</span>`)+`<div class="split"><section class="panel">${fileHead()}<div class="gate-tabs" role="tablist" aria-label="이해 과제">${gateNames.map((n,i)=>`<button role="tab" aria-selected="${i===gateIndex}" data-gate="${i}" class="${i===gateIndex?'active':''}">${n}${v.gates[i].submitted?' ✓':''}</button>`).join('')}</div><div class="panel-body"><div class="flex between"><div class="eyebrow">GATE ${String(gateIndex+1).padStart(2,'0')}</div><span class="small muted">${g.submitted?'제출 완료 · 답변 고정':'작성자 A에게 배정'}</span></div><h2>${gateTitles[gateIndex]}</h2><div class="task-prompt"><span class="badge">질문</span><p>${gatePrompts[gateIndex]}</p>${gateIndex===1?'<div class="reference">“승인 여부는 파일 이름으로 확인한다. 파일 이름이 같으면 내용이 변경되어도 기존 승인이 유지된다.”</div><p class="small muted">오류는 검증용 복제 문단에만 넣었습니다. 원본 PDF는 바뀌지 않습니다.</p>':''}</div><form id="gateForm"><label class="field"><span>나의 답변</span><textarea id="answer" maxlength="10000" required placeholder="내가 이해한 내용을 근거와 함께 적어 주세요." ${g.submitted||role!=='author'?'readonly':''}>${esc(g.answer)}</textarea></label><div class="field"><label for="confidence">답변에 대한 자기 확신</label><div class="confidence"><input id="confidence" type="range" min="0" max="100" step="5" value="${g.confidence}" ${g.submitted||role!=='author'?'disabled':''}><b id="confidenceValue">${g.confidence}%</b></div><p class="inline-note">확신도는 검토 참고 자료이며 합격 점수와 별도로 기록합니다.</p></div>${g.evaluation?`<div class="callout ${g.evaluation.critical?'error':'success'}">${icon('info')}<div><b>검토자 평가 · ${g.evaluation.score} / 2점</b>${esc(g.evaluation.reason)}${g.evaluation.critical?'<br>치명 오류가 있어 수정이 필요합니다.':''}</div></div>`:''}<div class="error-text" id="gateError"></div><div class="flex between wrap mt"><button type="button" class="btn small" data-action="sampleAnswer" ${g.submitted||role!=='author'?'disabled':''}>샘플 답변 넣기</button><button class="btn primary" type="submit" ${g.submitted||role!=='author'?'disabled':''}>${g.submitted?'답변 제출 완료':'답변 제출'}</button></div>${role!=='author'?'<p class="inline-note">답변을 작성하려면 상단에서 작성자 A로 전환하세요.</p>':''}</form></div><div class="panel-foot"><span class="small muted">임시 답변은 이 브라우저에 저장됩니다.</span><button class="btn ${completed===3?'primary':''}" data-nav="review" ${completed!==3?'disabled':''}>검토 · 승인으로</button></div></section><aside class="support-column"><section class="guide"><div class="eyebrow">UNDERSTANDING GATE</div><h2>근거를 남기는 이해 확인</h2><p>체크만으로 끝내지 않고, 설명과 오류 식별을 기록합니다.</p><div class="guide-list">${gateNames.map((n,i)=>`<div class="guide-item"><span>${v.gates[i].submitted?'✓':i+1}</span><div><b>${n}</b><p>${v.gates[i].submitted?'답변 제출 완료':'아직 제출하지 않음'}</p></div></div>`).join('')}</div><div class="mini-progress">${v.gates.map(g=>`<div class="${g.submitted?'done':''}"></div>`).join('')}</div><button class="btn mt" data-action="sampleAll" ${role!=='author'||completed===3?'disabled':''}>3개 샘플 답변 채우기</button><p class="small">샘플을 채운 뒤 각 과제의 답변 제출 버튼을 누르세요.</p></section>${riskPanel()}</aside></div>`}
+const workspacePages=[
+ ['overview','grid','작업 상세'],['gate','brain','이해 과제'],['review','shield','검토·승인'],
+ ['history','clock','버전·이력'],['certificate','qr','승인 증명서']
+];
+function brand(){return `<span class="brand"><span class="mark">${icon('link')}</span><span>HAVE</span></span>`}
+function baseShell(content){
+ const pageName=workspacePages.find(([name])=>name===screen)?.[2];
+ return `<a class="skip-link" href="#mainContent">본문으로 이동</a>
+ <div class="shell">
+  <header class="topbar">
+   <button class="brand-button" data-nav="overview" aria-label="HAVE 작업 상세">${brand()}</button>
+   <div class="crumb"><span>팀 워크스페이스</span><span aria-hidden="true">/</span><b>${pageName}</b></div>
+   <div class="top-actions"><span class="demo-pill">로컬 시연</span><label class="role-control"><span class="avatar" aria-hidden="true">${role==='author'?'A':'B'}</span><select id="role" aria-label="시연 역할"><option value="author" ${role==='author'?'selected':''}>작성자 A</option><option value="reviewer" ${role==='reviewer'?'selected':''}>검토자 B</option></select></label></div>
+  </header>
+  <aside class="sidebar">
+   <div class="sidebar-main"><div class="side-label">워크스페이스</div>
+    <nav class="nav" aria-label="작업 메뉴">${workspacePages.map(([name,symbol,label])=>`<button data-nav="${name}" ${screen===name?'aria-current="page"':''}>${icon(symbol)}<span>${label}</span></button>`).join('')}</nav>
+   </div>
+   <div class="sidebar-foot">
+    <div class="local-note"><span class="local-dot" aria-hidden="true"></span><span>이 브라우저에 기록 저장</span></div>
+    <button class="sidebar-reset" data-action="reset">${icon('refresh')} 시연 초기화</button>
+   </div>
+  </aside>
+  <main id="mainContent" class="main" tabindex="-1">
+   ${content}
+   <footer class="footer-note">HAVE 로컬 프로토타입 <span>·</span> 작성자와 검토자는 시연 역할입니다.<button class="btn ghost small mobile-reset" data-action="reset">${icon('refresh')} 시연 초기화</button></footer>
+  </main>
+ </div>`;
+}
+function heading(title,description,actions=''){
+ return `<div class="page-heading"><div><h1 tabindex="-1">${title}</h1><p>${description}</p></div>${actions}</div>`;
+}
+function fileHead(v=current()){
+ return `<div class="work-row"><div class="pdf-icon">PDF</div><div class="work-file-context"><div class="work-title">${esc(db.title)}</div><div class="flex wrap"><span class="badge">v${v.n}</span><span class="small muted">${esc(v.fileName)}</span></div></div><button class="btn small" data-action="previewPdf">PDF 원문 보기 <span aria-hidden="true">↗</span></button></div>`;
+}
+function nextWorkAction(v,approval){
+ if(approval)return ['certificate',approval.revokedAt?'승인 기록 확인':'승인 증명서 보기'];
+ if(gatesSubmitted(v))return ['review',role==='reviewer'?'검토 시작':'검토 상태 보기'];
+ const label=role==='reviewer'?'과제 제출 상태 보기':v.returned?'답변 보완하기':v.gates.some(gate=>gate.submitted)?'답변 이어서 작성':'이해 과제 시작';
+ return ['gate',label];
+}
+function nextWorkButton([target,label],classes){
+ return `<button class="btn primary ${classes}" data-nav="${target}">${label} <span aria-hidden="true">→</span></button>`;
+}
+function workProgress(v,approval){
+ const submitted=v.gates.filter(gate=>gate.submitted).length;
+ const reviewStatus=approval?(approval.revokedAt?'철회':'승인 완료'):gatesPassed(v)?'평가 기준 충족':submitted===3?(v.gates.some(gate=>gate.evaluation)?'검토 중':'검토 대기'):'대기';
+ const stages=[
+  ['PDF 등록','완료',true],
+  ['이해 과제',v.returned?'보완 요청':submitted+' / 3 제출',submitted===3],
+  ['검토·승인',reviewStatus,!!approval],
+  ['승인 증명서',approval?'발급 기록 있음':'미발급',!!approval]
+ ];
+ const currentStage=stages.findIndex(stage=>!stage[2]);
+ return `<section class="panel">
+  <div class="panel-head"><h2>작업 진행</h2><span class="badge">v${v.n}</span></div>
+  <div class="panel-body">
+   <ol class="work-progress">${stages.map(([label,status,done],index)=>`<li class="${done?'is-done':index===currentStage?'is-current':''}" ${index===currentStage?'aria-current="step"':''}>
+    <span class="progress-marker" aria-hidden="true">${done?icon('check'):index+1}</span><span>${label}</span><span class="progress-status">${status}</span>
+   </li>`).join('')}</ol>
+   ${nextWorkButton(nextWorkAction(v,approval),'full-width progress-action')}
+  </div>
+ </section>`;
+}
+function riskPanel(v){
+ const total=v.risk.reduce((sum,score)=>sum+score,0),level=total>=7?'높음':total>=4?'보통':'낮음';
+ return `<details class="panel risk-details"><summary><b>검토 위험도</b><span class="badge ${total>=7?'orange':'purple'}">${level} · ${total}/10</span></summary>
+  <div class="panel-body"><div class="risk-grid">${riskLabels.map((label,i)=>`<span>${label}</span><b>${v.risk[i]} / ${riskMax[i]}</b>`).join('')}</div>
+  <p class="inline-note">작성자가 입력한 참고 정보입니다.</p></div></details>`;
+}
+function overview(){
+ const v=current(),approval=approvalFor(v),recent=db.events.filter(event=>event.target===v.id).slice(-2).reverse();
+ const previousApproval=!approval&&latestApproval();
+ const lastRequest=v.returned&&v.reviewRounds?.at(-1);
+ const contributionCount=v.contributions?.length??0;
+ return `<div class="work-heading">
+  <div><div class="flex wrap work-meta"><span class="version-label">v${v.n}</span>${badge(v)}</div>
+   <h1 tabindex="-1">${esc(db.title)}</h1><p>작성자 A <span aria-hidden="true">·</span> 검토자 B <span aria-hidden="true">·</span> ${stamp(v.createdAt)} 등록</p></div>
+  ${role==='author'?'<div class="flex wrap work-actions"><button class="btn" data-action="newWork">새 작업</button><button class="btn outline" data-action="newVersion">'+icon('plus')+'새 버전 등록</button></div>':''}
+ </div>
+ ${lastRequest?`<div class="callout warning gap">${icon('info')}<div><b>검토자가 답변 보완을 요청했습니다</b>${esc(lastRequest.reason)}</div></div>`:''}
+ ${nextWorkButton(nextWorkAction(v,approval),'narrow-next')}
+ <div class="split">
+  <div class="content-stack">
+   <section class="panel">
+    <div class="panel-head"><h2>결과물</h2><button class="btn ghost small" data-action="downloadOriginal">${icon('download')} PDF 받기</button></div>
+    <button class="document-preview" data-action="previewPdf" aria-label="PDF 원문 보기: ${esc(v.fileName)}">
+     <span class="doc-sheet" aria-hidden="true"><span class="sheet-brand">HAVE</span><span class="sheet-label">PDF <span>v${v.n}</span></span><strong>${esc(db.title)}</strong><span class="document-lines"><i></i><i></i><i></i></span></span>
+     <span class="preview-open">${icon('file')} PDF 원문 보기 <span aria-hidden="true">↗</span></span>
+    </button>
+    <div class="document-meta"><div class="file-label">${icon('file')}<span><strong>${esc(v.fileName)}</strong><span class="muted small">PDF · ${fmtSize(v.size)}</span></span></div>
+     <details class="file-details"><summary>파일 식별 정보</summary><div><p class="muted small">버전 ID</p><p class="mono">${esc(v.id)}</p><p class="muted small mt">SHA-256</p><p class="mono">${v.hash}</p></div></details>
+    </div>
+   </section>
+   <section class="panel">
+    <div class="panel-head"><h2>작업 근거</h2><button class="btn ghost small" data-nav="history">이력에서 보기 <span aria-hidden="true">→</span></button></div>
+    <div class="panel-body">
+     <div class="detail-grid"><div class="detail-item"><span class="muted">AI 활용 도구</span>${esc(v.tool)}</div><div class="detail-item"><span class="muted">AI 사용 범위 · 작성자 신고</span>${esc(v.scope)}</div></div>
+     <div class="evidence-row"><div><b>연결한 기여 기록</b><p class="small muted">${contributionCount?contributionCount+'개 기록이 이 버전의 검토 범위에 포함됩니다.':'Chrome 확장에서 내보낸 기록을 연결할 수 있어요.'}</p></div>
+      ${role==='author'&&!approval?`<button class="btn small" data-action="importContributions">${icon('upload')} 기록 가져오기</button>`:''}</div>
+    </div>
+   </section>
+  </div>
+  <aside class="support-column">
+   ${workProgress(v,approval)}
+   ${previousApproval?`<section class="panel previous-record"><div class="panel-body"><h3>이전 버전 승인</h3><p class="inline-note">v${previousApproval.n} 승인 기록${previousApproval.revokedAt?' · 철회':''}</p><button class="btn small mt" data-nav="certificate">승인 기록 보기</button></div></section>`:''}
+   ${recent.length?`<section class="panel"><div class="panel-head"><h2>최근 활동</h2><button class="btn ghost small" data-nav="history">전체 이력 <span aria-hidden="true">→</span></button></div>
+    <ul class="recent-list">${recent.map(event=>`<li><span class="activity-dot" aria-hidden="true"></span><div><b>${esc(event.action)}</b><p>${esc(event.actor)} · ${stamp(event.time)}</p></div></li>`).join('')}</ul></section>`:''}
+   ${riskPanel(v)}
+  </aside>
+ </div>`;
+}
+function gateScreen(){
+ const v=current(),gate=v.gates[gateIndex],completed=v.gates.filter(item=>item.submitted).length;
+ const editable=role==='author'&&!gate.submitted;
+ const lastRequest=v.returned&&v.reviewRounds?.at(-1);
+ return heading('이해 과제','v'+v.n+'의 핵심 판단을 설명하고 근거를 남기세요.',`<span class="badge purple">${completed} / 3 제출</span>`)+`
+ <div class="split gate-layout">
+  <section class="panel">
+   ${fileHead()}
+   <div class="gate-tabs" role="tablist" aria-label="이해 과제">${gateNames.map((name,i)=>`<button id="gate-tab-${i}" role="tab" aria-selected="${i===gateIndex}" aria-controls="gate-panel" tabindex="${i===gateIndex?'0':'-1'}" data-gate="${i}">${name}${v.gates[i].submitted?' <span aria-label="제출 완료">✓</span>':''}</button>`).join('')}</div>
+   <div class="panel-body" id="gate-panel" role="tabpanel" aria-labelledby="gate-tab-${gateIndex}">
+    ${lastRequest?`<div class="callout warning gap">${icon('info')}<div><b>검토자의 보완 요청</b>${esc(lastRequest.reason)}</div></div>`:''}
+    <div class="flex between wrap"><h2>${gateTitles[gateIndex]}</h2><span class="badge ${gate.submitted?'green':''}">${gate.submitted?'제출 완료':'미제출'}</span></div>
+    <div class="task-prompt"><p>${gatePrompts[gateIndex]}</p>${gateIndex===1?`<blockquote class="reference">“승인 여부는 파일 이름으로 확인한다. 파일 이름이 같으면 내용이 변경되어도 기존 승인이 유지된다.”</blockquote><p class="small muted">오류를 넣은 검증용 복제 문단입니다. 원본 PDF는 그대로 유지됩니다.</p>`:''}</div>
+    <form id="gateForm">
+     <label class="field"><span>답변</span><textarea id="answer" maxlength="10000" required placeholder="판단한 이유와 확인한 근거를 적어 주세요." ${editable?'':'readonly'}>${esc(gate.answer)}</textarea></label>
+     <div class="field"><label for="confidence">답변에 대한 자기 확신</label><div class="confidence"><input id="confidence" type="range" min="0" max="100" step="5" value="${gate.confidence}" ${editable?'':'disabled'}><b id="confidenceValue">${gate.confidence}%</b></div><p class="inline-note">확신도는 검토에 참고합니다. 과제 점수는 검토자가 입력합니다.</p></div>
+     ${gate.evaluation?`<div class="callout ${gate.evaluation.critical?'error':'success'}">${icon('info')}<div><b>검토자 평가 · ${gate.evaluation.score} / 2점</b>${esc(gate.evaluation.reason)}${gate.evaluation.critical?'<br>치명 오류가 있어 수정이 필요합니다.':''}</div></div>`:''}
+     <div class="error-text" id="gateError" role="alert"></div>
+     <div class="flex between wrap mt"><button type="button" class="btn small" data-action="sampleAnswer" ${editable?'':'disabled'}>샘플 답변 넣기</button><button class="btn primary" type="submit" ${editable?'':'disabled'}>${gate.submitted?'제출 완료':'답변 제출'}</button></div>
+     ${role!=='author'?'<p class="inline-note">검토자 역할에서는 답변을 열람할 수 있습니다.</p>':''}
+    </form>
+   </div>
+   <div class="panel-foot"><span class="small muted">임시 답변은 이 브라우저에 저장됩니다.</span><button class="btn ${completed===3?'primary':''}" data-nav="review" ${completed!==3?'disabled':''}>검토·승인으로 <span aria-hidden="true">→</span></button></div>
+  </section>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>제출 현황</h2><span class="badge">${completed}/3</span></div><div class="panel-body">
+    <ul class="plain-list">${gateNames.map((name,i)=>`<li><span>${name}</span><span class="badge ${v.gates[i].submitted?'green':''}">${v.gates[i].submitted?'제출':'미제출'}</span></li>`).join('')}</ul>
+    <button class="btn small full-width mt" data-action="sampleAll" ${role!=='author'||completed===3?'disabled':''}>샘플 답변 3개 채우기</button>
+   </div></section>
+   ${riskPanel(v)}
+  </aside>
+ </div>`;
+}
+
 function approvalReasons(v){const reasons=[];if(storageProblem)reasons.push('저장 오류를 해결한 뒤 승인하세요.');if(role!=='reviewer')reasons.push('검토자 B 역할로 전환해야 합니다. 자기 승인은 금지됩니다.');if(!gatesSubmitted(v))reasons.push('세 과제의 답변을 모두 제출해야 합니다.');if(!v.gates.every(g=>g.evaluation?.reason.trim()))reasons.push('모든 과제에 점수와 평가 근거가 필요합니다.');if(totalScore(v)<5)reasons.push('총점 5 / 6점 이상이 필요합니다.');if(v.gates.some(g=>g.evaluation?.critical))reasons.push('치명 오류가 있는 과제의 재검토가 필요합니다.');if(!v.checks.every(Boolean))reasons.push('필수 체크리스트 4개를 모두 확인해야 합니다.');if(!v.memo.trim())reasons.push('최종 검토 근거를 입력해야 합니다.');if(approvalFor(v))reasons.push('이미 승인 기록이 있는 버전입니다. 새 버전을 등록해 주세요.');if(v.returned)reasons.push('수정 요청 후 답변을 다시 제출해야 합니다.');return reasons}
-function reviewScreen(){const v=current(),reasons=approvalReasons(v),passed=gatesPassed(v);return heading('검토 · 승인','검토자 B가 답변과 최종 파일을 확인합니다.',`<button class="btn small" data-action="sampleEvaluation" ${role!=='reviewer'||!gatesSubmitted(v)||!!approvalFor(v)?'disabled':''}>샘플 평가 채우기</button>`)+`<div class="split"><section class="panel">${fileHead()}<div class="panel-body">${role!=='reviewer'?`<div class="callout warning gap">${icon('info')}<div><b>자기 승인은 할 수 없습니다</b>상단에서 검토자 B로 전환해 평가와 승인을 진행하세요.</div></div>`:''}${!gatesSubmitted(v)?`<div class="callout warning gap">${icon('brain')}<div><b>아직 답변이 모두 제출되지 않았습니다</b>이해 과제 화면에서 세 답변을 제출해 주세요.</div></div>`:''}<div class="gate-result"><div><b>이해 과제 판정</b><p class="small muted">총점 5/6 이상 (70% 기준 올림) · 치명 오류 없음 · 검토 근거 필수</p></div><div class="text-right"><div class="score">${totalScore(v)} <span class="small muted">/ 6</span></div><span class="badge ${passed?'green':'orange'}">${passed?'평가 규칙 통과':'평가 진행 중'}</span></div></div>${gateNames.map((n,i)=>{const g=v.gates[i],e=g.evaluation;return `<div class="eval-card"><div class="flex between"><h3>${n}</h3><span class="small muted">자기 확신 ${g.confidence}%</span></div><div class="answer-quote">${g.submitted?esc(g.answer):'답변이 제출되지 않았습니다.'}</div><p class="inline-note">평가 기준: ${rubric[i]}</p><div class="eval-row"><label class="field"><span>점수</span><select data-eval-score="${i}" ${role!=='reviewer'||!g.submitted||approvalFor(v)?'disabled':''}><option value="" ${!e?'selected':''}>평가 전</option>${[0,1,2].map(s=>`<option value="${s}" ${e&&e.score===s?'selected':''}>${s}점 · ${['미충족','부분 충족','충족'][s]}</option>`).join('')}</select></label><label class="field"><span>평가 근거</span><textarea maxlength="5000" data-eval-reason="${i}" placeholder="어떤 답변에서 기준 충족 여부를 확인했나요?" ${role!=='reviewer'||!g.submitted||approvalFor(v)?'readonly':''}>${esc(e?.reason||'')}</textarea></label></div><label class="check-row"><input type="checkbox" data-critical="${i}" ${e?.critical?'checked':''} ${role!=='reviewer'||!g.submitted||approvalFor(v)?'disabled':''}>${i===1?'주입 오류 미발견 또는 치명 오류 있음':'치명적 오개념 있음'}</label></div>`}).join('')}</div></section><aside class="support-column"><section class="panel"><div class="panel-head"><h2>최종 검토 체크리스트</h2>${icon('shield')}</div><div class="panel-body">${checks.map((t,i)=>`<label class="check-row"><input type="checkbox" data-check="${i}" ${v.checks[i]?'checked':''} ${role!=='reviewer'||approvalFor(v)?'disabled':''}>${t}</label>`).join('')}<label class="field"><span>최종 검토 근거</span><textarea maxlength="5000" id="reviewMemo" placeholder="승인 판단의 근거를 남겨 주세요." ${role!=='reviewer'||approvalFor(v)?'readonly':''}>${esc(v.memo)}</textarea></label><div id="approvalControls">${approvalControls()}</div></div></section><section class="guide"><div class="eyebrow">VERSION-BOUND APPROVAL</div><h2>승인은 v${v.n}에 고정됩니다</h2><p>파일이 변경되면 새 버전으로 등록하고 재검토해야 합니다.</p><button class="btn mt" data-action="downloadOriginal">${icon('download')}최종 PDF 확인</button></section></aside></div>`}
+function reviewScreen(){
+ const v=current(),submitted=gatesSubmitted(v),approval=approvalFor(v),canReview=role==='reviewer'&&!approval;
+ return heading('검토·승인','v'+v.n+'의 답변과 근거를 검토하고 승인 여부를 결정하세요.',
+  `<button class="btn" data-action="sampleEvaluation" ${canReview&&submitted?'':'disabled'}>샘플 평가 채우기</button>`)+`
+ <div class="split review-layout">
+  <section class="panel">
+   ${fileHead()}
+   <div class="panel-body">
+    ${role!=='reviewer'?`<div class="callout gap">${icon('info')}<div><b>작성자 열람 모드</b>평가와 승인은 상단의 검토자 B 역할에서 진행합니다.</div></div>`:''}
+    ${!submitted?`<div class="callout warning gap">${icon('brain')}<div><b>답변 제출 대기</b>작성자가 세 과제의 답변을 제출하면 최종 검토를 진행할 수 있습니다.</div></div>`:''}
+    <div class="gate-result"><div><h2>이해 과제 평가</h2><p class="small muted">5/6점 이상 · 치명 오류 없음 · 평가 근거 필요</p></div><div class="text-right"><div class="score">${totalScore(v)} <span class="small muted">/ 6</span></div><span class="badge ${gatesPassed(v)?'green':'orange'}">${gatesPassed(v)?'평가 기준 충족':'평가 기준 미충족'}</span></div></div>
+    ${gateNames.map((name,i)=>{
+     const gate=v.gates[i],evaluation=gate.evaluation,editable=canReview&&gate.submitted;
+     return `<section class="eval-card"><div class="flex between wrap"><h3>${name}</h3><span class="small muted">자기 확신 ${gate.confidence}%</span></div>
+      <div class="answer-quote">${gate.submitted?esc(gate.answer):'답변이 제출되지 않았습니다.'}</div>
+      <p class="inline-note">평가 기준 · ${rubric[i]}</p>
+      <div class="eval-row">
+       <label class="field"><span>점수</span><select data-eval-score="${i}" ${editable?'':'disabled'}><option value="">평가 전</option>${[0,1,2].map(score=>`<option value="${score}" ${evaluation?.score===score?'selected':''}>${score}점 · ${['미충족','부분 충족','충족'][score]}</option>`).join('')}</select></label>
+       <label class="field"><span>평가 근거</span><textarea maxlength="5000" data-eval-reason="${i}" placeholder="답변에서 확인한 근거를 적어 주세요." ${editable?'':'readonly'}>${esc(evaluation?.reason||'')}</textarea></label>
+      </div>
+      <label class="check-row"><input type="checkbox" data-critical="${i}" ${evaluation?.critical?'checked':''} ${editable?'':'disabled'}>${i===1?'주입 오류 미발견 또는 치명 오류 있음':'치명적 오개념 있음'}</label>
+     </section>`;
+    }).join('')}
+   </div>
+  </section>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>최종 검토</h2><span class="badge">${v.checks.filter(Boolean).length}/4</span></div><div class="panel-body">
+    ${checks.map((label,i)=>`<label class="check-row"><input type="checkbox" data-check="${i}" ${v.checks[i]?'checked':''} ${canReview?'':'disabled'}>${label}</label>`).join('')}
+    <label class="field"><span>최종 검토 근거</span><textarea maxlength="5000" id="reviewMemo" placeholder="승인 판단의 근거를 남겨 주세요." ${canReview?'':'readonly'}>${esc(v.memo)}</textarea></label>
+    <p class="inline-note">승인은 PDF v${v.n}과 해당 버전의 검토 근거에 고정됩니다.</p><div id="approvalControls">${approvalControls()}</div>
+   </div></section>
+  </aside>
+ </div>`;
+}
 function approvalControls(){const v=current(),reasons=approvalReasons(v),a=approvalFor(v);if(a)return `<div class="callout ${a.revokedAt?'error':'success'}">${icon('shield')}<div><b>${a.revokedAt?'이 승인은 철회되었습니다':'승인 증명서가 발급되었습니다'}</b>이 버전은 다시 승인할 수 없습니다.</div></div><button class="btn primary mt" data-nav="certificate" style="width:100%">증명서 보기</button>`;return `<div class="block-reasons" id="blockReasons">${reasons.length?reasons.map(s=>`<div>· ${s}</div>`).join(''):'승인 조건을 모두 충족했습니다.'}</div><button class="btn primary" data-action="approve" style="width:100%" ${reasons.length?'disabled':''}>${icon('shield')}v${v.n} 승인 · 증명서 발급</button><button class="btn danger mt" data-action="return" style="width:100%" ${role!=='reviewer'||!gatesSubmitted(v)?'disabled':''}>수정 요청</button>`}
 function latestApproval(){return db.approvals.at(-1)}
-function certScreen(){const a=latestApproval();if(!a)return heading('승인 증명서','검토를 통과하고 승인하면 이곳에서 증명서를 확인할 수 있습니다.')+`<section class="panel empty">${icon('shield')}<h2>아직 발급된 증명서가 없습니다</h2><p>이해 과제를 제출하고 검토자 B의 승인을 받아 주세요.</p><button class="btn primary" data-nav="review">검토 화면으로</button></section>`;const v=db.versions.find(v=>v.id===a.versionId);return heading('승인 증명서','검토 근거와 승인 대상 파일을 연결한 기록입니다.',`<span class="badge ${a.revokedAt?'red':'green'}">${a.revokedAt?'철회된 승인':'승인 기록 발급'}</span>`)+`<article class="receipt"><div class="receipt-top"><div><div class="eyebrow">HUMAN APPROVAL RECEIPT</div><h2>인간 승인 증명서</h2></div>${icon('shield')}</div><div class="receipt-body"><div class="flex between"><span class="badge purple">${esc(a.serial)}</span><span class="muted small">발표용 데모</span></div><div class="receipt-title">${esc(a.title)}</div><div class="receipt-data"><div class="detail-item"><span class="muted">승인 대상</span>PDF v${v.n}<div class="inline-note">${esc(v.fileName)}</div></div><div class="detail-item"><span class="muted">검토 · 승인자</span>검토자 B<div class="inline-note">작성자와 다른 시연 역할</div></div><div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(a.approvedAt)}</div><div class="detail-item"><span class="muted">이해 과제 결과</span>${a.score} / 6점 · 평가 규칙 통과</div></div><h3>승인된 파일의 SHA-256</h3><div class="hash mono">${a.fileHash}</div><p class="inline-note mono">version_id: ${esc(v.id)}</p><div class="subsection"><h3>인간 검토 근거</h3><p style="font-size:.875rem;margin-top:12px">${esc(a.memo)}</p></div>${v.id!==current().id?`<div class="callout warning mt">${icon('info')}<div><b>현재 최신 버전은 v${current().n}입니다</b>이 증명서는 v${v.n}에만 적용됩니다. 최신 버전은 별도 승인이 필요합니다.</div></div>`:''}${a.revokedAt?`<div class="callout error mt">${icon('close')}<div><b>승인 철회 · ${stamp(a.revokedAt)}</b>${esc(a.revocationReason)}</div></div>`:''}<div class="receipt-bottom"><div><h3>QR로 승인 기록 확인</h3><p class="inline-note">승인 상태와 파일 일치 여부를 분리해 확인합니다.<br>다른 기기에서는 발급 당시 요약만 확인할 수 있습니다.</p><button class="btn small mt" data-action="verify" data-id="${a.id}">${icon('qr')}검증 화면 열기</button></div><div id="qrcode" aria-label="시연 승인 검증 링크 QR"></div></div><div class="inline-note">전자서명 미연결 · 증명서 내용 해시 ${a.payloadHash.slice(0,18)}…</div></div></article><div class="receipt-actions"><button class="btn" data-action="downloadReceipt">${icon('download')}증명서 JSON 받기</button><button class="btn" data-action="print">${icon('file')}인쇄 · PDF 저장</button><button class="btn" data-action="newVersion">${icon('plus')}새 버전 등록</button><button class="btn danger" data-action="revoke" ${role!=='reviewer'||a.revokedAt?'disabled':''}>승인 철회</button></div>`}
-function publicRecord(a){return HumanProof.publicRecord(a)}
+function certScreen(){
+ const approval=latestApproval();
+ if(!approval)return heading('승인 증명서','승인된 파일과 검토 내역을 확인할 수 있습니다.')+`
+ <section class="panel empty">${icon('shield')}<h2>아직 발급된 증명서가 없습니다</h2><p>검토자 B가 승인을 완료하면 증명서가 발급됩니다.</p><button class="btn primary" data-nav="review">검토 화면으로</button></section>`;
+ const v=db.versions.find(version=>version.id===approval.versionId);
+ return heading('승인 증명서','승인 당시의 PDF와 검토 기록입니다.',
+  `<div class="flex wrap"><button class="btn" data-action="print">${icon('file')} 인쇄 · PDF 저장</button><button class="btn" data-action="downloadReceipt">${icon('download')} JSON 받기</button></div>`)+`
+ <div class="split">
+  <article class="receipt panel">
+   <div class="receipt-top"><div>${brand()}<h2>인간 승인 증명서</h2></div><span class="receipt-symbol">${icon('shield')}</span></div>
+   <div class="receipt-body">
+    <div class="flex between wrap"><span class="small mono">${esc(approval.serial)}</span><span class="badge ${approval.revokedAt?'red':'green'}">${approval.revokedAt?'승인 철회':'승인 기록 발급'}</span></div>
+    <h3 class="receipt-title">${esc(approval.title)}</h3>
+    ${v.id!==current().id?`<div class="callout warning gap">${icon('info')}<div><b>최신 버전 v${current().n} 있음</b>이 증명서의 승인 대상은 v${v.n}입니다.</div></div>`:''}
+    ${approval.revokedAt?`<div class="callout error gap">${icon('close')}<div><b>승인 철회 · ${stamp(approval.revokedAt)}</b>${esc(approval.revocationReason)}</div></div>`:''}
+    <div class="receipt-data detail-grid">
+     <div class="detail-item"><span class="muted">승인 대상</span>v${v.n} · ${esc(v.fileName)}</div>
+     <div class="detail-item"><span class="muted">검토·승인자</span>검토자 B</div>
+     <div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(approval.approvedAt)}</div>
+     <div class="detail-item"><span class="muted">이해 과제 결과</span>${approval.score} / 6점</div>
+    </div>
+    <div class="subsection"><h3>최종 검토 근거</h3><p class="review-note">${esc(approval.memo)}</p></div>
+    <div class="subsection"><h3>파일 식별 정보</h3><div class="hash"><div><p class="small muted">SHA-256</p><p class="mono">${approval.fileHash}</p></div></div><p class="inline-note mono">${esc(v.id)}</p></div>
+    <p class="inline-note receipt-scope">로컬 시연 기록 · 전자서명 미적용</p>
+   </div>
+  </article>
+  <aside class="support-column">
+   <section class="panel">
+    <div class="panel-head"><h2>공개 검증</h2>${icon('qr')}</div>
+    <div class="panel-body share-body"><div id="qrcode" aria-label="승인 검증 링크 QR"></div>
+     <p class="small muted">다른 기기에서는 발급 당시 요약을 보고 가지고 있는 PDF를 비교할 수 있습니다.</p>
+     <button class="btn primary full-width" data-action="verify" data-id="${esc(approval.id)}">검증 화면 열기 <span aria-hidden="true">↗</span></button>
+     <button class="btn full-width" data-action="copyVerify">${icon('link')} 검증 링크 복사</button>
+    </div>
+   </section>
+   ${role==='reviewer'&&!approval.revokedAt?'<section class="panel"><div class="panel-body"><button class="btn danger full-width" data-action="revoke">승인 철회</button></div></section>':''}
+   ${role==='author'?'<button class="btn outline full-width" data-action="newVersion">'+icon('plus')+'새 버전 등록</button>':''}
+  </aside>
+ </div>`;
+}
 function verifyUrl(a){const base=location.protocol==='file:'?document.querySelector('meta[name=demo-site-url]').content:location.href.split('#')[0];return base+'#verify='+encodeURIComponent(to64(new TextEncoder().encode(JSON.stringify(publicRecord(a)))))}
-function parseRecord(){try{const h=location.hash;if(!h.startsWith('#verify=')||h.length>12000)return null;return HumanProof.publicRecord(JSON.parse(new TextDecoder().decode(from64(decodeURIComponent(h.slice(8))))))}catch{return null}}
-function verifyScreen(){const snapshot=parseRecord(),local=db.approvals.find(a=>a.id===(verifyId||snapshot?.id)),a=local?publicRecord(local):snapshot;if(!a)return `<header class="public-header"><div class="brand"><span class="mark">${icon('shield')}</span>HumanProof</div><button class="btn" data-action="workspace">작업 화면으로</button></header><main class="public-wrap"><section class="panel empty">${icon('info')}<h2>승인 기록을 찾을 수 없습니다</h2><p>승인 증명서를 발급한 뒤 검증 화면을 열어 주세요.</p></section></main>`;const revoked=!!a.revokedAt,old=local&&a.n!==current().n;return `<header class="public-header"><div class="brand"><span class="mark">${icon('shield')}</span>HumanProof <span class="small muted">승인 검증</span></div><div class="flex"><span class="demo-pill">수신자 화면 · 데모</span><button class="btn small" data-action="workspace">작업 화면으로</button></div></header><main class="public-wrap">${heading('승인 기록 확인','누가 승인했는지, 전달된 파일이 일치하는지 각각 확인합니다.')}<section class="panel"><div class="verify-status"><div class="status-symbol" style="${revoked?'background:#ffeff2;color:#c64557':!local?'background:#fff4e4;color:#b97c23':''}">${icon(revoked?'close':local?'shield':'info')}</div><div><div class="eyebrow">01 · APPROVAL STATUS</div><h2>${revoked?'승인이 철회되었습니다':!local?'발급 당시 승인 요약입니다':old?'v'+a.n+'의 승인 기록입니다':'승인 기록이 유효합니다'}</h2><p>${!local?'현재 효력은 조회할 수 없습니다. 이 링크의 요약은 전자서명되지 않았습니다.':old?'최신 버전 v'+current().n+'의 승인을 의미하지 않습니다.':'이 브라우저에 저장된 시연 기록 기준입니다.'}</p></div></div><div class="panel-body" style="border-top:1px solid var(--line)"><div class="detail-grid"><div class="detail-item"><span class="muted">승인된 작업</span>${esc(a.title)}</div><div class="detail-item"><span class="muted">승인 대상</span>v${a.n} · ${esc(a.fileName)}</div><div class="detail-item"><span class="muted">승인자</span>검토자 B</div><div class="detail-item"><span class="muted">승인 시각 (한국)</span>${stamp(a.approvedAt)}</div></div><div class="hash mt"><div><div class="small muted" style="margin-bottom:6px">승인 당시 SHA-256</div><div class="mono">${a.fileHash}</div></div></div>${revoked?`<div class="callout error mt"><div><b>철회 사유 · ${stamp(a.revokedAt)}</b>${esc(a.revocationReason)}</div></div>`:''}</div></section><section class="panel verify-upload"><div class="panel-head"><div><div class="eyebrow">02 · FILE INTEGRITY</div><h2>전달된 파일이 일치하나요?</h2></div><span class="badge">SHA-256 비교</span></div><div class="panel-body"><label class="dropzone" for="verifyFile">${icon('upload')}<b>확인할 PDF를 선택하세요</b><span class="small muted">20 MB 이하 · 파일 바이트의 해시를 비교합니다.</span><input id="verifyFile" type="file" accept="application/pdf,.pdf"></label><div class="flex wrap mt"><button class="btn small" data-action="compareOriginal" ${!local?'disabled':''}>원본 파일 비교</button><button class="btn small" data-action="compareTampered" ${!local?'disabled':''}>1바이트 변경 파일 비교</button>${local?'<button class="btn ghost small" data-action="downloadVerifyOriginal">원본 PDF 받기</button>':''}</div><div id="verifyResult">${verifyResultHtml()}</div><p class="inline-note">파일 비교는 이 기기에서 수행되며 파일을 서버로 전송하지 않습니다. 승인 기록의 상태와 파일 내용의 일치는 별개의 결과입니다.</p></div></section><p class="footer-note">발표용 프로토타입 · 다른 기기에서 열면 발급 당시 요약만 표시됩니다. 공개 검증 서버와 전자서명은 후속 구현 대상입니다. 비공개 과제 답변과 검토 메모는 이 화면에 포함하지 않습니다.</p></main>`}
+function parseRecord(){try{const h=location.hash;if(!h.startsWith('#verify=')||h.length>12000)return null;return publicRecord(JSON.parse(new TextDecoder().decode(from64(decodeURIComponent(h.slice(8))))))}catch{return null}}
+function activeVerifyApproval(snapshot=parseRecord()){
+ const id=verifyId||snapshot?.id;
+ return db.approvals.find(approval=>approval.id===id);
+}
+function verifyScreen(){
+ const snapshot=parseRecord(),local=activeVerifyApproval(snapshot),record=local?publicRecord(local):snapshot;
+ const header=`<header class="public-header">${brand()}<button class="btn small" data-action="workspace">작업 화면으로</button></header>`;
+ if(!record)return header+`<main class="public-wrap"><section class="panel empty">${icon('info')}<h1>승인 기록을 찾을 수 없습니다</h1><p>증명서에서 발급한 검증 링크를 다시 열어 주세요.</p></section></main>`;
+ const revoked=!!record.revokedAt,old=local&&record.n!==current().n;
+ const title=!local?'발급 당시 승인 요약입니다':revoked?'승인이 철회되었습니다':old?'v'+record.n+'의 승인 기록입니다':'승인 기록이 유효합니다';
+ const effectiveness=!local?'현재 효력 조회 불가':revoked?'철회됨':'이 브라우저 기록 기준 유효';
+ return header+`<main class="public-wrap">
+  ${heading('승인 기록 확인','대상 버전과 승인 상태를 확인하고, 가지고 있는 PDF를 비교하세요.')}
+  <section class="panel">
+   <div class="verify-status ${revoked?'is-revoked':!local?'is-snapshot':''}">
+    <div class="status-symbol">${icon(revoked?'close':local?'shield':'info')}</div><div><h2>${title}</h2><p>v${record.n} · ${esc(record.title)}</p></div>
+   </div>
+   <div class="panel-body">
+    <dl class="verify-facts"><div><dt>승인 효력</dt><dd>${effectiveness}</dd></div><div><dt>전자서명</dt><dd>미적용</dd></div>${old?`<div><dt>최신 버전</dt><dd>v${current().n} · 이 기록의 승인 대상은 v${record.n}</dd></div>`:''}</dl>
+    <div class="subsection detail-grid">
+     <div class="detail-item"><span class="muted">승인 대상 파일</span>${esc(record.fileName)}</div>
+     <div class="detail-item"><span class="muted">승인자 · 시각 (한국)</span>검토자 B · ${stamp(record.approvedAt)}</div>
+    </div>
+    <details class="file-details public-hash mt"><summary>승인 당시 SHA-256</summary><div class="mono">${record.fileHash}</div></details>
+    ${revoked?`<div class="callout error mt"><div><b>철회 사유 · ${stamp(record.revokedAt)}</b>${esc(record.revocationReason)}</div></div>`:''}
+   </div>
+  </section>
+  <section class="panel verify-upload">
+   <div class="panel-head"><h2>파일 비교</h2><span class="badge">SHA-256</span></div>
+   <div class="panel-body">
+    <label class="dropzone" for="verifyFile">${icon('upload')}<b>비교할 PDF 선택</b><span class="small muted">최대 20 MB · 이 기기에서 비교합니다.</span><input id="verifyFile" type="file" accept="application/pdf,.pdf"></label>
+    <div id="verifyResult" role="status">${verifyResultHtml()}</div>
+    ${local?`<div class="demo-tools mt"><h3>샘플 파일로 비교</h3><div class="flex wrap"><button class="btn small" data-action="compareOriginal">원본 파일 비교</button><button class="btn small" data-action="compareTampered">1바이트 변경 파일 비교</button><button class="btn small" data-action="downloadVerifyOriginal">${icon('download')} 원본 PDF 받기</button></div></div>`:''}
+   </div>
+  </section>
+  <footer class="footer-note">HAVE 로컬 프로토타입 <span>·</span> 승인은 검토 절차와 대상 파일을 기록합니다.</footer>
+ </main>`;
+}
 function verifyResultHtml(){if(!verifyResult)return `<div class="result-box"><b>파일 미확인</b><p>파일을 선택해야 일치 여부를 알 수 있습니다.</p></div>`;if(verifyResult.error)return `<div class="result-box red">${esc(verifyResult.error)}</div>`;return `<div class="result-box ${verifyResult.match?'green':'red'}"><div class="flex"><b>${icon(verifyResult.match?'check':'close')} ${verifyResult.match?'파일이 일치합니다':'파일이 일치하지 않습니다'}</b></div><p>${verifyResult.match?'승인된 파일과 바이트가 동일합니다.':'전달된 파일은 승인된 파일과 다릅니다. 기존 승인이 이 파일에 적용되지 않습니다.'}</p><div class="small" style="margin-top:10px">${esc(verifyResult.fileName)}</div><div class="mono" style="margin-top:5px">${verifyResult.hash}</div></div>`}
-function historyScreen(){return heading('버전 · 이력','파일 변경은 새 버전으로, 승인은 해당 버전의 기록으로 남습니다.',`<div class="flex wrap"><button class="btn" data-action="importContributions" ${role!=='author'||approvalFor(current())?'disabled':''}>확장 기여 기록 가져오기</button><button class="btn primary" data-action="newVersion">${icon('plus')}새 버전 등록</button></div>`)+`<div class="split"><div>${contributionPanel()}${reviewHistoryPanel()}<section class="panel gap"><div class="panel-head"><h2>파일 버전</h2><span class="small muted">${db.versions.length}개 버전</span></div>${[...db.versions].reverse().map(v=>`<div class="version-row"><div><div class="flex"><h3>v${v.n}</h3>${v.id===current().id?'<span class="badge purple">최신 버전</span>':''}${badge(v)}</div><p>${esc(v.fileName)} · ${stamp(v.createdAt)}</p><p>${esc(v.reason)}</p><div class="mono muted">${v.hash.slice(0,36)}…</div></div><button class="btn small" data-download-version="${v.id}">${icon('download')}파일</button></div>`).join('')}</section><section class="panel"><div class="panel-head"><h2>감사 타임라인</h2><button class="btn small" data-action="checkChain">${icon('link')}체인 확인</button></div><div id="chainResult"></div><div class="timeline">${[...db.events].reverse().map(e=>`<div class="event"><div class="event-icon">${icon(e.action.includes('승인')?'shield':e.action.includes('과제')?'brain':'file')}</div><div><h3>${esc(e.action)}</h3><p>${esc(e.actor)} · ${stamp(e.time)}</p><p>${esc(e.note)}</p><div class="mono">event_hash: ${e.eventHash.slice(0,26)}…</div></div></div>`).join('')}</div></section></div><aside class="support-column"><section class="guide"><div class="eyebrow">VERSION CONTROL</div><h2>변경되면 재승인이 필요합니다</h2><p>v1의 승인 뒤 v2를 등록해도 v1의 증명서는 남습니다. v2는 새 과제와 검토를 거쳐야 합니다.</p><button class="btn mt" data-nav="certificate">이전 승인 증명서 보기</button><p class="small">브라우저의 해시 체인은 시연 기록의 연결 여부를 확인합니다. 독립 감사 증명은 아닙니다.</p></section>${guide()}</aside></div>`}
-function render(){if(inTransaction){needsRender=true;return}if(!db)return;$('#app').innerHTML=screen==='verify'?verifyScreen():baseShell(({overview,gate:gateScreen,review:reviewScreen,certificate:certScreen,history:historyScreen}[screen]||overview)());if(screen==='certificate'&&latestApproval()&&typeof QRCode!=='undefined'){try{new QRCode($('#qrcode'),{text:verifyUrl(latestApproval()),width:176,height:176,colorDark:'#151b32',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L})}catch{$('#qrcode').textContent='검증 화면 버튼을 이용하세요';}}}
-function navigate(s){comparisonRequest++;screen=s;verifyResult=null;render();window.scrollTo({top:0,behavior:'instant'})}
-function modal(title,body){$('#modal').innerHTML=`<div class="modal-head"><h2>${title}</h2><button data-action="closeModal" aria-label="닫기">${icon('close')}</button></div><div class="modal-body">${body}</div>`;$('#modal').showModal()}
+function historyScreen(){
+ const active=current(),versionNumbers=new Map(db.versions.map(version=>[version.id,version.n]));
+ const actions=role==='author'?`<div class="flex wrap"><button class="btn" data-action="importContributions" ${approvalFor(active)?'disabled':''}>기여 기록 가져오기</button><button class="btn primary" data-action="newVersion">${icon('plus')}새 버전 등록</button></div>`:'';
+ return heading('버전·이력','등록한 파일과 검토 기록을 버전별로 확인하세요.',actions)+`
+ <div class="split">
+  <div class="content-stack">
+   <section class="panel">
+    <div class="panel-head"><h2>파일 버전</h2><span class="badge">${db.versions.length}개</span></div>
+    ${[...db.versions].reverse().map(v=>{
+     const approval=approvalFor(v),isLatest=v.id===active.id;
+     const versionBadge=isLatest?'<span class="badge purple">최신 버전</span>':'<span class="badge">후속 버전 있음</span>';
+     const reviewBadge=approval?`<span class="badge ${approval.revokedAt?'red':'green'}">${approval.revokedAt?'승인 철회':'승인 완료'}</span>`:badge(v);
+     return `<div class="version-row">
+     <div><div class="flex wrap"><h3 class="version-label">v${v.n}</h3>${versionBadge}${reviewBadge}</div>
+      <p><strong>${esc(v.fileName)}</strong> · ${stamp(v.createdAt)}</p><p>${esc(v.reason)}</p><div class="mono muted">${v.hash.slice(0,36)}…</div></div>
+     <div class="flex wrap"><button class="btn small" data-action="previewPdf" data-version-id="${esc(v.id)}">원문 보기</button><button class="btn small" data-download-version="${esc(v.id)}">${icon('download')} PDF</button></div>
+    </div>`;
+    }).join('')}
+   </section>
+   ${contributionPanel()}
+   ${reviewHistoryPanel()}
+  </div>
+  <aside class="support-column">
+   <section class="panel"><div class="panel-head"><h2>활동 이력</h2></div>
+    <ol class="timeline">${[...db.events].reverse().map(event=>`<li class="event"><div class="event-icon">${icon(event.action.includes('승인')?'shield':event.action.includes('과제')?'brain':'file')}</div><div><h3>${esc(event.action)}</h3><p>v${versionNumbers.get(event.target)} · ${esc(event.actor)} · ${stamp(event.time)}</p><p>${esc(event.note)}</p></div></li>`).join('')}</ol>
+    <div class="panel-foot"><button class="btn small" data-action="checkChain">${icon('link')} 기록 연결 확인</button></div><div id="chainResult" role="status"></div>
+   </section>
+  </aside>
+ </div>`;
+}
+let focusAfterRender;
+function render(){
+ if(inTransaction){needsRender=true;return}
+ if(!db)return;
+ const active=document.activeElement;
+ const control=['data-gate','data-eval-score','data-critical','data-check'].find(name=>active?.hasAttribute(name));
+ const focusTarget=focusAfterRender||(control?`[${control}="${active.getAttribute(control)}"]`:active?.id==='role'?'#role':null);
+ focusAfterRender=null;
+ $('#app').innerHTML=screen==='verify'?verifyScreen():baseShell(({overview,gate:gateScreen,review:reviewScreen,certificate:certScreen,history:historyScreen}[screen]||overview)());
+ if(screen==='certificate'&&latestApproval()&&typeof QRCode!=='undefined'){
+  try{new QRCode($('#qrcode'),{text:verifyUrl(latestApproval()),width:176,height:176,colorDark:'#28222b',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L})}
+  catch{$('#qrcode').textContent='검증 화면 버튼을 이용하세요';}
+ }
+ if(focusTarget)$(focusTarget)?.focus({preventScroll:true});
+}
+function navigate(target){
+ comparisonRequest++;
+ screen=target;
+ verifyResult=null;
+ focusAfterRender='.main h1';
+ render();
+ window.scrollTo({top:0,behavior:'instant'});
+}
+function modal(title,body){
+ const dialog=$('#modal');
+ dialog.innerHTML=`<div class="modal-head"><h2 id="modalTitle">${title}</h2><button class="icon-button" data-action="closeModal" aria-label="닫기">${icon('close')}</button></div><div class="modal-body">${body}</div>`;
+ dialog.setAttribute('aria-labelledby','modalTitle');
+ dialog.showModal();
+ return dialog;
+}
+function previewPdf(version){
+ if(!version)throw Error('이 버전의 PDF를 찾을 수 없습니다.');
+ const url=URL.createObjectURL(new Blob([from64(version.fileData)],{type:'application/pdf'}));
+ const dialog=modal('PDF 원문 · v'+version.n,`<div class="preview-toolbar"><span>${esc(version.fileName)}</span><a class="btn small" href="${url}" download="${esc(version.fileName)}">${icon('download')} PDF 받기</a></div><object class="pdf-viewer" type="application/pdf" data="${url}"><p>PDF 뷰어를 사용할 수 없습니다. 위의 PDF 받기로 원본을 확인해 주세요.</p></object>`);
+ dialog.classList.add('pdf-dialog');
+ dialog.addEventListener('close',()=>{URL.revokeObjectURL(url);dialog.classList.remove('pdf-dialog');},{once:true});
+}
 function closeModal(){$('#modal').close()}
 function riskFields(){return `<div class="form-row">${riskLabels.map((t,i)=>`<label class="field"><span>${t}</span><select name="risk${i}">${Array.from({length:riskMax[i]+1},(_,n)=>`<option value="${n}" ${n===[3,3,1,1][i]?'selected':''}>${n} / ${riskMax[i]}</option>`).join('')}</select></label>`).join('')}</div>`}
 function registrationModal(isVersion=false){if(role!=='author'){toast('파일을 등록하려면 작성자 A로 전환하세요.');return}modal(isVersion?'새 버전 등록':'새 작업 등록',`<p>${isVersion?'이전 파일과 승인은 보존됩니다. 새 버전은 승인 전 상태로 시작합니다.':'현재 샘플 작업을 새 작업으로 바꿉니다. 시연용 작업은 한 번에 한 개를 체험합니다.'}</p><form id="registrationForm" data-version="${isVersion}">${!isVersion?'<label class="field"><span>작업 제목</span><input name="title" required maxlength="100" placeholder="예: AI 활용 프로젝트 보고서"></label>':''}<label class="field"><span>PDF 파일 · 최대 20 MB</span><input name="pdf" type="file" accept=".pdf,application/pdf"></label><label class="check-row"><input type="checkbox" name="useSample" checked>파일 없이 샘플 PDF로 시연하기</label>${isVersion?'<label class="field"><span>변경 사유</span><input name="reason" maxlength="2000" required value="검토 의견을 반영해 내용을 수정했습니다."></label>':''}<label class="field"><span>AI 활용 도구</span><input name="tool" required value="ChatGPT" maxlength="100"></label><label class="field"><span>AI 사용 범위 · 작성자 신고</span><textarea name="scope" maxlength="5000" required style="min-height:80px">설계 초안 생성 및 요구사항 정리</textarea></label><h3>위험 점수 입력</h3>${riskFields()}<p class="inline-note">검토자 B 배정 · 등록 후 세 종류의 이해 과제를 수행합니다.</p><div class="error-text" id="registrationError"></div><div class="modal-actions"><button type="button" class="btn" data-action="closeModal">취소</button><button type="submit" class="btn primary">${isVersion?'새 버전 등록':'등록 · 이해 과제 배정'}</button></div></form>`)}
-async function validatePdf(file){if(file.size>20*1024*1024)throw Error('PDF는 20 MB 이하만 등록할 수 있습니다.');if(!/\.pdf$/i.test(file.name)||file.type&&file.type!=='application/pdf')throw Error('PDF 파일을 선택해 주세요.');const bytes=new Uint8Array(await file.arrayBuffer());if(!bytes.length||bytes.length>HumanProof.MAX_PDF_BYTES)throw Error('PDF 파일 크기가 올바르지 않습니다.');const head=new TextDecoder().decode(bytes.subarray(0,5));if(head!=='%PDF-')throw Error('PDF 형식이 올바르지 않습니다. 확장자만 변경한 파일은 등록할 수 없습니다.');return bytes}
+async function validatePdf(file){if(file.size>MAX_PDF_BYTES)throw Error('PDF는 20 MB 이하만 등록할 수 있습니다.');if(!/\.pdf$/i.test(file.name)||file.type&&file.type!=='application/pdf')throw Error('PDF 파일을 선택해 주세요.');const bytes=new Uint8Array(await file.arrayBuffer());if(!bytes.length||bytes.length>MAX_PDF_BYTES)throw Error('PDF 파일 크기가 올바르지 않습니다.');const head=new TextDecoder().decode(bytes.subarray(0,5));if(head!=='%PDF-')throw Error('PDF 형식이 올바르지 않습니다. 확장자만 변경한 파일은 등록할 수 없습니다.');return bytes}
 function ensureReviewer(){if(role!=='reviewer')throw Error('검토자 B 역할에서 진행하세요. 자기 승인은 금지됩니다.')}
 function altered(bytes){const copy=new Uint8Array(bytes.length+1);copy.set(bytes);copy[copy.length-1]=10;return copy}
 let comparisonRequest=0,fileSelectionRequest=0;
-async function compare(bytes,fileName){const request=++comparisonRequest,recordKey=verifyId||location.hash;const snap=parseRecord(),a=db.approvals.find(a=>a.id===(verifyId||snap?.id))||snap;if(!a)throw Error('승인 기록이 없습니다.');const h=await hash(bytes);if(request!==comparisonRequest||recordKey!==(verifyId||location.hash)||screen!=='verify')return;verifyResult={match:h===(a.fileHash),hash:h,fileName};$('#verifyResult').innerHTML=verifyResultHtml()}
-function activeVerifyApproval(){const snap=parseRecord();return db.approvals.find(a=>a.id===(verifyId||snap?.id))}
+async function compare(bytes,fileName){
+ const request=++comparisonRequest,recordKey=verifyId||location.hash;
+ const snapshot=parseRecord(),approval=activeVerifyApproval(snapshot)||snapshot;
+ if(!approval)throw Error('승인 기록이 없습니다.');
+ const digest=await hash(bytes);
+ if(request!==comparisonRequest||recordKey!==(verifyId||location.hash)||screen!=='verify')return;
+ verifyResult={match:digest===approval.fileHash,hash:digest,fileName};
+ $('#verifyResult').innerHTML=verifyResultHtml();
+}
 async function doAction(action,b){const v=current();switch(action){
  case 'importContributions':contributionImportModal();break;
  case 'confirmContributions':await confirmContributions();break;
@@ -112,8 +425,17 @@ async function doAction(action,b){const v=current();switch(action){
  case 'compareOriginal':{const a=activeVerifyApproval();if(!a)throw Error('원본은 증명서를 발급한 브라우저에서만 비교할 수 있습니다.');const t=db.versions.find(v=>v.id===a.versionId);await compare(from64(t.fileData),t.fileName);break}
  case 'compareTampered':{const a=activeVerifyApproval();if(!a)throw Error('샘플 비교는 발급한 브라우저에서 진행하세요.');const t=db.versions.find(v=>v.id===a.versionId);await compare(altered(from64(t.fileData)),t.fileName.replace(/\.pdf$/i,'_1byte_changed.pdf'));break}
  case 'downloadOriginal':download(from64(v.fileData),v.fileName);break;
+ case 'previewPdf':previewPdf(b.dataset.versionId?db.versions.find(version=>version.id===b.dataset.versionId):v);break;
  case 'downloadVerifyOriginal':{const a=activeVerifyApproval(),t=db.versions.find(v=>v.id===a?.versionId);if(t)download(from64(t.fileData),t.fileName);break}
  case 'downloadReceipt':{const a=latestApproval();if(a)download(JSON.stringify({...a,signature:null,signatureStatus:'NOT_IMPLEMENTED_DEMO',demo:true},null,2),a.serial+'.json','application/json');break}
+ case 'copyVerify':{
+  const approval=latestApproval();
+  if(!approval)return;
+  const url=verifyUrl(approval);
+  try{await navigator.clipboard.writeText(url);toast('검증 링크를 복사했습니다.')}
+  catch{modal('검증 링크 복사',`<label class="field"><span>검증 링크</span><input id="shareUrl" readonly value="${esc(url)}"></label>`);$('#shareUrl').select()}
+  break;
+ }
  case 'print':window.print();break;
  case 'newWork':registrationModal(false);break;
  case 'newVersion':registrationModal(true);break;
@@ -122,7 +444,11 @@ async function doAction(action,b){const v=current();switch(action){
  case 'confirmReset':await seed();role='author';gateIndex=0;verifyId=null;history.replaceState(null,'',location.href.split('#')[0]);closeModal();navigate('overview');toast('처음부터 시연할 준비가 되었습니다.');break;
  case 'return':ensureReviewer();if(approvalFor(v))throw Error('승인된 버전에는 수정 요청을 할 수 없습니다.');modal('작성자에게 수정 요청',`<p>수정 사유를 기록하면 과제 답변을 다시 작성하고 제출할 수 있습니다.</p><form id="returnForm"><label class="field"><span>수정 요청 근거</span><textarea name="reason" maxlength="2000" required placeholder="어떤 답변을 어떻게 보완해야 하나요?"></textarea></label><div class="modal-actions"><button type="button" class="btn" data-action="closeModal">취소</button><button class="btn danger" type="submit">수정 요청 기록</button></div></form>`);break;
  case 'revoke':{ensureReviewer();const a=latestApproval();if(!a||a.revokedAt)return;modal('인간 승인 철회',`<p>철회 이후 검증 화면에 승인 철회 상태와 사유가 표시됩니다. 기존 기록은 남습니다.</p><form id="revokeForm"><label class="field"><span>공개할 철회 사유</span><textarea name="reason" maxlength="2000" required placeholder="예: 승인 후 근거 자료의 오류를 발견했습니다."></textarea></label><div class="modal-actions"><button class="btn" type="button" data-action="closeModal">취소</button><button class="btn danger" type="submit">승인 철회 기록</button></div></form>`);break}
- case 'checkChain':{let prev='0'.repeat(64),ok=true;for(const e of db.events){const body={id:e.id,action:e.action,actor:e.actor,note:e.note,target:e.target,time:e.time};if(e.prevHash!==prev||e.eventHash!==await hashText(prev+canonical(body))){ok=false;break}prev=e.eventHash}$('#chainResult').innerHTML=`<div class="callout ${ok?'success':'error'}" style="margin:20px"><div><b>${ok?'해시 체인 연결 확인':'해시 체인 불일치'}</b>${db.events.length}개 이벤트 ${ok?'연결이 일치합니다.':'중 변경되거나 누락된 기록이 있습니다.'}<br><span class="small">브라우저 시연 기록이며 독립적인 감사 인증은 아닙니다.</span></div></div>`;break}
+ case 'checkChain':{
+  const ok=await verifyChain(db.events);
+  $('#chainResult').innerHTML=`<div class="callout ${ok?'success':'error'}" style="margin:20px"><div><b>${ok?'해시 체인 연결 확인':'해시 체인 불일치'}</b>${db.events.length}개 이벤트 ${ok?'연결이 일치합니다.':'중 변경·누락·중복을 확인해야 합니다.'}<br><span class="small">이 브라우저에 저장된 이벤트의 연결만 확인합니다.</span></div></div>`;
+  break;
+ }
  }}
 function contributionPanel(){const items=current().contributions||[];return `<section class="panel gap"><div class="panel-head"><h2>AI/Human 기여 근거</h2><span class="small muted">${items.length}개 · 작성자 신고</span></div><div class="panel-body">${items.length?items.map(item=>`<div class="eval-card"><b>${esc(item.actorType)} · ${esc(item.stage)}</b><p>${esc(item.note)}</p><p class="small muted">${esc(item.pageTitle)} · ${stamp(item.createdAt)}</p>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">근거 페이지</a>`:''}${item.selectedText?`<div class="answer-quote">${esc(item.selectedText)}</div>`:''}</div>`).join(''):'확장 프로그램에서 JSON을 내보낸 뒤 가져오세요. 저장된 기록은 이 버전의 검토 범위에 포함됩니다.'}</div></section>`}
 function reviewHistoryPanel(){const rounds=db.versions.flatMap(version=>(version.reviewRounds||[]).map(round=>({...round,n:version.n})));if(!rounds.length)return '';return `<section class="panel gap"><div class="panel-head"><h2>이전 검토 회차</h2><span class="small muted">${rounds.length}개</span></div><div class="panel-body">${rounds.reverse().map(round=>`<details class="review-round"><summary>v${round.n} · ${stamp(round.at)} · ${esc(round.reason)}</summary>${round.gates.map((gate,index)=>`<div class="eval-card"><b>${gateNames[index]}</b><div class="answer-quote">${esc(gate.answer)}</div><p>이전 점수: ${gate.evaluation?gate.evaluation.score+' / 2점':'평가 전'} · 확신 ${gate.confidence}%</p><p>${esc(gate.evaluation?.reason||'')}</p></div>`).join('')}<p>이전 검토 메모: ${esc(round.memo)}</p></details>`).join('')}</div></section>`}
@@ -151,10 +477,19 @@ document.addEventListener('click',async event=>{
  const actionVersionId=current().id;
  try{await transaction(async()=>{
   if(nav){navigate(nav.dataset.nav);return}
-  if(tab){gateIndex=Number(tab.dataset.gate);render();return}
+  if(tab){gateIndex=Number(tab.dataset.gate);focusAfterRender='#gate-tab-'+gateIndex;render();return}
   if(downloadButton){const version=db.versions.find(item=>item.id===downloadButton.dataset.downloadVersion);if(version)download(from64(version.fileData),version.fileName);return}
   if(['approve','sampleEvaluation','sampleAnswer','sampleAll','confirmContributions'].includes(button.dataset.action)&&current().id!==actionVersionId)throw Error('대상 버전이 변경되었습니다. 다시 확인하세요.');await doAction(button.dataset.action,button);
  })}catch(error){toast(error.message||'다시 시도해 주세요.')}
+});
+document.addEventListener('keydown',event=>{
+ const tab=event.target.closest('[data-gate]');
+ if(!tab||screen!=='gate')return;
+ const count=gateNames.length,index=Number(tab.dataset.gate);
+ const targets={ArrowLeft:(index-1+count)%count,ArrowRight:(index+1)%count,Home:0,End:count-1};
+ if(!Object.hasOwn(targets,event.key))return;
+ event.preventDefault();
+ $('#gate-tab-'+targets[event.key])?.click();
 });
 document.addEventListener('input',async event=>{
  if(!db)return;const node=event.target,versionId=current().id,index=gateIndex,value=node.value,actor=role;
@@ -193,7 +528,7 @@ document.addEventListener('submit',async event=>{
    const version=current(),gate=version.gates[index];if(role!=='author'||gate.submitted)return;
    if(!answer)throw Error('답변을 입력해 주세요.');gate.answer=answer;gate.submitted=true;gate.evaluation=null;
    if(gatesSubmitted(version))version.returned=false;
-   await audit(gateNames[index]+' 답변 제출','작성자 A','자기 확신 '+gate.confidence+'%. answer_sha256: '+await hashText(answer));save();if(index<2)gateIndex=index+1;render();toast(gatesSubmitted(version)?'세 과제가 제출되었습니다. 검토자 B로 전환하세요.':'답변을 제출했습니다. 다음 과제를 확인하세요.');
+   await audit(gateNames[index]+' 답변 제출','작성자 A','자기 확신 '+gate.confidence+'%. answer_sha256: '+await hashText(answer));save();if(index<2)gateIndex=index+1;focusAfterRender='#gate-tab-'+gateIndex;render();toast(gatesSubmitted(version)?'세 과제가 제출되었습니다. 검토자 B로 전환하세요.':'답변을 제출했습니다. 다음 과제를 확인하세요.');
   }
   if(form.id==='registrationForm'){
    const isVersion=form.dataset.version==='true';if(role!=='author')throw Error('작성자 역할에서만 등록할 수 있습니다.');let bytes,name;const file=values.get('pdf');
