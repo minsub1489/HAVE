@@ -1,0 +1,45 @@
+---
+title: UC03 위험 분석 및 검토 요청 — 순서 다이어그램 1/2 · 위험 분석과 검토 요청 (1118 수정본 · 11-23 최종 승인자 지정 반영)
+---
+sequenceDiagram
+  autonumber
+  actor A as 작성자
+  participant P as :RegisterWizardView<br/>(측면 패널)
+  participant RS as :RiskService<br/>(03 Review)
+  participant GP as :GatePolicy<br/>(03 Review · 전략 Context)
+  participant RR as :ReviewRequestService<br/>(03 Review)
+  participant AU as :IAuthorization<br/>(01 Auth)
+  participant WK as :IWorkVersion<br/>(02 Work)
+  participant DB as :ReviewRepository<br/>(08 Persistence)
+  participant OB as :WorkStatusObserver<br/>(07 Audit)
+
+  Note over P,RS: ① 위험 분석 (등록 4/5)
+  A->>P: 4개 지표 점수 + 근거 입력
+  P->>RS: assessRisk(versionId, scores, rationale)
+  RS->>RS: 점수 범위 검증 (0~3 / 0~3 / 0~2 / 0~2)
+  alt 점수 범위 오류
+    RS-->>P: 400 오류 안내 (입력값 유지)
+  else 정상
+    RS->>GP: selectFor(risk)
+    GP-->>RS: 등급 LOW·MEDIUM·HIGH (경계 4·7) + 전략 선택
+    RS->>DB: save(RiskAssessment)
+    RS-->>P: 201 { total, level, policyVersion, 배정 예정 과제 }
+  end
+  P-->>A: 점수·등급·배정 과제 표시
+
+  Note over P,OB: ② 검토자 지정 · 검토 요청 (등록 5/5)
+  A->>P: 검토자·최종 승인자 선택, 메시지·기한 입력
+  P->>RR: requestReview(versionId, reviewerId, approverId, message, dueDate)
+  RR->>AU: isAuthorized(userId, version, REQUEST_REVIEW)
+  alt 위험 분석 없음 / 자기 검토 / 진행 중 요청 존재
+    RR-->>P: 400 · 409 사유 안내
+  else 요청 가능
+    RR->>AU: addMember(workId, reviewerId, REVIEWER) · addMember(workId, approverId, APPROVER)
+    RR->>GP: assignTasks(risk)
+    GP-->>RR: List‹Challenge› (등급별 GateStrategy.createTasks)
+    RR->>DB: save(ReviewRequest[REQUESTED], Challenge[])
+    RR->>WK: setWorkStatus(workId, CHALLENGE_PENDING)
+    WK-)OB: notifyObservers() → 이력 기록 + 검토자 알림(검토 요청)
+    RR-->>P: 201 { requestId, 배정 과제 }
+  end
+  P-->>A: "이해 확인 대기" 표시 · 다음 행동 = 이해 확인 시작 (2/2로 이어짐)

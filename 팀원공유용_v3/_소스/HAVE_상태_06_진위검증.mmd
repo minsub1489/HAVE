@@ -1,0 +1,45 @@
+---
+title: 상태 ⑥ 검증 조회 · VerificationResult (UC08 · 11-23 수정)
+---
+stateDiagram-v2
+  direction LR
+  state "검증 조회 · 공개 검증 페이지(VerifyPage)의 한 번의 확인" as VQ {
+    direction LR
+    state "입력 대기<br/>READY" as V_READY
+    state "파일 해시 계산 중<br/>HASHING" as HASHING
+    state "판정 중<br/>VERIFYING" as VERIFYING
+    state "결과 표시<br/>SHOWN" as SHOWN
+    state "대상 미식별<br/>NOT_FOUND" as NOT_FOUND
+    state "확인 불가<br/>UNKNOWN" as UNKNOWN
+    [*] --> V_READY : 공유 링크 · QR로 진입 또는 증명서 번호 입력
+    V_READY --> HASHING : PDF 선택 (선택 사항)
+    HASHING --> V_READY : getSha256(file) 완료 / fileHash 보관 · 파일은 서버로 보내지 않음
+    V_READY --> VERIFYING : verify(certId, fileHash?) · verifyByQR(qrPayload, fileHash?)
+    VERIFYING --> SHOWN : [증명서 확인] / 세 판정 · 확인 시각 표시 · 감사 기록(행위자 없음)
+    VERIFYING --> NOT_FOUND : [증명서 없음 ∨ 형식 오류 ∨ 링크 만료 ∨ 공유 중지] / 내용 노출 없음
+    VERIFYING --> UNKNOWN : [네트워크 오류] / 세 판정 모두 "확인 불가"
+    UNKNOWN --> VERIFYING : 다시 확인
+    SHOWN --> HASHING : 다른 PDF 선택
+    SHOWN --> [*]
+    NOT_FOUND --> [*]
+  }
+  state "판정 중(VERIFYING)의 세부 상태 · VerificationService가 VerificationResult를 만든다" as VR {
+    direction LR
+    state "서명 검증<br/>CHECKING_SIGNATURE" as SIGN
+    state "승인 효력 확인<br/>CHECKING_EFFECT" as EFFECT
+    state "파일 비교<br/>CHECKING_FILE" as FILE
+    [*] --> SIGN : getCertificateData(certId) · getSignature(certId)
+    SIGN --> EFFECT : / signature = PASS · FAIL
+    EFFECT --> FILE : getCurrentValidity(approvalId) / effect = VALID · REVOKED, latestVersionNo
+    FILE --> [*] : / file = MATCH · DIFFERENT · NOT_CHECKED · record(VERIFY)
+  }
+  note right of VR
+    VerificationResult { effect, latestVersionNo, signature, file, checkedAt }는 저장하지 않고 요청마다 계산한다.
+    세 판정은 서로 바꾸지 않고 따로 표시한다.
+    승인 효력은 상태 ④의 Approval 효력을 읽은 값이다.
+    REVOKED = 승인 철회(UC10). 후속 버전 여부는 효력이 아니라 latestVersionNo로 따로 표시한다.
+    예: "v1 승인 철회 · 후속 버전 v2 있음 · 선택 파일은 v1과 일치"
+    NOT_CHECKED = 파일을 고르지 않음("파일 미확인")
+    네트워크 오류는 UNKNOWN이며 철회 · 불일치로 바꾸지 않는다.
+    UC08은 작업 버전 · 승인 · 증명서의 상태를 바꾸지 않는다.
+  end note

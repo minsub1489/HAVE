@@ -1,0 +1,36 @@
+---
+title: UC02 결과물 등록 — 상태 (11-23)
+---
+stateDiagram-v2
+  direction LR
+  state "작성 중<br/>DRAFT" as DRAFT
+  state "업로드 처리" as UP {
+    state "형식 · 크기 검사" as V1
+    state "SHA-256 계산" as V2
+    state "파일 저장" as V3
+    state "버전 저장" as V4
+    [*] --> V1
+    V1 --> V2 : isValidFile() {PDF · 20MB}
+    V2 --> V3 : getSha256(stream)
+    V3 --> V4 : put(key, file)
+    V4 --> [*] : save(WorkVersion)
+  }
+  state "제출 완료<br/>SUBMITTED" as SUBMITTED {
+    state "근거자료 추가 가능" as EV
+    [*] --> EV
+    EV --> EV : addEvidence(versionId, evidence) [isValidUrl(url) · 파일 검사]
+  }
+  state "이해 확인 대기<br/>CHALLENGE_PENDING" as CHALLENGE_PENDING
+
+  [*] --> DRAFT : createWork (UC01)
+  DRAFT --> UP : uploadVersion(workId, file, reason)
+  UP --> DRAFT : [PDF 아님 · 20MB 초과 · 직전 버전과 같은 파일] / 400 · 409, 저장한 파일은 delete(key)
+  UP --> SUBMITTED : 버전 생성 완료 / setWorkStatus(workId, SUBMITTED)
+  SUBMITTED --> CHALLENGE_PENDING : requestReview (UC03) / 근거자료 · AI 신고 잠금
+  CHALLENGE_PENDING --> [*] : → 상태 ①
+
+  note right of SUBMITTED
+    새 버전(v2 이후)은 승인 뒤 등록(UC02)이나
+    수정본 재제출(UC05)로만 만든다 — 상태 ①.
+    11-04 원본의 "재업로드 → 새 버전"은 상태 ①과 맞춰 뺐다.
+  end note

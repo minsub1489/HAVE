@@ -1,0 +1,48 @@
+---
+title: 상태 ⑦ 이력 · 상태 조회 화면 (UC09 · 11-23 해시 체인 확인 · 알림)
+---
+stateDiagram-v2
+  direction LR
+  state "작업 목록 · 측면 패널(WorkListView)" as LIST {
+    direction LR
+    state "목록 불러오는 중<br/>LOADING" as L_LOADING
+    state "목록 표시<br/>LISTED" as LISTED
+    state "빈 목록<br/>EMPTY" as L_EMPTY
+    [*] --> L_LOADING : 측면 패널 열기 / getWorks(filter)
+    L_LOADING --> LISTED : [작업 있음] / getLatestStatus(workId)로 현재 상태 · 다음 행동 표시
+    L_LOADING --> L_EMPTY : [작업 없음] / 빈 상태 안내
+    LISTED --> L_LOADING : 목록 구분 변경 (내 작업 · 검토할 작업 · 승인할 작업)
+  }
+  state "이력 탭 · 작업 상세(WorkDetailView)" as HIST {
+    direction LR
+    state "이력 불러오는 중<br/>LOADING" as H_LOADING
+    state "타임라인 표시<br/>SHOWN" as H_SHOWN
+    state "조건에 맞는 기록 없음<br/>EMPTY" as H_EMPTY
+    state "권한 안내<br/>FORBIDDEN" as FORBIDDEN
+    [*] --> H_LOADING : 작업 선택 → 이력 탭 / getHistory(workId, condition)
+    H_LOADING --> H_SHOWN : [작업 구성원 ∧ 기록 있음] / 시간 역순 타임라인 · isChainValid(workId)로 해시 체인 확인
+    H_LOADING --> H_EMPTY : [작업 구성원 ∧ 기록 없음]
+    H_LOADING --> FORBIDDEN : [작업 구성원 아님] / 내용 노출 없음
+    H_SHOWN --> H_LOADING : 버전 · 유형 필터 변경
+    H_EMPTY --> H_LOADING : 필터 변경
+    H_SHOWN --> [*]
+    FORBIDDEN --> [*]
+  }
+  state "알림 탭 · 알림 목록(NotificationView)" as NOTI {
+    direction LR
+    state "알림 불러오는 중<br/>LOADING" as N_LOADING
+    state "알림 표시<br/>LISTED" as N_LISTED
+    state "알림 없음<br/>EMPTY" as N_EMPTY
+    [*] --> N_LOADING : 알림 탭 열기 / getNotifications(userId)
+    N_LOADING --> N_LISTED : [알림 있음] / 읽지 않은 알림 강조 · 아이콘 배지 건수
+    N_LOADING --> N_EMPTY : [알림 없음] / 빈 상태 안내
+    N_LISTED --> [*] : 알림 열기 / setRead(notificationId) → 해당 작업 상세로 이동
+  }
+  LISTED --> HIST : 작업 선택
+  note right of HIST
+    UC09는 조회만 한다. 작업 버전 · 검토 · 승인 · 증명서의 상태를 바꾸지 않는다.
+    알림을 열면 읽음 시각(readAt)만 기록한다.
+    보여 주는 값은 상태 ①~⑤의 현재 상태와 AuditEvent(추가만 가능한 기록)다.
+    AuditEvent는 상태가 없고 prevHash → eventHash 체인으로 순서를 지킨다.
+    isChainValid는 처음 기록부터 해시를 다시 계산해 체인이 끊긴 곳이 없는지 확인한다.
+  end note

@@ -1,0 +1,51 @@
+---
+title: UC02 결과물 및 근거자료 등록 — 순서 다이어그램 (1104 원본을 1123에 다시 그림)
+---
+sequenceDiagram
+  autonumber
+  actor A as 작성자
+  participant P as :RegisterWizardView<br/>(측면 패널 · 등록)
+  participant VC as :VersionController<br/>(02 Work)
+  participant VS as :VersionService<br/>(02 Work)
+  participant EC as :EvidenceController<br/>(02 Work)
+  participant ES as :EvidenceService<br/>(02 Work)
+  participant FS as :FileStore<br/>(08 Persistence)
+  participant DB as :WorkRepository<br/>(08 Persistence)
+  participant OB as :WorkStatusObserver<br/>(07 Audit)
+
+  Note over P,OB: ① 결과물 PDF 등록 → 버전 생성 (등록 1/5)
+  A->>P: PDF 선택 (끌어다 놓기 · 현재 탭의 PDF 가져오기, v2부터 변경 사유)
+  P->>VC: uploadVersion(workId, file, reason)
+  VC->>VS: createVersion(ownerId, workId, file)
+  VS->>VS: isValidFile() {PDF · 20MB} · getSha256(stream)
+  alt PDF 아님 · 20MB 초과 · 직전 버전과 같은 파일
+    VS-->>P: 400 / 409 오류 안내
+  else 정상
+    VS->>FS: put(key, file) — 비공개 저장
+    VS->>DB: save(WorkVersion) — v1 · AI 신고 사본 고정
+    Note right of VS: DB 저장 실패 시 FileStore.delete(key)로 저장한 파일을 지운다
+    VS->>VS: WorkStatusSubject.setWorkStatus(workId, SUBMITTED)
+    VS-)OB: notifyObservers() → 이력 기록
+    VC-->>P: 201 { versionId, sha256 }
+    P-->>A: 버전 번호 · 파일 해시 표시
+  end
+
+  Note over P,OB: ② 근거자료 등록 (등록 3/5)
+  loop 근거자료마다
+    alt 웹 출처 · 참고 문헌 · 프롬프트 기록
+      A->>P: URL · 제목 · 접속일 입력
+      P->>EC: addWebSource(versionId, req)
+      EC->>ES: addWebSource(versionId, req)
+      ES->>ES: isValidUrl(url)
+    else 보조 자료 파일
+      A->>P: 파일 선택 (PDF · PNG · JPEG)
+      P->>EC: addSupportFile(versionId, file)
+      EC->>ES: addSupportFile(versionId, file)
+      ES->>FS: put(key, file)
+    end
+    ES->>DB: save(EvidenceItem)
+    EC-->>P: 201 { evidenceId }
+  end
+  P-->>A: 근거자료 목록 표시
+
+  Note over VC,ES: 1104 원본의 라이프라인 "등록 화면 · Controller · Service · 파일 저장소 · DB"를<br/>UC02 클래스 다이어그램의 클래스 이름으로 바꿨다. 흐름은 같다.

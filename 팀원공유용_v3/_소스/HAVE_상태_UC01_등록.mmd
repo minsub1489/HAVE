@@ -1,0 +1,33 @@
+---
+title: UC01 작업 등록 — 상태 (11-23)
+---
+stateDiagram-v2
+  direction LR
+  state C1 <<choice>>
+  state "작성 중<br/>DRAFT" as DRAFT {
+    state "AI 사용 신고 초안 보관<br/>Work.aiDisclosureDraft" as AD
+    state "결과물 파일 대기" as FW
+    [*] --> AD
+    AD --> FW : save(Work) 완료
+  }
+  state "제출 완료<br/>SUBMITTED" as SUBMITTED {
+    state "기여 기록 가능" as CB
+    [*] --> CB
+    CB --> CB : addContribution(versionId, event) [isOwnerAndEditable()] / record · 기여 타임라인
+  }
+
+  [*] --> C1 : createWork(title, aiDisclosure)
+  C1 --> DRAFT : [isValidDisclosure(d)] / save(Work) · record(CREATE_WORK)
+  C1 --> [*] : [입력 오류] / 400 안내 · 작업을 만들지 않음 (입력값 유지)
+  DRAFT --> SUBMITTED : uploadVersion 성공 (UC02) / v1 생성 · AI 신고 사본 고정
+  SUBMITTED --> [*] : requestReview (UC03) → 상태 ①
+
+  note right of DRAFT
+    11-04 원본의 "작성 중 · 서버 검증"은 저장 전 화면의 단계라
+    작업 객체의 상태가 아니다. 선택 노드(◇)로 바꿨다.
+    DRAFT의 화면 표기가 "작성 중"이다 (상태 표기 규칙).
+  end note
+  note right of SUBMITTED
+    기여 기록은 결과물 버전이 생긴 뒤(UC02)에 남긴다.
+    권한 없음 · 승인된 버전이면 403 / 409, 상태는 그대로.
+  end note
