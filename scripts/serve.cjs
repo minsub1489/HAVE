@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '../prototype/dist');
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json', '.txt': 'text/plain; charset=utf-8' };
-const server = http.createServer((request, response) => {
+function serveFile(request, response) {
   if (!['GET', 'HEAD'].includes(request.method)) { response.writeHead(405, { Allow: 'GET, HEAD' }); response.end(); return; }
   let file;
   try {
@@ -17,6 +17,16 @@ const server = http.createServer((request, response) => {
     if (request.method === 'HEAD') { response.end(); return; }
     const stream = fs.createReadStream(file); stream.on('error', () => response.destroy()); stream.pipe(response);
   });
-});
-server.on('error', error => { console.error(error.message); process.exitCode = 1; });
-server.listen(4173, '127.0.0.1', () => console.log('HumanProof: http://127.0.0.1:4173/'));
+}
+
+function createServer() {
+  return http.createServer(serveFile);
+}
+
+if (require.main === module) {
+  const server = createServer();
+  server.on('error', error => { console.error(error.message); process.exitCode = 1; });
+  server.listen(4173, '127.0.0.1', () => console.log('HAVE: http://127.0.0.1:4173/'));
+}
+
+module.exports = { createServer };

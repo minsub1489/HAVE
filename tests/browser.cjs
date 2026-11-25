@@ -2,15 +2,11 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const http = require('node:http');
+const { pathToFileURL } = require('node:url');
 const { chromium } = require('playwright');
+const { createServer } = require('../scripts/serve.cjs');
 const root = path.resolve(__dirname, '..');
-const server = http.createServer((request, response) => {
-  const file = path.resolve(root, '.' + decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-  if (!file.startsWith(root + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { response.writeHead(404); response.end(); return; }
-  const type = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' }[path.extname(file)] || 'application/octet-stream';
-  response.writeHead(200, { 'Content-Type': type }); fs.createReadStream(file).pipe(response);
-});
+const server = createServer();
 const errors = [];
 async function idle(page) { await page.evaluate(async () => { await pending; }); }
 async function state(page) { await idle(page); return page.evaluate(() => structuredClone(db)); }
@@ -24,12 +20,12 @@ async function submitAll(page) {
 async function evaluate(page) { await role(page, 'reviewer'); await nav(page, 'review'); await action(page, 'sampleEvaluation'); for (let index = 0; index < 4; index++) { await page.locator(`[data-check="${index}"]`).check(); await idle(page); } }
 async function run() {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const base = `http://127.0.0.1:${server.address().port}`;
+  const demoUrl = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_EXECUTABLE || undefined });
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
-    await page.goto(base + '/prototype/dist/index.html'); await page.waitForSelector('[data-nav="gate"]');
+    await page.goto(demoUrl); await page.waitForSelector('[data-nav="gate"]');
     const artifacts = path.join(root, 'test-artifacts');
     fs.mkdirSync(artifacts, { recursive: true });
     await page.screenshot({ path: path.join(artifacts, 'overview-desktop.jpg'), quality: 90, fullPage: true });
@@ -98,6 +94,14 @@ async function run() {
     await publicPage.setViewportSize({ width: 360, height: 800 });
     assert.equal(await publicPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await publicPage.screenshot({ path: path.join(artifacts, 'verify-mobile.png'), fullPage: true });
+    const approvedPdf = data.versions[0];
+    await publicPage.locator('#verifyFile').setInputFiles({
+      name: approvedPdf.fileName,
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(approvedPdf.fileData, 'base64')
+    });
+    await publicPage.getByText('파일이 일치합니다', { exact: true }).waitFor();
+    assert.deepEqual(await publicPage.locator('.verify-facts dd').allTextContents(), ['현재 효력 조회 불가', '미적용']);
     await publicContext.close();
 
     await action(page, 'workspace'); await nav(page, 'certificate'); await action(page, 'revoke'); await page.locator('#revokeForm textarea').fill('근거 오류를 발견했습니다.'); await page.locator('#revokeForm button[type=submit]').click(); await idle(page);
@@ -122,7 +126,9 @@ async function run() {
     await page.setViewportSize({ width: 1440, height: 1000 }); await page.screenshot({ path: path.join(artifacts, 'history-desktop.png'), fullPage: true });
 
     // Standalone HTML has all dependencies, including its IndexedDB persistence adapter.
-    const standalone = await context.newPage(); await standalone.goto('file:///' + path.join(root, 'prototype', 'HumanProof_프로토타입.html').replaceAll('\\', '/')); await standalone.waitForSelector('[data-nav="gate"]');
+    const standalone = await context.newPage();
+    await standalone.goto(pathToFileURL(path.join(root, 'prototype', 'HumanProof_프로토타입.html')).href);
+    await standalone.waitForSelector('[data-nav="gate"]');
     assert.equal((await state(standalone)).versions.length, 1); await standalone.close();
 
     // Existing v2 localStorage is migrated after validation and retained as a recovery copy.
@@ -132,14 +138,14 @@ async function run() {
     // Recompute only the legacy receipt's original payload hash, as the old app did.
     const domain = require('../prototype/dist/domain.js'); for (const approval of legacy.approvals) approval.payloadHash = await domain.digestText(domain.canonical(approval.payload));
     await legacyContext.addInitScript(value => localStorage.setItem('humanproof-demo-v2', JSON.stringify(value)), legacy);
-    await legacyPage.goto(base + '/prototype/dist/index.html'); await legacyPage.waitForSelector('[data-nav="history"]'); assert.equal((await state(legacyPage)).versions.length, 2); assert.ok(await legacyPage.evaluate(() => localStorage.getItem('humanproof-demo-v2'))); await legacyContext.close();
+    await legacyPage.goto(demoUrl); await legacyPage.waitForSelector('[data-nav="history"]'); assert.equal((await state(legacyPage)).versions.length, 2); assert.ok(await legacyPage.evaluate(() => localStorage.getItem('humanproof-demo-v2'))); await legacyContext.close();
 
     // Malformed cached records are preserved and require explicit recovery, never auto-reset.
     const brokenContext = await browser.newContext(); await brokenContext.addInitScript(() => localStorage.setItem('humanproof-demo-v2', '{broken'));
-    const broken = await brokenContext.newPage(); await broken.goto(base + '/prototype/dist/index.html'); await broken.waitForSelector('#recoveryBackup'); assert.equal(await broken.locator('#recoveryReset').isDisabled(), true); assert.equal(await broken.evaluate(() => localStorage.getItem('humanproof-demo-v2')), '{broken'); await brokenContext.close();
+    const broken = await brokenContext.newPage(); await broken.goto(demoUrl); await broken.waitForSelector('#recoveryBackup'); assert.equal(await broken.locator('#recoveryReset').isDisabled(), true); assert.equal(await broken.evaluate(() => localStorage.getItem('humanproof-demo-v2')), '{broken'); await brokenContext.close();
 
     // A 20 MB boundary fixture must persist despite the former localStorage size limit.
-    const largeContext = await browser.newContext(), large = await largeContext.newPage(); await large.goto(base + '/prototype/dist/index.html'); await large.waitForSelector('[data-nav="gate"]');
+    const largeContext = await browser.newContext(), large = await largeContext.newPage(); await large.goto(demoUrl); await large.waitForSelector('[data-nav="gate"]');
     const pdfErrors = await large.evaluate(async () => {
       const fixtures = [new File([], 'empty.pdf', { type: 'application/pdf' }), new File(['fake'], 'fake.pdf', { type: 'application/pdf' }), new File(['%PDF-1.4'], 'text.txt', { type: 'text/plain' }),
         { size: 20 * 1024 * 1024 + 1, name: 'large.pdf', type: 'application/pdf' }];

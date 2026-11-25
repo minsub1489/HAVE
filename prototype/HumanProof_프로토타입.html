@@ -615,14 +615,11 @@ const fmtSize=n=>n<1024*1024?(n/1024).toFixed(1)+' KB':(n/1024/1024).toFixed(1)+
 const uid=p=>p+'-'+crypto.randomUUID();
 const to64=bytes=>{let t='';for(let i=0;i<bytes.length;i+=8192)t+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(t)};
 const from64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
-const hash=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b)),x=>x.toString(16).padStart(2,'0')).join('');
-const hashText=t=>hash(new TextEncoder().encode(t));
-const canonical=HumanProof.canonical;
+const {canonical,digest:hash,digestText:hashText,gatesPassed,publicRecord,verifyChain,MAX_PDF_BYTES}=HumanProof;
 const current=()=>db.versions[db.versions.length-1];
 const approvalFor=v=>db.approvals.find(a=>a.versionId===v.id);
 const totalScore=v=>v.gates.reduce((s,g)=>s+(g.evaluation?.score??0),0);
 const gatesSubmitted=v=>v.gates.every(g=>g.submitted);
-const gatesPassed=HumanProof.gatesPassed;
 const statusOf=v=>HumanProof.status(v,approvalFor(v),current().id);
 const badge=v=>{const [text,color]=statusOf(v);return `<span class="badge ${color}">${text}</span>`};
 function makePdf(){
@@ -716,7 +713,7 @@ function workProgress(v,approval){
  const currentStage=stages.findIndex(stage=>!stage[2]);
  return `<section class="panel">
   <div class="panel-head"><h2>작업 진행</h2><span class="badge">v${v.n}</span></div>
-  <div class="panel-body progress-body">
+  <div class="panel-body">
    <ol class="work-progress">${stages.map(([label,status,done],index)=>`<li class="${done?'is-done':index===currentStage?'is-current':''}" ${index===currentStage?'aria-current="step"':''}>
     <span class="progress-marker" aria-hidden="true">${done?icon('check'):index+1}</span><span>${label}</span><span class="progress-status">${status}</span>
    </li>`).join('')}</ol>
@@ -742,9 +739,9 @@ function overview(){
  </div>
  ${lastRequest?`<div class="callout warning gap">${icon('info')}<div><b>검토자가 답변 보완을 요청했습니다</b>${esc(lastRequest.reason)}</div></div>`:''}
  ${nextWorkButton(nextWorkAction(v,approval),'narrow-next')}
- <div class="split overview-grid">
+ <div class="split">
   <div class="content-stack">
-   <section class="panel document-panel">
+   <section class="panel">
     <div class="panel-head"><h2>결과물</h2><button class="btn ghost small" data-action="downloadOriginal">${icon('download')} PDF 받기</button></div>
     <button class="document-preview" data-action="previewPdf" aria-label="PDF 원문 보기: ${esc(v.fileName)}">
      <span class="doc-sheet" aria-hidden="true"><span class="sheet-brand">HAVE</span><span class="sheet-label">PDF <span>v${v.n}</span></span><strong>${esc(db.title)}</strong><span class="document-lines"><i></i><i></i><i></i></span></span>
@@ -850,7 +847,7 @@ function certScreen(){
  const v=db.versions.find(version=>version.id===approval.versionId);
  return heading('승인 증명서','승인 당시의 PDF와 검토 기록입니다.',
   `<div class="flex wrap"><button class="btn" data-action="print">${icon('file')} 인쇄 · PDF 저장</button><button class="btn" data-action="downloadReceipt">${icon('download')} JSON 받기</button></div>`)+`
- <div class="split certificate-layout">
+ <div class="split">
   <article class="receipt panel">
    <div class="receipt-top"><div>${brand()}<h2>인간 승인 증명서</h2></div><span class="receipt-symbol">${icon('shield')}</span></div>
    <div class="receipt-body">
@@ -883,11 +880,14 @@ function certScreen(){
   </aside>
  </div>`;
 }
-function publicRecord(a){return HumanProof.publicRecord(a)}
 function verifyUrl(a){const base=location.protocol==='file:'?document.querySelector('meta[name=demo-site-url]').content:location.href.split('#')[0];return base+'#verify='+encodeURIComponent(to64(new TextEncoder().encode(JSON.stringify(publicRecord(a)))))}
-function parseRecord(){try{const h=location.hash;if(!h.startsWith('#verify=')||h.length>12000)return null;return HumanProof.publicRecord(JSON.parse(new TextDecoder().decode(from64(decodeURIComponent(h.slice(8))))))}catch{return null}}
+function parseRecord(){try{const h=location.hash;if(!h.startsWith('#verify=')||h.length>12000)return null;return publicRecord(JSON.parse(new TextDecoder().decode(from64(decodeURIComponent(h.slice(8))))))}catch{return null}}
+function activeVerifyApproval(snapshot=parseRecord()){
+ const id=verifyId||snapshot?.id;
+ return db.approvals.find(approval=>approval.id===id);
+}
 function verifyScreen(){
- const snapshot=parseRecord(),local=db.approvals.find(approval=>approval.id===(verifyId||snapshot?.id)),record=local?publicRecord(local):snapshot;
+ const snapshot=parseRecord(),local=activeVerifyApproval(snapshot),record=local?publicRecord(local):snapshot;
  const header=`<header class="public-header">${brand()}<button class="btn small" data-action="workspace">작업 화면으로</button></header>`;
  if(!record)return header+`<main class="public-wrap"><section class="panel empty">${icon('info')}<h1>승인 기록을 찾을 수 없습니다</h1><p>증명서에서 발급한 검증 링크를 다시 열어 주세요.</p></section></main>`;
  const revoked=!!record.revokedAt,old=local&&record.n!==current().n;
@@ -925,7 +925,7 @@ function historyScreen(){
  const active=current(),versionNumbers=new Map(db.versions.map(version=>[version.id,version.n]));
  const actions=role==='author'?`<div class="flex wrap"><button class="btn" data-action="importContributions" ${approvalFor(active)?'disabled':''}>기여 기록 가져오기</button><button class="btn primary" data-action="newVersion">${icon('plus')}새 버전 등록</button></div>`:'';
  return heading('버전·이력','등록한 파일과 검토 기록을 버전별로 확인하세요.',actions)+`
- <div class="split history-layout">
+ <div class="split">
   <div class="content-stack">
    <section class="panel">
     <div class="panel-head"><h2>파일 버전</h2><span class="badge">${db.versions.length}개</span></div>
@@ -991,12 +991,19 @@ function previewPdf(version){
 function closeModal(){$('#modal').close()}
 function riskFields(){return `<div class="form-row">${riskLabels.map((t,i)=>`<label class="field"><span>${t}</span><select name="risk${i}">${Array.from({length:riskMax[i]+1},(_,n)=>`<option value="${n}" ${n===[3,3,1,1][i]?'selected':''}>${n} / ${riskMax[i]}</option>`).join('')}</select></label>`).join('')}</div>`}
 function registrationModal(isVersion=false){if(role!=='author'){toast('파일을 등록하려면 작성자 A로 전환하세요.');return}modal(isVersion?'새 버전 등록':'새 작업 등록',`<p>${isVersion?'이전 파일과 승인은 보존됩니다. 새 버전은 승인 전 상태로 시작합니다.':'현재 샘플 작업을 새 작업으로 바꿉니다. 시연용 작업은 한 번에 한 개를 체험합니다.'}</p><form id="registrationForm" data-version="${isVersion}">${!isVersion?'<label class="field"><span>작업 제목</span><input name="title" required maxlength="100" placeholder="예: AI 활용 프로젝트 보고서"></label>':''}<label class="field"><span>PDF 파일 · 최대 20 MB</span><input name="pdf" type="file" accept=".pdf,application/pdf"></label><label class="check-row"><input type="checkbox" name="useSample" checked>파일 없이 샘플 PDF로 시연하기</label>${isVersion?'<label class="field"><span>변경 사유</span><input name="reason" maxlength="2000" required value="검토 의견을 반영해 내용을 수정했습니다."></label>':''}<label class="field"><span>AI 활용 도구</span><input name="tool" required value="ChatGPT" maxlength="100"></label><label class="field"><span>AI 사용 범위 · 작성자 신고</span><textarea name="scope" maxlength="5000" required style="min-height:80px">설계 초안 생성 및 요구사항 정리</textarea></label><h3>위험 점수 입력</h3>${riskFields()}<p class="inline-note">검토자 B 배정 · 등록 후 세 종류의 이해 과제를 수행합니다.</p><div class="error-text" id="registrationError"></div><div class="modal-actions"><button type="button" class="btn" data-action="closeModal">취소</button><button type="submit" class="btn primary">${isVersion?'새 버전 등록':'등록 · 이해 과제 배정'}</button></div></form>`)}
-async function validatePdf(file){if(file.size>20*1024*1024)throw Error('PDF는 20 MB 이하만 등록할 수 있습니다.');if(!/\.pdf$/i.test(file.name)||file.type&&file.type!=='application/pdf')throw Error('PDF 파일을 선택해 주세요.');const bytes=new Uint8Array(await file.arrayBuffer());if(!bytes.length||bytes.length>HumanProof.MAX_PDF_BYTES)throw Error('PDF 파일 크기가 올바르지 않습니다.');const head=new TextDecoder().decode(bytes.subarray(0,5));if(head!=='%PDF-')throw Error('PDF 형식이 올바르지 않습니다. 확장자만 변경한 파일은 등록할 수 없습니다.');return bytes}
+async function validatePdf(file){if(file.size>MAX_PDF_BYTES)throw Error('PDF는 20 MB 이하만 등록할 수 있습니다.');if(!/\.pdf$/i.test(file.name)||file.type&&file.type!=='application/pdf')throw Error('PDF 파일을 선택해 주세요.');const bytes=new Uint8Array(await file.arrayBuffer());if(!bytes.length||bytes.length>MAX_PDF_BYTES)throw Error('PDF 파일 크기가 올바르지 않습니다.');const head=new TextDecoder().decode(bytes.subarray(0,5));if(head!=='%PDF-')throw Error('PDF 형식이 올바르지 않습니다. 확장자만 변경한 파일은 등록할 수 없습니다.');return bytes}
 function ensureReviewer(){if(role!=='reviewer')throw Error('검토자 B 역할에서 진행하세요. 자기 승인은 금지됩니다.')}
 function altered(bytes){const copy=new Uint8Array(bytes.length+1);copy.set(bytes);copy[copy.length-1]=10;return copy}
 let comparisonRequest=0,fileSelectionRequest=0;
-async function compare(bytes,fileName){const request=++comparisonRequest,recordKey=verifyId||location.hash;const snap=parseRecord(),a=db.approvals.find(a=>a.id===(verifyId||snap?.id))||snap;if(!a)throw Error('승인 기록이 없습니다.');const h=await hash(bytes);if(request!==comparisonRequest||recordKey!==(verifyId||location.hash)||screen!=='verify')return;verifyResult={match:h===(a.fileHash),hash:h,fileName};$('#verifyResult').innerHTML=verifyResultHtml()}
-function activeVerifyApproval(){const snap=parseRecord();return db.approvals.find(a=>a.id===(verifyId||snap?.id))}
+async function compare(bytes,fileName){
+ const request=++comparisonRequest,recordKey=verifyId||location.hash;
+ const snapshot=parseRecord(),approval=activeVerifyApproval(snapshot)||snapshot;
+ if(!approval)throw Error('승인 기록이 없습니다.');
+ const digest=await hash(bytes);
+ if(request!==comparisonRequest||recordKey!==(verifyId||location.hash)||screen!=='verify')return;
+ verifyResult={match:digest===approval.fileHash,hash:digest,fileName};
+ $('#verifyResult').innerHTML=verifyResultHtml();
+}
 async function doAction(action,b){const v=current();switch(action){
  case 'importContributions':contributionImportModal();break;
  case 'confirmContributions':await confirmContributions();break;
@@ -1028,7 +1035,11 @@ async function doAction(action,b){const v=current();switch(action){
  case 'confirmReset':await seed();role='author';gateIndex=0;verifyId=null;history.replaceState(null,'',location.href.split('#')[0]);closeModal();navigate('overview');toast('처음부터 시연할 준비가 되었습니다.');break;
  case 'return':ensureReviewer();if(approvalFor(v))throw Error('승인된 버전에는 수정 요청을 할 수 없습니다.');modal('작성자에게 수정 요청',`<p>수정 사유를 기록하면 과제 답변을 다시 작성하고 제출할 수 있습니다.</p><form id="returnForm"><label class="field"><span>수정 요청 근거</span><textarea name="reason" maxlength="2000" required placeholder="어떤 답변을 어떻게 보완해야 하나요?"></textarea></label><div class="modal-actions"><button type="button" class="btn" data-action="closeModal">취소</button><button class="btn danger" type="submit">수정 요청 기록</button></div></form>`);break;
  case 'revoke':{ensureReviewer();const a=latestApproval();if(!a||a.revokedAt)return;modal('인간 승인 철회',`<p>철회 이후 검증 화면에 승인 철회 상태와 사유가 표시됩니다. 기존 기록은 남습니다.</p><form id="revokeForm"><label class="field"><span>공개할 철회 사유</span><textarea name="reason" maxlength="2000" required placeholder="예: 승인 후 근거 자료의 오류를 발견했습니다."></textarea></label><div class="modal-actions"><button class="btn" type="button" data-action="closeModal">취소</button><button class="btn danger" type="submit">승인 철회 기록</button></div></form>`);break}
- case 'checkChain':{let prev='0'.repeat(64),ok=true;for(const e of db.events){const body={id:e.id,action:e.action,actor:e.actor,note:e.note,target:e.target,time:e.time};if(e.prevHash!==prev||e.eventHash!==await hashText(prev+canonical(body))){ok=false;break}prev=e.eventHash}$('#chainResult').innerHTML=`<div class="callout ${ok?'success':'error'}" style="margin:20px"><div><b>${ok?'해시 체인 연결 확인':'해시 체인 불일치'}</b>${db.events.length}개 이벤트 ${ok?'연결이 일치합니다.':'중 변경되거나 누락된 기록이 있습니다.'}<br><span class="small">브라우저 시연 기록이며 독립적인 감사 인증은 아닙니다.</span></div></div>`;break}
+ case 'checkChain':{
+  const ok=await verifyChain(db.events);
+  $('#chainResult').innerHTML=`<div class="callout ${ok?'success':'error'}" style="margin:20px"><div><b>${ok?'해시 체인 연결 확인':'해시 체인 불일치'}</b>${db.events.length}개 이벤트 ${ok?'연결이 일치합니다.':'중 변경·누락·중복을 확인해야 합니다.'}<br><span class="small">이 브라우저에 저장된 이벤트의 연결만 확인합니다.</span></div></div>`;
+  break;
+ }
  }}
 function contributionPanel(){const items=current().contributions||[];return `<section class="panel gap"><div class="panel-head"><h2>AI/Human 기여 근거</h2><span class="small muted">${items.length}개 · 작성자 신고</span></div><div class="panel-body">${items.length?items.map(item=>`<div class="eval-card"><b>${esc(item.actorType)} · ${esc(item.stage)}</b><p>${esc(item.note)}</p><p class="small muted">${esc(item.pageTitle)} · ${stamp(item.createdAt)}</p>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">근거 페이지</a>`:''}${item.selectedText?`<div class="answer-quote">${esc(item.selectedText)}</div>`:''}</div>`).join(''):'확장 프로그램에서 JSON을 내보낸 뒤 가져오세요. 저장된 기록은 이 버전의 검토 범위에 포함됩니다.'}</div></section>`}
 function reviewHistoryPanel(){const rounds=db.versions.flatMap(version=>(version.reviewRounds||[]).map(round=>({...round,n:version.n})));if(!rounds.length)return '';return `<section class="panel gap"><div class="panel-head"><h2>이전 검토 회차</h2><span class="small muted">${rounds.length}개</span></div><div class="panel-body">${rounds.reverse().map(round=>`<details class="review-round"><summary>v${round.n} · ${stamp(round.at)} · ${esc(round.reason)}</summary>${round.gates.map((gate,index)=>`<div class="eval-card"><b>${gateNames[index]}</b><div class="answer-quote">${esc(gate.answer)}</div><p>이전 점수: ${gate.evaluation?gate.evaluation.score+' / 2점':'평가 전'} · 확신 ${gate.confidence}%</p><p>${esc(gate.evaluation?.reason||'')}</p></div>`).join('')}<p>이전 검토 메모: ${esc(round.memo)}</p></details>`).join('')}</div></section>`}

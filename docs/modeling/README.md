@@ -96,13 +96,13 @@ UC-07의 파일 비교는 사용자가 파일을 선택할 때 실행되는 선�
 
 | 요구사항 | 다이어그램 | 코드 근거 / 확인 방법 |
 | --- | --- | --- |
-| R-01 파일·승인 버전 고정 | 02, 04, 05, 06, 08 | `app.js:44,109,204`, `domain.js:124`; 새 버전 승인 미상속 |
-| R-02 세 과제·인간 평가 | 01, 03, 04, 08, 09 | `domain.js:7,21`, `app.js:80`; 5/6·치명 오류·근거·체크·메모 |
-| R-03 검토 회차와 불변성 | 02, 03, 07, 08 | `app.js:134,212`, `domain.js:121,124`; 이전 회차 보존·승인 후 변경 거부 |
-| R-04 원자적 저장·충돌 | 04, 05, 07, 10 | `app.js:53`, `repository.js:28`; commit 전 성공 표시 금지 |
-| R-05 철회·후속 버전 분리 | 05, 06, 08, 09 | `domain.js:27`, `app.js:209`; 두 사실 동시 존재 가능 |
-| R-06 QR 신뢰 범위 | 06, 10 | `app.js:86,88,101`, `domain.js:35`; 다른 기기 최신 상태 미확인 |
-| R-07 확장 입력 검증 | 01, 07, 10 | `extension/records.js`, `app.js:129,134`, `domain.js:142`; 신고 데이터로 처리 |
+| R-01 파일·승인 버전 고정 | 02, 04, 05, 06, 08 | `app.js`의 `makeVersion`, `approve` 처리와 `domain.js`의 `validateTransition`에서 확인 |
+| R-02 세 과제·인간 평가 | 01, 03, 04, 08, 09 | `domain.js`의 `gatesPassed`, `app.js`의 `approvalReasons`에서 과제와 최종 승인 조건 확인 |
+| R-03 검토 회차와 불변성 | 02, 03, 07, 08 | `app.js`의 수정 요청 처리와 `domain.js`의 `reviewSnapshot`, `validateTransition`에서 이전 회차 보존 및 승인 후 변경 차단 확인 |
+| R-04 원자적 저장·충돌 | 04, 05, 07, 10 | `app.js`의 `transaction`, `repository.js`의 `commit`에서 저장 성공과 충돌 처리 확인 |
+| R-05 철회·후속 버전 분리 | 05, 06, 08, 09 | `app.js`의 `historyScreen`, `verifyScreen`에서 두 상태의 동시 표시 확인 |
+| R-06 QR 신뢰 범위 | 06, 10 | `domain.js`의 `publicRecord`, `app.js`의 `verifyScreen`에서 공개 필드와 현재 효력의 확인 범위 확인 |
+| R-07 확장 입력 검증 | 01, 07, 10 | `extension/records.js`, `domain.js`의 `parseContributionExport`, `app.js`의 `confirmContributions`에서 신고 데이터 처리 확인 |
 | R-08 실제 권한·서명·최신 조회 | 11, 12 | **계획**: `docs/architecture.md`의 운영 MVP; 미구현 |
 
 검증 시 ① 유스케이스의 참여자가 시퀀스에 등장하는지, ② 메시지가 실제 함수 또는 계획 책임에 연결되는지, ③ 상태 전이의 guard가 승인 규칙과 같은지, ④ 0..1 승인 제약과 새 버전 미상속이 모든 그림에서 같은지, ⑤ 실패 경로에서 성공 상태가 남지 않는지를 확인한다. 시퀀스의 `alt`는 상호 배타 분기, `opt`는 선택 조건이다. UI 이벤트의 직렬화는 실제 `transaction()`에 반영했으며 비동기 함수라는 이유만으로 병렬 `par`를 쓰지 않았다.
