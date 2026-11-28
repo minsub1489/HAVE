@@ -1,0 +1,17 @@
+# enum 이름<탭>CHECK 제약 이름 — CodeValueTest가 읽는다. 스키마와 enum을 만든 스크립트가 함께 만든 파일이다.
+WorkStatus	ck_work_version_status
+MemberRole	ck_work_member_role
+ContributionStage	ck_contribution_stage
+ActorType	ck_contribution_actor_type
+EvidenceType	ck_evidence_item_type
+ChallengeKind	ck_challenge_kind
+ConfidenceLevel	ck_challenge_response_confidence
+RequestState	ck_review_request_state
+ReviewState	ck_review_state
+ReviewDecision	ck_feedback_decision
+RevisionState	ck_revision_state
+DecisionState	ck_approval_case_state
+SigningState	ck_certificate_signing_state
+DeliveryState	ck_outbox_event_delivery_state
+NotificationType	ck_notification_type
+AuditAction	ck_audit_event_action

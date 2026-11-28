@@ -1,0 +1,12 @@
+# 줄 바꿈: 저장소에는 LF로 두고, Windows 배치 파일만 CRLF
+* text=auto eol=lf
+*.bat text eol=crlf
+have-server/gradlew text eol=lf
+
+# 이진 파일
+*.jar binary
+*.png binary
+*.pdf binary
+*.docx binary
+*.pptx binary
+*.xlsx binary

@@ -1,0 +1,59 @@
+---
+title: UC06 최종 승인 및 반려 — 순서 다이어그램 (1118 수정본 · 11-23 트랜잭션 범위 수정)
+---
+sequenceDiagram
+  autonumber
+  actor M as 최종 승인자
+  participant P as :ApprovalView<br/>(측면 패널)
+  participant AS as :ApprovalService<br/>(04 Approval)
+  participant AC as :ApprovalCase<br/>(04 Approval)
+  participant AU as :AuthorizationPolicy<br/>(01 Auth)
+  participant RW as :IReviewResult<br/>(03 Review)
+  participant WK as :IWorkVersion<br/>(02 Work)
+  participant DB as :ApprovalRepository<br/>(08 Persistence)
+  participant OB as :WorkStatusObserver<br/>(07 Audit · 05 Certificate)
+
+  M->>P: 승인 내용 확인
+  P->>AS: getApprovalCase(versionId)
+  AS->>RW: isPassed(versionId) · getConfirmedResult(versionId)
+  AS->>WK: getVersionHash(versionId)
+  AS-->>P: 결정 대상(PENDING) + 승인 조건 5개 충족 여부
+  P-->>M: 승인 버전·파일·검토 결과·조건 표시
+
+  alt 최종 승인
+    M->>P: 최종 승인 (확인 창: 작업명·버전·승인 후 효과)
+    P->>AS: approve(caseId, key)
+    AS->>AU: isAuthorized(세션 사용자, 대상, APPROVE)
+    critical 한 트랜잭션 — 승인 · 증명서 PENDING · 감사 · Outbox를 함께 저장
+      AS->>DB: getForUpdate(caseId) + 멱등 키(key) 기존 결과 확인
+      AS->>AC: approve(actor)
+      Note over AS,WK: 조건 A — 지정 승인자 · 자기 승인 금지 · revision 일치 ·<br/>검토 통과(등급별 Gate 기준, 치명 오류 없음, 체크리스트 4/4) · 파일 해시 일치 · 기존 승인 없음
+      AS->>DB: save(Approval + Certificate[PENDING] + key, revision)
+      AS->>WK: setWorkStatus(workId, APPROVED)
+      WK->>OB: notifyObservers() — 같은 트랜잭션 안에서 동기 호출
+      OB->>DB: save(AuditEvent + OutboxEvent[발급 요청] + 작성자·검토자 Notification)
+      AS->>DB: commit()
+    end
+    Note over AS,DB: 어느 저장이든 실패하면 전체 롤백 — 승인만 남고 발급 요청이 빠지는 경우가 없다
+    AS-->>P: 승인 완료 · 증명서 발급 중
+  else 반려
+    M->>P: 반려 (사유 필수)
+    P->>AS: reject(caseId, reason, key)
+    AS->>AU: isAuthorized(세션 사용자, 대상, REJECT)
+    critical 한 트랜잭션 — 반려 · 수정 회차 · 감사를 함께 저장
+      AS->>DB: getForUpdate(caseId) + 멱등 키 확인
+      AS->>AC: reject(actor, reason)
+      Note over AS,WK: 조건 J — 지정 승인자 · revision 일치 · PENDING 상태 · 비어 있지 않은 사유
+      AS->>DB: save(ApprovalCase[REJECTED] + 사유 + Revision[OPEN] + key)
+      AS->>WK: setWorkStatus(workId, REVISION_REQUIRED)
+      WK->>OB: notifyObservers() — 같은 트랜잭션 안에서 동기 호출
+      OB->>DB: save(AuditEvent + 작성자·검토자 Notification[반려] → UC05)
+      AS->>DB: commit()
+    end
+    AS-->>P: 반려 완료
+  else 조건 미충족 · 충돌 · 동일 key 재요청
+    AS-->>P: 차단 사유 또는 기존 결과 반환 (새 기록 없음)
+  end
+  P-->>M: 결과 표시
+
+  Note over RW,OB: 커밋 뒤 비동기 — 서명 작업자(Outbox 처리기)가 커밋된 발급 요청을 05 CertificateService로 전달한다.<br/>서명 성공 → Certificate[READY] + 작성자 알림 / 실패 → FAILED, retryIssue(certId)로 재시도 (UC07)<br/>커밋 직후 장애가 나도 발급 요청은 OutboxEvent로 남아 있어 다시 처리된다.

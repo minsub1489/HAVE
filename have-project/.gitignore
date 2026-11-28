@@ -1,0 +1,32 @@
+# 빌드 결과
+have-server/build/
+have-server/.gradle/
+have-server/bin/
+have-server/out/
+*.class
+
+# Gradle 래퍼는 올린다 (전역 설정이 *.jar를 막아도)
+!have-server/gradle/wrapper/gradle-wrapper.jar
+
+# 비밀 값과 실행 데이터 — 올리지 않는다
+.env
+.have-data/
+*.pem
+*.key
+*.p12
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (테스트 도구를 설치했을 때)
+node_modules/

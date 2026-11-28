@@ -1,0 +1,33 @@
+---
+title: 상태 ④ ApprovalCase.state · 승인 효력 (UC06·UC10 · 11-23 수정)
+---
+stateDiagram-v2
+  direction LR
+  state "ApprovalCase · 최종 결정 상태 (UC06)" as AC {
+    state "최종 결정 대기<br/>PENDING" as PENDING
+    state "반려<br/>REJECTED" as REJECTED
+    state "승인 결정 완료<br/>APPROVED" as AC_APPROVED
+    [*] --> PENDING : 검토 통과된 결정 대상 생성
+    PENDING --> REJECTED : reject(actor, reason) [J ∧ commit 성공] / 반려 사유 · Revision 생성 · 감사 기록
+    PENDING --> AC_APPROVED : approve(actor) [A ∧ commit 성공] / 승인 · 증명서(PENDING) · Outbox · 감사 기록
+    REJECTED --> [*]
+    AC_APPROVED --> [*]
+  }
+  state "Approval · 승인 효력 (UC10 · 공개 검증에 표시)" as AP {
+    state "승인 유효<br/>VALID" as VALID
+    state "승인 철회<br/>REVOKED" as REVOKED
+    [*] --> VALID : 승인 트랜잭션 commit으로 생성
+    VALID --> REVOKED : revoke(actor, reason) [R ∧ commit 성공] / 철회자·시각·사유 · 감사 기록
+    REVOKED --> [*] : 철회 취소 없음 · 기록 보존
+  }
+  note right of AP
+    A = 지정 승인자 ∧ 자기 승인 금지 ∧ revision 일치 ∧ 검토 통과 ∧ 파일 해시 일치 ∧ 기존 승인 없음
+    J = 지정 승인자 ∧ revision 일치 ∧ PENDING ∧ 반려 사유
+    R = 철회 권한 ∧ revision 일치 ∧ 미철회 승인 ∧ 철회 사유
+    검토 통과 = 등급별 Gate 기준(LOW 2/2 · MEDIUM 3/4 · HIGH 5/6) ∧ 치명 오류 없음 ∧ 체크 4/4 ∧ 메모
+    조건 미충족 · 저장 실패 · 충돌이면 상태를 바꾸지 않고 최신 상태를 안내한다.
+    승인 효력은 저장하지 않고 Revocation 유무로 계산한다.
+    후속 버전 등록은 효력을 바꾸지 않는다(승인은 승계되지 않음).
+    최신 버전 여부(같은 작업에 더 큰 버전 번호가 있는가)를 따로 계산해 효력과 함께 보여 준다.
+    예: "v1 승인 철회 · 후속 버전 v2 있음" — 철회와 후속 버전은 동시에 성립한다.
+  end note

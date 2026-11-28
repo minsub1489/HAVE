@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HAVE · 승인 기록 확인</title>
+</head>
+<body>
+  <!--
+    공개 검증 페이지(verify-web)의 자리입니다. 담당 D, 항목 D18. 서버가 /verify/index.html 주소로 내려 줍니다 (공유 링크: /verify/index.html#<토큰>).
+    만들 내용:
+      1. 주소의 # 뒤에서 공유 토큰을 읽는다 (location.hash). 토큰을 ? 뒤에 두지 않는다.
+      2. POST /api/public/verifications { token, fileHash: null } 을 부른다 (docs/api.md 8.1).
+      3. 서명 · 승인 효력(+최신 버전 여부) · 파일 일치를 따로 보여 준다.
+      4. 검증자가 PDF를 고르면 파일은 보내지 않고 브라우저에서 SHA-256만 계산해 fileHash로 다시 부른다.
+      5. 404면 "승인 기록을 찾을 수 없어요", 서버에 닿지 못하면 세 판정 모두 "확인 불가".
+    화면과 문구는 have-chrome-extension/scripts/screens/verify.js 의 showVerify · compareFile 을 옮긴다.
+  -->
+  <main>
+    <h1>HAVE 승인 기록 확인</h1>
+    <p>공개 검증 페이지를 준비하고 있어요.</p>
+  </main>
+</body>
+</html>

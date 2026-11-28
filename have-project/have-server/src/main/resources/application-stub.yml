@@ -1,0 +1,5 @@
+# stub 프로필 — DB 없이 메모리(StubPersistence)로 뜬다. 매일 개발할 때 쓴다. 서버를 다시 켜면 데이터가 비워진다.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration   # DB 연결을 만들지 않는다

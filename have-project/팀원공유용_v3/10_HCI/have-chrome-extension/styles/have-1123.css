@@ -1,0 +1,23 @@
+/* HAVE 1123 추가 스타일 — 기존 have.css는 그대로 두고 새 요소만 정의한다 */
+:root { --color-accent: #C2413B; --color-accent-hover: #A9322D; --color-accent-soft: #FFF1F0; } /* DESIGN.md v0.2 보조 강조색 */
+.list-editor { display: grid; gap: 12px; margin: 12px 0; }
+.list-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; padding: 12px; border: 1px solid var(--color-border, #E2E8F0); border-radius: 8px; background: var(--color-surface, #fff); }
+.list-row .reg-control, .list-row .field { margin: 0; min-width: 140px; }
+.list-row .grow { flex: 1 1 260px; }
+.list-row .reg-error { flex-basis: 100%; }
+.plain-list { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+.condition-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.condition-list li { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.condition-list li[data-ok="true"] .icon { color: var(--color-primary, #0F766E); }
+.condition-list li[data-ok="false"] { color: var(--color-danger, #B42318); }
+.notif-list { list-style: none; margin: 0; padding: 0; }
+.notif-list li + li { border-top: 1px solid var(--color-border, #E2E8F0); }
+.notif-list button { display: flex; width: 100%; gap: 12px; align-items: center; padding: 14px 18px; background: none; border: 0; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.notif-list button:hover { background: var(--color-primary-soft, #F0FDFA); }
+.notif-text { display: block; font-size: 14px; }
+.notif-list li[data-unread="true"] .notif-text { font-weight: 600; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: transparent; }
+.notif-list li[data-unread="true"] .notif-dot { background: var(--color-accent); }
+.role-picker { max-width: 320px; }
+hr { border: 0; border-top: 1px solid var(--color-border, #E2E8F0); margin: 8px 0; }
+.form-progress.journey { grid-template-columns: repeat(5, minmax(0, 1fr)); }

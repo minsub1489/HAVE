@@ -1,0 +1,37 @@
+---
+title: 상태 ⑤ Certificate.signingState · ShareLink (UC07)
+---
+stateDiagram-v2
+  direction LR
+  state "Certificate · 발급(서명) 상태" as CT {
+    state "발급 중<br/>PENDING" as C_PENDING
+    state "발급 완료<br/>READY" as READY
+    state "발급 실패<br/>FAILED" as FAILED
+    [*] --> C_PENDING : 승인 commit / 증명서 레코드 · OutboxEvent 생성
+    C_PENDING --> READY : 서명 성공 / signature · keyId · issuedAt 기록 · 작성자 알림
+    C_PENDING --> FAILED : 서명 실패
+    FAILED --> C_PENDING : retryIssue(certId)
+    READY --> [*] : 발급 후 불변 (payloadHash)
+  }
+  state "ShareLink · 공유 링크 상태 (expiresAt · disabledAt로 계산)" as SL {
+    state "사용 가능<br/>ACTIVE" as ACTIVE
+    state "만료<br/>EXPIRED" as L_EXPIRED
+    state "사용 중지<br/>DISABLED" as DISABLED
+    [*] --> ACTIVE : createShareLink(certId, expiresAt) [증명서 READY]
+    ACTIVE --> L_EXPIRED : after(expiresAt)
+    ACTIVE --> DISABLED : disableShareLink(linkId) / disabledAt 기록 · 이력 (UC07)
+    L_EXPIRED --> [*]
+    DISABLED --> [*]
+  }
+  note right of CT
+    승인 성공과 발급 성공은 따로 처리한다.
+    서명 실패나 재시도 한도 초과면 FAILED가 되고,
+    UC07의 발급 재시도가 OutboxEvent를 다시 전달한다.
+    실패 시 화면 문구는
+    "승인은 완료됐지만 증명서 발급에 실패했어요".
+  end note
+  note right of SL
+    링크 만료·중지는 승인 철회와 다르다.
+    중지된 링크로 공개 검증을 열면 대상 미식별(UC08).
+    QR은 링크 URL의 파생 표현이라 저장하지 않는다.
+  end note

@@ -1,0 +1,53 @@
+---
+title: UC09 승인 이력 및 상태 조회 — 순서 다이어그램 (1118 수정본 · 11-23 해시 체인 확인 · 알림)
+---
+sequenceDiagram
+  autonumber
+  actor U as 작업 구성원
+  participant L as :WorkListView<br/>(측면 패널 · 작업 목록)
+  participant D as :WorkDetailView<br/>(작업 상세 · 이력 탭)
+  participant N as :NotificationView<br/>(측면 패널 · 알림 탭)
+  participant WS as :WorkService<br/>(02 Work)
+  participant HS as :HistoryService<br/>(07 Audit)
+  participant NG as :NotificationGateway<br/>(07 Audit)
+  participant AU as :IAuthorization<br/>(01 Auth)
+  participant DB as :HistoryRepository<br/>(08 Persistence)
+
+  Note over L,DB: ① 작업 목록과 현재 상태 — 작업 구성원 = 작성자 · 검토자 · 최종 승인자
+  U->>L: 측면 패널 열기 (내 작업 · 검토할 작업 · 승인할 작업)
+  L->>WS: getWorks(filter)
+  WS->>AU: getMemberRole(workId, userId)
+  WS-->>L: 작업 목록 { 제목, 버전, 담당자, 최근 변경 시각 }
+  L->>HS: getLatestStatus(workId)
+  HS-->>L: 현재 상태 + 다음 행동
+  L-->>U: 목록 표시 (내가 처리할 작업을 위로)
+
+  Note over L,DB: ② 이력 조회와 해시 체인 확인 (11-23)
+  U->>D: 작업 선택 → 이력 탭 (버전·유형 필터)
+  D->>HS: getHistory(workId, condition)
+  HS->>AU: isAuthorized(userId, work, VIEW_HISTORY)
+  alt 작업 구성원 아님
+    HS-->>D: 403 권한 부족 (내용 노출 없음)
+    D-->>U: 권한 안내
+  else 조회 가능
+    HS->>DB: getByCondition(AuditEvent, workId, condition)
+    DB-->>HS: 이벤트 목록 (append-only · prevHash → eventHash 체인)
+    HS-->>D: 타임라인 { 행위자, 행동, 버전, 시각, 사유, 기록 해시 }
+    D->>HS: isChainValid(workId)
+    HS->>HS: eventHash를 다시 계산해 다음 기록의 prevHash와 대조
+    HS-->>D: 체인 이어짐 · 끊김
+    D-->>U: 현재 상태와 지난 기록을 분리해 표시 · "기록 해시 체인 확인" 배지 (끊기면 경고)
+  end
+
+  Note over L,DB: ③ 알림 목록 (11-23) — 받는 사람별 알림 10종
+  U->>N: 알림 탭 열기
+  N->>NG: getNotifications(userId)
+  NG->>DB: getByCondition(Notification, userId)
+  NG-->>N: 알림 목록 { 종류, 작업, 버전, 시각, 읽음 여부 }
+  N-->>U: 읽지 않은 알림 강조 · 확장 프로그램 아이콘에 건수 배지
+  opt 알림 열기
+    U->>N: 알림 선택
+    N->>NG: setRead(notificationId)
+    NG->>DB: save(Notification { readAt })
+    N-->>U: 해당 작업 상세로 이동 (→ ② 또는 처리할 유스케이스 화면)
+  end

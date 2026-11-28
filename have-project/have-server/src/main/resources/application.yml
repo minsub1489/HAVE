@@ -1,0 +1,22 @@
+# HAVE 서버 공통 설정. 프로필별 설정은 application-stub.yml(기본) · application-jdbc.yml.
+spring:
+  application:
+    name: have-server
+  profiles:
+    default: stub            # 프로필을 주지 않으면 DB 없이 뜬다
+  servlet:
+    multipart:
+      max-file-size: 20MB    # UC02: 결과물 PDF는 20MB까지
+      max-request-size: 25MB
+
+server:
+  port: 8080
+
+# 아래 값은 환경 변수로 바꾼다(.env.example 참고). 비밀 값과 키 파일은 Git에 올리지 않는다.
+have:
+  file-store:
+    path: ${HAVE_FILE_DIR:../.have-data/files}      # StorageFileStore가 결과물 · 근거 파일을 두는 폴더 (A9)
+  signing-key:
+    path: ${HAVE_KEY_DIR:../.have-data/keys}        # 증명서 서명 키. 없으면 서버가 시작할 때 만든다 (C4)
+  token:
+    secret: ${HAVE_TOKEN_SECRET:dev-only-secret-change-me}   # 로그인 토큰 서명 (B1)

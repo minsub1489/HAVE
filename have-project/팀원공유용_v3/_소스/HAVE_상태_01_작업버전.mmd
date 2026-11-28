@@ -1,0 +1,58 @@
+---
+title: 상태 ① 작업 버전 WorkVersion.status — 등록~최종 승인 (1118 통합본 · 11-23 재제출 분기 추가)
+---
+stateDiagram-v2
+  direction TB
+  state "작성 중<br/>DRAFT" as DRAFT
+  state "제출 완료<br/>SUBMITTED" as SUBMITTED
+  state "이해 확인 대기<br/>CHALLENGE_PENDING" as CHALLENGE_PENDING
+  state "검토 대기<br/>REVIEW_PENDING" as REVIEW_PENDING
+  state "검토 중 · IN_REVIEW" as IN_REVIEW {
+    state "답변 평가<br/>점수 0~2 · 근거 · 치명 오류" as EV
+    state "Gate 판정<br/>등급별 기준" as GJ
+    state "자료·체크리스트 확인<br/>4항목" as CK
+    state "검토 의견 작성<br/>보완 항목 · 메모" as FB
+    [*] --> EV
+    EV --> GJ : 평가 완료
+    --
+    [*] --> CK
+    CK --> FB : 확인 완료
+  }
+  state "수정 요청<br/>REVISION_REQUIRED" as REVISION_REQUIRED
+  state "승인 대기<br/>APPROVAL_PENDING" as APPROVAL_PENDING
+  state "승인 완료<br/>APPROVED" as APPROVED
+
+  state C0 <<choice>>
+  [*] --> C0
+  C0 --> DRAFT : [새 작업] createWork (UC01)
+  C0 --> CHALLENGE_PENDING : [resubmit로 생긴 v+1 ∧ 근거 변경] / 위험 평가·과제 사본, 답변은 비움(이전 답변은 출처 버전과 함께 참고로)
+  C0 --> REVIEW_PENDING : [resubmit로 생긴 v+1 ∧ 근거 그대로] / 위험 평가·과제·답변 사본 · 검토자 알림
+  DRAFT --> SUBMITTED : uploadVersion 성공 (UC02) / SHA-256 계산 · 버전 생성
+  SUBMITTED --> CHALLENGE_PENDING : requestReview (UC03) / 과제 배정 · 검토자 알림
+  CHALLENGE_PENDING --> REVIEW_PENDING : submitAnswers (UC03) / 검토자 알림
+  CHALLENGE_PENDING --> SUBMITTED : cancelRequest [검토 시작 전]
+  REVIEW_PENDING --> SUBMITTED : cancelRequest [검토 시작 전]
+  REVIEW_PENDING --> IN_REVIEW : startReview [해시 일치] (UC04) / 버전 잠금
+  IN_REVIEW --> APPROVAL_PENDING : submitReview [Gate 기준 ∧ 치명 오류 없음 ∧ 체크 4/4] / 승인자·작성자 알림
+  IN_REVIEW --> REVISION_REQUIRED : requestRevision [보완 항목 ≥ 1] / 작성자 알림
+  APPROVAL_PENDING --> APPROVED : approve [조건 A] (UC06) / 승인 기록 · 증명서 발급 요청
+  APPROVAL_PENDING --> REVISION_REQUIRED : reject [사유] (UC06) / 작성자·검토자 알림
+  REVISION_REQUIRED --> [*] : resubmit (UC05) / 이 버전은 보존, 후속 버전 v+1 생성 (근거 변경 판정 isBasisChanged)
+  APPROVED --> [*] : 종료 (파일·승인 기록 불변)
+
+  note right of SUBMITTED
+    파일 검증 실패(PDF 아님 · 20MB 초과)는 DRAFT에 머문다.
+    SUBMITTED에서 기여·근거자료 추가와 위험 분석을 한다.
+    승인 후 새 버전(v+1)도 여기서 시작하며 승인은 승계하지 않는다.
+    검토 요청 시 근거자료·AI 신고를 잠그고 과제를 자동 배정한다.
+    전이 이름은 서비스의 오퍼레이션이다(클래스 다이어그램 패널 ⑤).
+    상태 값은 WorkStatusSubject.setWorkStatus(workId, status)가 바꾼다.
+    근거 변경 = 직전 버전과 근거자료(유형·주소·파일 해시) 또는 AI 사용 신고가 다름.
+    근거가 바뀌면 이전 답변을 그대로 쓸 수 없어 이해 확인을 다시 받는다.
+  end note
+  note right of APPROVED
+    승인 철회(UC10)는 이 상태를 바꾸지 않는다.
+    승인 효력(VALID · REVOKED)과 최신 버전 여부는
+    상태 ④에서 따로 계산한다.
+    해시 불일치로 검토가 중지되면 REVIEW_PENDING에 머문다.
+  end note

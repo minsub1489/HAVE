@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2ED3C2">
+  <meta name="description" content="HAVE: AI 협업 결과물의 등록, 이해 확인, 사람의 검토·승인, 승인 증명서와 공개 검증">
+  <title>HAVE · 내 작업</title>
+  <link id="have-icon" rel="icon" type="image/png" href="icons/icon-128.png">
+  <link rel="stylesheet" href="styles/have.css">
+  <link rel="stylesheet" href="styles/have-1123.css">
+  <script defer src="scripts/core.js"></script>
+  <script defer src="scripts/storage.js"></script>
+  <script defer src="scripts/model.js"></script>
+  <script defer src="scripts/review-model.js"></script>
+  <script defer src="scripts/seed.js"></script>
+  <script defer src="scripts/registration.js"></script>
+  <script defer src="scripts/review-ui.js"></script>
+  <script defer src="scripts/app.js"></script>
+  <script defer src="scripts/screens/works.js"></script>
+  <script defer src="scripts/screens/register.js"></script>
+  <script defer src="scripts/screens/revise.js"></script>
+  <script defer src="scripts/screens/challenge.js"></script>
+  <script defer src="scripts/screens/role.js"></script>
+  <script defer src="scripts/screens/review.js"></script>
+  <script defer src="scripts/screens/approval.js"></script>
+  <script defer src="scripts/screens/certificate.js"></script>
+  <script defer src="scripts/screens/history.js"></script>
+  <script defer src="scripts/screens/notifications.js"></script>
+  <script defer src="scripts/screens/verify.js"></script>
+  <script defer src="scripts/start.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <div id="app">
+    <main class="loading-screen" aria-busy="true">
+      <img class="loading-logo" src="icons/icon-128.png" alt="HAVE">
+      <h1>작업을 불러오는 중</h1>
+      <p>저장된 작업과 버전을 확인하고 있어요.</p>
+      <div class="skeleton"></div>
+      <div class="skeleton short"></div>
+    </main>
+  </div>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="announcer" class="sr-only" aria-live="polite"></div>
+  <noscript>이 확장 프로그램을 사용하려면 JavaScript가 필요합니다.</noscript>
+</body>
+</html>

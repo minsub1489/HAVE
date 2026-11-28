@@ -1,0 +1,36 @@
+---
+title: 상태 ③ 수정 회차 Revision.state (UC05 · 11-23 수정)
+---
+stateDiagram-v2
+  direction TB
+  state "기한 내 (보완 진행)" as ACTIVE {
+    state "보완 요청 접수<br/>OPEN" as OPEN
+    state "수정 중<br/>IN_PROGRESS" as IN_PROGRESS
+    [*] --> OPEN
+    OPEN --> IN_PROGRESS : 작성자 열람
+  }
+  state "재제출됨<br/>SUBMITTED" as SUBMITTED
+  state "기한 만료<br/>EXPIRED" as EXPIRED
+
+  [*] --> ACTIVE : requestRevision (UC04) 또는 reject (UC06) / 작성자 알림 · 보완 기한 설정
+  ACTIVE --> SUBMITTED : resubmit [수정 중 ∧ 모든 피드백 답변 ∧ 파일 검증 통과] / 새 버전 v+1 생성 · 근거 변경 판정
+  ACTIVE --> EXPIRED : after(보완 기한) [미제출]
+  SUBMITTED --> [*] : 근거 그대로면 재검토 (UC04), 바뀌면 이해 확인 답변 (UC03) 뒤 재검토
+  EXPIRED --> [*] : 미제출 이력 기록
+
+  note right of ACTIVE
+    보완 근거는 Review(수정 요청) 또는 ApprovalCase(반려) 중 정확히 하나다 (XOR).
+    수정 중에는 수정 파일 등록(형식·크기·직전 버전과 동일 여부 검사),
+    피드백별 반영 답변 작성, (선택) 근거자료·AI 사용 신고 수정을 한다.
+    검증 실패나 미반영 피드백이 있으면
+    안내만 하고 수정 중에 머문다.
+  end note
+  note right of SUBMITTED
+    SUBMITTED이면 재제출 버전이 정확히 1개 연결된다.
+    이전 버전과 검토 기록은 그대로 보존한다.
+    검토자 알림은 근거 그대로면 재제출 직후, 바뀌면 답변 제출 후에 간다.
+  end note
+  note left of EXPIRED
+    1116 프로토타입은 보완 기한을 표시만 한다.
+    만료 처리는 구현 단계에서 확정한다.
+  end note

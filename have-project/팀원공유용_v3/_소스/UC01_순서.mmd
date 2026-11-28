@@ -1,0 +1,45 @@
+---
+title: UC01 AI 작업 및 사용 내역 등록 — 순서 다이어그램 (1104 원본을 1123에 다시 그림)
+---
+sequenceDiagram
+  autonumber
+  actor A as 작성자
+  participant P as :RegisterWizardView<br/>(측면 패널 · 등록)
+  participant WC as :WorkController<br/>(02 Work)
+  participant WS as :WorkService<br/>(02 Work)
+  participant CC as :ContributionController<br/>(02 Work)
+  participant CS as :ContributionService<br/>(02 Work)
+  participant DB as :WorkRepository<br/>(08 Persistence)
+  participant AD as :AuditLogService<br/>(07 Audit)
+
+  Note over P,AD: ① 작업 생성 + AI 사용 신고 (등록 2/5)
+  A->>P: 제목 · AI 사용 신고 입력 (도구 · 모델 · 사용 방식 · 범위 또는 "AI 미사용")
+  P->>WC: createWork(req)
+  WC->>WS: createWork(ownerId, req)
+  WS->>WS: isValidDisclosure(d)
+  alt 입력 오류
+    WS-->>P: 400 오류 안내 (입력값 유지)
+  else 정상
+    WS->>DB: save(Work) — 상태 DRAFT · aiDisclosureDraft 보관
+    WS->>AD: record(workId, actorId, CREATE_WORK, payload)
+    WC-->>P: 201 { workId }
+    P-->>A: 작업 생성 완료
+  end
+
+  Note over P,AD: ② AI / 사람 기여 기록 (등록 3/5) — 결과물 버전이 생긴 뒤(UC02)
+  loop 기여 이벤트마다
+    A->>P: 단계 · 주체 · 설명 · 근거 링크 입력
+    P->>CC: addContribution(versionId, req)
+    CC->>CS: addContribution(userId, versionId, req)
+    CS->>CS: isOwnerAndEditable()
+    alt 권한 없음 · 승인된 버전
+      CS-->>P: 403 / 409 안내
+    else 기록 가능
+      CS->>DB: save(Contribution)
+      CS->>AD: record(workId, actorId, ADD_CONTRIBUTION, payload)
+      CC-->>P: 201 { eventId }
+    end
+  end
+  P-->>A: 기여 타임라인 표시
+
+  Note over WC,CS: 1104 원본의 라이프라인 "등록 화면 · Controller · Service · DB"를<br/>UC01 클래스 다이어그램의 클래스 이름으로 바꿨다. 흐름은 같다.

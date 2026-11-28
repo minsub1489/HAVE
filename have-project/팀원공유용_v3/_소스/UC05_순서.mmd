@@ -1,0 +1,68 @@
+---
+title: UC05 결과물 수정 및 재제출 — 순서 다이어그램 (1118 수정본 · 11-23 근거 변경 분기)
+---
+sequenceDiagram
+  autonumber
+  actor A as 작성자
+  participant P as :RevisionView<br/>(측면 패널)
+  participant RV as :RevisionService<br/>(02 Work)
+  participant VS as :VersionService<br/>(02 Work)
+  participant FS as :FileStore<br/>(08 Persistence)
+  participant DB as :RevisionRepository<br/>(08 Persistence)
+  participant RQ as :ReReviewObserver<br/>(03 Review)
+  participant OB as :WorkStatusObserver<br/>(07 Audit)
+
+  A->>P: 수정 요청 알림 열기
+  P->>RV: getWork(workId)
+  RV->>DB: getByVersion(versionId)
+  RV-->>P: 작업 상세 + Revision + 피드백 항목(또는 반려 사유) + 보완 기한
+  Note over P,RV: Revision OPEN → IN_PROGRESS (작성자 열람)
+  P-->>A: 피드백 목록 표시
+
+  loop 업로드 성공 시까지
+    A->>P: 수정 파일 선택 + 변경 요약 입력
+    P->>P: 형식(PDF)·크기(20MB) 검사, SHA-256 계산
+    alt 형식 오류 · 20MB 초과 · 직전 버전과 동일 파일
+      P-->>A: 오류 안내 및 재업로드 요청
+    end
+  end
+  loop 피드백 항목마다
+    A->>P: 반영 여부 + 답변 입력
+  end
+  opt 근거자료 · AI 사용 신고 수정 (선택)
+    A->>P: 근거자료 추가·삭제, AI 사용 신고 수정
+    P-->>A: "근거가 바뀌면 이해 확인 답변을 다시 받아요" 안내
+  end
+
+  A->>P: 재제출
+  P->>RV: resubmit(workId, file, responses, basis)
+  RV->>RV: isAllResolved()
+  alt 미반영 피드백 존재
+    RV-->>P: 미반영 항목 목록
+    P-->>A: 미반영 항목 안내
+  else 모든 피드백 답변 완료
+    critical 한 트랜잭션 — 새 버전 · 수정 회차 · 재검토 연결 · 이력을 함께 저장
+      RV->>VS: createVersion(workId, file, changeNote)
+      VS->>FS: put(key, file)
+      VS-->>RV: WorkVersion v(N+1) — 직전 버전 연결, 이전 버전·검토 기록 보존
+      RV->>DB: save(Revision[SUBMITTED], FeedbackResponse[], v(N+1)의 근거자료 · AI 신고)
+      RV->>RV: isBasisChanged(v(N), v(N+1)) — 근거자료(유형·주소·파일 해시)와 AI 사용 신고 비교
+      alt 근거 변경
+        RV->>RV: WorkStatusSubject.setWorkStatus(workId, CHALLENGE_PENDING)
+        RV->>RQ: notifyObservers() → 재검토 요청 연결: 위험 평가·과제 사본, 답변은 비움<br/>(이전 답변은 "v(N) 답변 · 참고"로 출처 버전과 함께 보존)
+        RV->>OB: notifyObservers() → 이력 기록 (검토자 알림은 답변 제출 후)
+      else 근거 그대로
+        RV->>RV: WorkStatusSubject.setWorkStatus(workId, REVIEW_PENDING)
+        RV->>RQ: notifyObservers() → 재검토 요청 연결: 위험 평가·과제·답변 사본
+        RV->>OB: notifyObservers() → 이력 + 검토자 알림(재제출)
+      end
+      RV->>DB: commit()
+    end
+    Note over RQ: 어느 경우든 평가 점수는 초기화, 승인은 승계하지 않는다
+    RV-->>P: 재제출 완료 { versionId, fileHash, status }
+    alt status = CHALLENGE_PENDING
+      P-->>A: 이해 확인 화면으로 이동 → UC03 답변 제출 → REVIEW_PENDING · 검토자 알림(재제출) → UC04
+    else status = REVIEW_PENDING
+      P-->>A: 재제출 완료 표시 → UC04 재검토
+    end
+  end

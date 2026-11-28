@@ -1,0 +1,36 @@
+---
+title: UC08 승인 증명서 진위 검증 — 순서 다이어그램 (1118 수정본 · 11-23 최신 버전 여부 분리 · 중지된 링크)
+---
+sequenceDiagram
+  autonumber
+  actor V as 외부 검증자
+  participant P as :VerifyPage<br/>(공개 검증 페이지)
+  participant H as :FileHasher<br/>(기기 내 SHA-256)
+  participant VS as :VerificationService<br/>(06 Verification)
+  participant CT as :ICertificateData<br/>(05 Certificate)
+  participant AP as :IApprovalStatus<br/>(04 Approval)
+  participant AD as :IAuditLog<br/>(07 Audit)
+
+  Note over P,AD: 외부 검증자 = 링크·QR을 받은 수신자 · 로그인하지 않는다
+  V->>P: 공유 링크·QR로 진입 또는 증명서 번호 입력
+  opt 보유 파일 비교 (선택)
+    V->>P: PDF 파일 선택
+    P->>H: SHA-256 계산 (파일은 서버로 보내지 않음)
+    H-->>P: fileHash
+  end
+  P->>VS: verify(certId, fileHash?) 또는 verifyByQR(qrPayload, fileHash?)
+  VS->>CT: getCertificateData(certId) · getSignature(certId)
+  alt 증명서 없음 · 형식 오류 · 링크 만료 · 공유 중지
+    VS-->>P: 대상 미식별 안내 (내용 노출 없음)
+  else 증명서 확인
+    VS->>VS: 서명 검증 → signature = PASS · FAIL
+    VS->>AP: getCurrentValidity(approvalId)
+    AP-->>VS: effect = VALID · REVOKED, latestVersionNo (같은 작업의 최신 버전 번호)
+    VS->>VS: 해시 비교 → file = MATCH · DIFFERENT · NOT_CHECKED(파일 미제공)
+    VS->>AD: record(workId, 익명, VERIFY, certId)
+    VS-->>P: VerificationResult { effect, latestVersionNo, signature, file, checkedAt }
+  end
+  P-->>V: 승인 효력 / 서명 검증 / 파일 비교 세 판정을 따로 표시 + 최신 버전 여부 + 확인 시각(KST)
+  Note over P,V: 예: "v1 승인 철회 · 후속 버전 v2 있음 · 선택 파일은 v1과 일치" — 철회와 후속 버전은 함께 표시한다
+
+  Note over P,AD: 네트워크 오류는 세 판정 모두 "확인 불가"(UNKNOWN)로 표시하고 철회·불일치로 바꾸지 않는다.<br/>공개 화면에는 답변 원문·내부 의견·비공개 파일 주소를 반환하지 않는다. "다시 확인"으로 재조회한다.

@@ -1,0 +1,9 @@
+// 플러그인을 Maven Central에서도 찾도록 한다(Gradle 플러그인 포털에 접속할 수 없는 환경 대비).
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'have-server'

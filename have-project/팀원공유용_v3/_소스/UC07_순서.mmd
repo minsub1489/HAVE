@@ -1,0 +1,52 @@
+---
+title: UC07 승인 증명서 조회 및 공유 — 순서 다이어그램 (1118 수정본 · 11-23 최신 버전 여부 분리 · 공유 중지)
+---
+sequenceDiagram
+  autonumber
+  actor U as 작업 구성원
+  participant P as :WorkDetailView<br/>(측면 패널 · 증명서 탭)
+  participant CS as :CertificateService<br/>(05 Certificate)
+  participant AU as :IAuthorization<br/>(01 Auth)
+  participant AP as :IApprovalStatus<br/>(04 Approval)
+  participant DB as :CertificateRepository<br/>(08 Persistence)
+  participant AD as :IAuditLog<br/>(07 Audit)
+
+  Note over P,AD: ① 증명서 조회 — 작업 구성원 = 작성자 · 검토자 · 최종 승인자
+  U->>P: 증명서 탭 열기
+  P->>CS: getCertificate(certId)
+  CS->>AU: isAuthorized(userId, certificate, VIEW) — 작업 구성원만
+  CS->>DB: getById(Certificate, certId)
+  CS->>AP: getCurrentValidity(approvalId)
+  AP-->>CS: effect = VALID · REVOKED, latestVersionNo
+  CS-->>P: 발급 상태(PENDING·READY·FAILED) + 승인 효력 + 최신 버전 여부 + 승인자·시각·대상 버전
+  alt 발급 실패(FAILED)
+    P-->>U: "승인은 완료됐지만 증명서 발급에 실패했어요" + 발급 재시도
+    U->>P: 발급 재시도
+    P->>CS: retryIssue(certId)
+    CS->>DB: OutboxEvent 재전달 (retryCount + 1)
+    CS-->>P: 발급 중(PENDING)
+  else 발급 완료(READY)
+    P-->>U: 증명서 상세 표시 (해시는 줄여 표시 · 전체 복사)
+  end
+
+  Note over P,AD: ② 공유 링크 · QR
+  U->>P: 공유 링크 만들기 (만료일 선택)
+  P->>CS: createShareLink(certId, expiresAt)
+  CS->>DB: save(ShareLink { tokenHash, expiresAt })
+  CS->>AD: record(workId, actorId, SHARE_LINK_CREATED, linkId)
+  CS-->>P: 공유 URL (토큰 원문은 생성 직후에만 반환)
+  P->>CS: createQRCode(certId)
+  CS-->>P: QR 이미지 (URL의 파생 표현 · 저장하지 않음)
+  P-->>U: 링크 복사 · QR 내려받기 · 공개 검증 화면 열기 (→ UC08)
+
+  Note over P,AD: ③ 공유 중지 (11-23) — 더 쓰지 않을 링크만 멈춘다
+  opt 링크를 더 쓰지 않음
+    U->>P: 공유 링크 목록에서 공유 중지 (확인 창)
+    P->>CS: disableShareLink(linkId)
+    CS->>DB: getById(ShareLink, linkId)
+    CS->>CS: invalidate() — disabledAt 기록 (DISABLED)
+    CS->>DB: save(ShareLink { disabledAt })
+    CS->>AD: record(workId, actorId, SHARE_LINK_DISABLED, linkId)
+    CS-->>P: 링크 상태 DISABLED (승인 효력 · 다른 링크는 그대로)
+    P-->>U: "공유를 중지했어요" — 이 링크로 연 공개 검증은 대상 미식별 (→ UC08)
+  end
